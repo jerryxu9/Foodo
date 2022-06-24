@@ -7,8 +7,8 @@ router.get("/", async (req, res) => {
   try {
     const hellos = await Hello.find();
     res.json(hellos);
-  } catch (error) {
-    res.json({ message: error });
+  } catch (err) {
+    res.json(err);
   }
 });
 
@@ -22,8 +22,8 @@ router.post("/", async (req, res) => {
     // Save this hello message to database
     const data = await hello.save();
     res.json(data);
-  } catch (error) {
-    res.json({ message: error });
+  } catch (err) {
+    res.json(err);
   }
 });
 
@@ -32,8 +32,8 @@ router.get("/findHello", async (req, res) => {
   try {
     const hello = await Hello.findOne({ title: req.body.title });
     res.json(hello);
-  } catch (error) {
-    res.json({ message: error });
+  } catch (err) {
+    res.json(err);
   }
 });
 
@@ -43,7 +43,7 @@ router.delete("/", async (req, res) => {
     const removedHello = await Hello.deleteOne({ _id: req.body.id });
     res.json(removedHello);
   } catch (err) {
-    res.json({ message: err });
+    res.json(err);
   }
 });
 
@@ -56,8 +56,7 @@ router.patch("/", async (req, res) => {
     );
     res.json(updatedHello);
   } catch (err) {
-    console.log("Error: patch hello");
-    res.json({ message: err });
+    res.json(err);
   }
 });
 
