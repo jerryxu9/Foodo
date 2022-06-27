@@ -5,13 +5,17 @@ const cors = require("cors");
 
 const app = express();
 
-// Middleware
+/* Middleware */
 app.use(cors());
 app.use(bodyParser.json());
 
-// Route middleware
+/* Route middleware */
+// Example route
 const helloRoute = require("./routes/hello");
 app.use("/hello", helloRoute);
+// Review route
+const reviewRoute = require("./routes/review");
+app.use("/", reviewRoute);
 
 // Routes
 app.get("/", (req, res) => {
