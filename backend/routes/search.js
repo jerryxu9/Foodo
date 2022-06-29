@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios").default;
 const parseRestResult = require("../utils/parseRestResult");
-const temp_rest_result = require("../utils/testRestResult");
+const ex_text_search_result = require("../utils/textSearchResult");
 
 let near_by_search_string =
   "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522%2C151.1957362&radius=1500&type=restaurant&keyword=cruise&key=" +
@@ -30,7 +30,9 @@ router.get("/searchRestaurantsByQuery", async (req, res) => {
   //     console.error(err);
   //     res.json(err);
   //   }
-  parseRestResult(temp_rest_result);
+  const parsed_data = parseRestResult(ex_text_search_result);
+  res.json(parsed_data);
+  // res.json(`"data": ${parsed_data}`);
 });
 
 // TODO: Get restaurant info detail by restaurant id
