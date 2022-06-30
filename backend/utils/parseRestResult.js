@@ -1,3 +1,4 @@
+// Parse "results" field from Google Place Text Search response
 const parseRestResult = (restaurants) => {
   let parsed_data = [];
 
@@ -14,12 +15,5 @@ const parseRestResult = (restaurants) => {
   });
   return parsed_data;
 };
-
-// `id: int,
-// name: string,
-// address: string,
-// openNow: bool,
-// businessStatus: string,
-// GoogleRating: string`;
 
 module.exports = parseRestResult;

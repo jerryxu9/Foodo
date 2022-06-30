@@ -1,3 +1,4 @@
+// Example "results" field from Google Place Text Search response
 const example_text_search_result = [
   {
     business_status: "OPERATIONAL",
