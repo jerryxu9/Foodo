@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
 
@@ -16,6 +17,9 @@ app.use("/hello", helloRoute);
 // Review route
 const reviewRoute = require("./routes/review");
 app.use("/", reviewRoute);
+// Search route
+const searchRoute = require("./routes/search");
+app.use("/", searchRoute);
 
 // Routes
 app.get("/", (req, res) => {
