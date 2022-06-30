@@ -21,7 +21,6 @@ router.get("/searchRestaurantsByQuery", async (req, res) => {
       const parsed_data = parseRestResult(response?.data?.results); // parse the response
       res.json(parsed_data);
     } else {
-      console.log("No results from Place Text Search");
       res.json(response?.data);
     }
   } catch (err) {
@@ -44,7 +43,6 @@ router.get("/searchRestaurantInfoByID", async (req, res) => {
     if (response?.data?.result) {
       res.json(response.data.result);
     } else {
-      console.log("No result from Place Text Search");
       res.json(response?.data);
     }
   } catch (err) {
