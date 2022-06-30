@@ -1,5 +1,9 @@
 const mongoose = require("mongoose");
-const FoodoRestaurant = require("./FoodoRestaurant");
+const {
+  FoodoRestaurantSchema,
+  FoodoRestaurantModel,
+} = require("./FoodoRestaurant");
+const { UserAccountSchema, UserAccountModel } = require("./UserAccount");
 
 const FoodoListSchema = mongoose.Schema({
   name: {
@@ -7,11 +11,16 @@ const FoodoListSchema = mongoose.Schema({
     required: true,
   },
   restaurants: {
-    type: [FoodoRestaurant],
+    type: [FoodoRestaurantSchema],
   },
   users: {
-    type: [String], // email addresses, should we create a UserAccount schema instead?
+    type: [UserAccountSchema], // should we user a UserAccount schema or just email?
   },
 });
 
-module.exports = mongoose.model("FoodoList", FoodoListSchema);
+const FoodoListModel = mongoose.model("FoodoList", FoodoListSchema);
+
+module.exports = {
+  FoodoListSchema,
+  FoodoListModel,
+};

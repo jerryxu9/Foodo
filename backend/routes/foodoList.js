@@ -1,10 +1,31 @@
 const express = require("express");
 const router = express.Router();
 const FoodoRestaurant = require("../models/FoodoRestaurant");
-const FoodoList = require("../models/FoodoList");
+const { FoodoListModel } = require("../models/FoodoList");
+const { UserAccountModel } = require("../models/UserAccount");
 
 // Create a new FoodoList
-router.post("/createFoodoList", async (req, res) => {});
+router.post("/createFoodoList", async (req, res) => {
+  try {
+    // NOTE: We should probably change this to find an existing user account instead of creating a new one!!!
+    const userAccount = new UserAccountModel({
+      name: req.body.userName,
+      email: req.body.email,
+    });
+
+    const newList = new FoodoListModel({
+      name: req.body.listName,
+      users: [userAccount],
+    });
+
+    const response = await newList.save();
+    console.log(response);
+    res.json(response);
+  } catch (err) {
+    console.log(err);
+    res.json(err);
+  }
+});
 
 // Get all the Foodo lists of a user
 router.get("/getFoodoLists", async (req, res) => {});
@@ -29,3 +50,5 @@ router.get("/getListID", async (req, res) => {});
 
 // Get the ID associated with the restaurant listed in the given FoodoRestaurant
 router.get("/getRestaurantID", async (req, res) => {});
+
+module.exports = router;

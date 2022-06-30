@@ -15,4 +15,12 @@ const FoodoRestaurantSchema = mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("FoodoRestaurant", FoodoRestaurantSchema);
+const FoodoRestaurantModel = mongoose.model(
+  "FoodoRestaurant",
+  FoodoRestaurantSchema
+);
+
+module.exports = {
+  FoodoRestaurantSchema,
+  FoodoRestaurantModel,
+};

@@ -23,6 +23,10 @@ app.use("/", searchRoute);
 // User route
 const userRoute = require("./routes/user");
 app.use("/", userRoute);
+// Foodo list route
+const foodoListRoute = require("./routes/foodoList");
+app.use("/", foodoListRoute);
+
 // Routes
 app.get("/", (req, res) => {
   res.send("Home page!!");
