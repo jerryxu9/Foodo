@@ -1,9 +1,6 @@
 const mongoose = require("mongoose");
-const {
-  FoodoRestaurantSchema,
-  FoodoRestaurantModel,
-} = require("./FoodoRestaurant");
-const { UserAccountSchema, UserAccountModel } = require("./UserAccount");
+const { FoodoRestaurantSchema } = require("./FoodoRestaurant");
+const { UserAccountSchema } = require("./UserAccount");
 
 const FoodoListSchema = mongoose.Schema({
   name: {
