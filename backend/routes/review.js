@@ -6,7 +6,7 @@ const Review = require("../models/Review");
 router.get("/getReviews", async (req, res) => {
   try {
     const reviews = await Review.find({
-      google_place_id: req.body.google_place_id,
+      google_place_id: req.query.google_place_id,
     });
     res.json(reviews);
   } catch (err) {

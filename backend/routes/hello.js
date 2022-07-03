@@ -30,7 +30,7 @@ router.post("/", async (req, res) => {
 // Find a specific hello message by title
 router.get("/findHello", async (req, res) => {
   try {
-    const hello = await Hello.findOne({ title: req.body.title });
+    const hello = await Hello.findOne({ title: req.query.title });
     res.json(hello);
   } catch (err) {
     res.json(err);
