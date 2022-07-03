@@ -8,6 +8,7 @@ const { FoodoListModel } = require("../models/FoodoList");
 const { UserAccountModel } = require("../models/UserAccount");
 
 // Create a new FoodoList
+// TODO
 router.post("/createFoodoList", async (req, res) => {
   try {
     // NOTE: We should probably change this to find an existing user account instead of creating a new one!!!
@@ -31,6 +32,7 @@ router.post("/createFoodoList", async (req, res) => {
 });
 
 // Get all the Foodo lists of a user
+// TODO
 router.get("/getFoodoLists", async (req, res) => {});
 
 // Delete a Foodo list from db
@@ -44,6 +46,7 @@ router.delete("/deleteFoodoList", async (req, res) => {
 });
 
 // Add a restaurant to a Foodo list
+// TODO
 router.patch("/addRestaurantToList", async (req, res) => {
   try {
     // might need to create a foodorestaurant object and store it in foodorestaurant db?
@@ -100,17 +103,60 @@ router.patch("/deleteRestaurantFromList", async (req, res) => {
 });
 
 // Add a user to the users array in a Foodo list
+// TODO
 router.patch("/addNewUserToList", async (req, res) => {});
 
 // Set the "isValid" field of a Foodo Restaurant as isVisited
-router.patch("/checkRestaurantOnList", async (req, res) => {});
+// todo
+router.patch("/checkRestaurantOnList", async (req, res) => {
+  try {
+    // const updatedList = await FoodoListModel.findByIdAndUpdate(
+    //   req.body.listID,
+    //   { $elemMatch: { place_id: req.body.place_id } },
+    //   {
+    //     $set: {
+    //       "restaurants.$.isVisited": req.body.isVisited,
+    //     },
+    //   }
+    // );
+
+    // const updatedList = await FoodoListModel.findOneAndUpdate(
+    //   { _id: req.body.listID, place_id: req.body.place_id },
+    //   null,
+    //   {
+    //     $set: {
+    //       "restaurants.$.isVisited": req.body.isVisited,
+    //     },
+    //   }
+    // );
+
+    // THIS WORKS!!
+    const lastList = await FoodoListModel.findOneAndUpdate(
+      {
+        _id: req.body.listID,
+        restaurants: { $elemMatch: { place_id: req.body.place_id } },
+      },
+      {
+        $set: {
+          "restaurants.$.isVisited": req.body.isVisited,
+        },
+      }
+    );
+
+    res.json(lastList);
+  } catch (err) {
+    res.json(err);
+  }
+});
 
 // Get the ID associated with the FoodoList (Find by list name and users)
+// PROBLEM: GET OR POST?
 router.get("/getListID", async (req, res) => {
   try {
     const foodoList = await FoodoListModel.findOne({
-      name: req.body.name,
-      users: req.body.users,
+      name: req.query.name,
+      restaurants: req.query.restaurants,
+      users: req.query.users,
     });
     res.json(foodoList);
   } catch (err) {
@@ -119,6 +165,7 @@ router.get("/getListID", async (req, res) => {
 });
 
 // Get the ID associated with the restaurant listed in the given FoodoRestaurant
+// TODO
 router.get("/getRestaurantID", async (req, res) => {});
 
 module.exports = router;
