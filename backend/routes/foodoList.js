@@ -103,7 +103,7 @@ router.patch("/deleteRestaurantFromList", async (req, res) => {
 });
 
 // Add a user to the users array in a Foodo list
-// TODO
+// TODO!!!!!!!!!
 router.patch("/addNewUserToList", async (req, res) => {});
 
 // Set the "isValid" field of a Foodo Restaurant as isVisited
@@ -148,24 +148,5 @@ router.patch("/checkRestaurantOnList", async (req, res) => {
     res.json(err);
   }
 });
-
-// Get the ID associated with the FoodoList (Find by list name and users)
-// PROBLEM: GET OR POST?
-router.get("/getListID", async (req, res) => {
-  try {
-    const foodoList = await FoodoListModel.findOne({
-      name: req.query.name,
-      restaurants: req.query.restaurants,
-      users: req.query.users,
-    });
-    res.json(foodoList);
-  } catch (err) {
-    res.json(err);
-  }
-});
-
-// Get the ID associated with the restaurant listed in the given FoodoRestaurant
-// TODO
-router.get("/getRestaurantID", async (req, res) => {});
 
 module.exports = router;
