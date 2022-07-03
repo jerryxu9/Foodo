@@ -44,10 +44,60 @@ router.delete("/deleteFoodoList", async (req, res) => {
 });
 
 // Add a restaurant to a Foodo list
-router.patch("/addRestaurantToList", async (req, res) => {});
+router.patch("/addRestaurantToList", async (req, res) => {
+  try {
+    // might need to create a foodorestaurant object and store it in foodorestaurant db?
+    // rn it's just an object
+    // const newRestaurant = {
+    //   place_id: req.body.restaurantID,
+    //   name: req.body.restaurantName,
+    //   isVisited: req.body.isVisited,
+    // };
+    const newRestaurant = new FoodoRestaurantModel({
+      place_id: req.body.restaurantID,
+      name: req.body.restaurantName,
+      isVisited: req.body.isVisited,
+    });
+
+    const updatedList = await FoodoListModel.findByIdAndUpdate(
+      req.body.listID,
+      { $push: { restaurants: newRestaurant } }
+    );
+
+    res.json(updatedList);
+  } catch (err) {
+    res.json(err);
+  }
+});
 
 // Delete a restaurant from a Foodo list
-router.patch("/deleteRestaurantFromList", async (req, res) => {});
+// Modified from M4 (passed in place_id insteaad of restaurant id cuz it should be easier? like you dont need to find the restaurant id first)
+router.patch("/deleteRestaurantFromList", async (req, res) => {
+  try {
+    // 1. try to find the restaurant by id using elemMatch (didn't work) (BECAUSE foodlistschema was using foodorestaurant schema?)
+    // const updatedList = await FoodoListModel.findByIdAndUpdate(
+    //   req.body.listID,
+    //   {
+    //     $pull: { restaurants: { $elemMatch: { _id: req.body.restaurantID } } },
+    //   }
+    // );
+    const updatedList = await FoodoListModel.findByIdAndUpdate(
+      req.body.listID,
+      {
+        $pull: {
+          restaurants: {
+            place_id: req.body.place_id,
+          },
+        },
+      }
+    );
+    console.log(updatedList);
+    res.json(updatedList);
+  } catch (err) {
+    console.log(err);
+    res.json(err);
+  }
+});
 
 // Add a user to the users array in a Foodo list
 router.patch("/addNewUserToList", async (req, res) => {});

@@ -9,6 +9,11 @@ const FoodoListSchema = mongoose.Schema({
   },
   restaurants: {
     type: [FoodoRestaurantSchema],
+    // type: {
+    //   place_id: String,
+    //   name: String,
+    //   isVisited: Boolean,
+    // },
   },
   users: {
     type: [UserAccountSchema], // should we user a UserAccount schema or just email?
