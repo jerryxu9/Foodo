@@ -16,10 +16,6 @@ router.get("/searchRestaurantsByQuery", async (req, res) => {
       process.env.GOOGLE_PLACES_API_KEY;
 
     const response = await axios.get(text_search_string);
-    // console.log(response.data.results);
-    // console.log(req.params);
-    // console.log(text_search_string);
-    // console.log(req);
 
     if (response?.data?.results) {
       const parsed_data = parseRestResult(response?.data?.results); // parse the response
