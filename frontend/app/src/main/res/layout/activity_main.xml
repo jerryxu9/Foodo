@@ -41,11 +41,12 @@
         android:contentDescription="@string/submit_add_button"
         android:src="@drawable/add_button_icon"
         android:outlineAmbientShadowColor="@color/black"
-        app:backgroundTint="@color/primary"
+        app:backgroundTint="@color/app_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.976" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
