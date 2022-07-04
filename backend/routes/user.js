@@ -2,58 +2,28 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 
-const { MongoClient } = require("mongodb");
-const uri = "mongodb://localhost:27017";
-const dbClient = new MongoClient(uri);
-
-// Get user data if account exists, else create a new doc
-// router.get("/getUser", async (req, res) => {
-//   try {
-//     const user = await User.findOneAndUpdate(
-//       { sub: req.body.id },
-//       {
-//         new: true,
-//         upsert: true,
-//       }
-//     );
-//     res.json(user);
-//   } catch (err) {
-//     res.json(err);
-//   }
-// });
-
-// https://developers.google.com/identity/sign-in/android/backend-auth
-const { OAuth2Client } = require("google-auth-library");
-const client = new OAuth2Client();
-
-router.get("/getUser", async (req, res) => {
-  console.log("got a request");
+router.post("/createUser", async (req, res) => {
   try {
-    const ticket = await client.verifyIdToken({
-      idToken: req.id_token,
+    const user = new User({
+      _id: req.body.email,
+      name: req.body.name,
+      email: req.body.email,
     });
-    const payload = ticket.getPayload();
-    const userid = payload["sub"];
-    // If request specified a G Suite domain:
-    // const domain = payload['hd'];
-    console.log("User id is: " + userid);
-    console.log("Yayyyy!!!!");
-  } catch (err) {
-    console.log(err);
+    const data = await user.save();
+    res.json(data);
+  } catch (error) {
+    res.json(error);
   }
 });
 
-router.get("/createUser", async (req, res) => {
-  const user = await dbClient.db("users").insert({ test: "haha" });
-});
-
 router.get("/getUser", async (req, res) => {
-  const user = await dbClient.db("users").insert({ test: "haha" });
+  const user = await User.find({ _id: req.query._id });
+  res.json(user);
 });
 
-router.get("/findUserByEmail", async (req, res) => {
-  const user = await dbClient.db("users").find({ email: req.body.email });
-  res.send("work!!");
+router.get("/getUserByEmail", async (req, res) => {
+  const user = await User.find({ email: req.query.email });
+  res.json(user);
 });
 
 module.exports = router;
