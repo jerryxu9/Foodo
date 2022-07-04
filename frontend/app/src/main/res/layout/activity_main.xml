@@ -47,8 +47,8 @@
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
         android:contentDescription="@string/submit_add_button"
-        android:src="@drawable/add_button_icon"
         android:outlineAmbientShadowColor="@color/black"
+        android:src="@drawable/add_button_icon"
         app:backgroundTint="@color/app_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -56,5 +56,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.976" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/foodo_lists"
+        android:layout_width="409dp"
+        android:layout_height="546dp"
+        android:gravity="center_horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/add_foodo_list_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/restaurant_search"
+        app:layout_constraintVertical_bias="0.237" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

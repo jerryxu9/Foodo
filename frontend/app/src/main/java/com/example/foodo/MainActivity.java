@@ -9,10 +9,15 @@ import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.foodo.objects.FoodoListCard;
+import com.example.foodo.objects.FoodoListCardAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -26,13 +31,12 @@ public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "MainActivity";
     private final OkHttpClient client = new OkHttpClient();
-    private Button placeholderSearchButton;
-
     private final String BASE_URL = "http://10.0.2.2:3000";
-
-    SearchView restaurantSearch;
-    Button mapButton;
-    FloatingActionButton addFoodoListButton;
+    private SearchView restaurantSearch;
+    private Button mapButton;
+    private FloatingActionButton addFoodoListButton;
+    private Button placeholderSearchButton;
+    private RecyclerView foodoLists;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +74,28 @@ public class MainActivity extends AppCompatActivity {
         addFoodoListButton = findViewById(R.id.add_foodo_list_button);
         addFoodoListButton.setOnClickListener((View v) -> handleAddFoodoListAction());
 
+        initFoodoLists();
+    }
+
+    private void initFoodoLists() {
+        foodoLists = findViewById(R.id.foodo_lists);
+        ArrayList<FoodoListCard> placeHolderFoodoListArrayList = new ArrayList<>();
+
+        placeHolderFoodoListArrayList.add(new FoodoListCard("Bubble tea!", "abc"));
+        placeHolderFoodoListArrayList.add(new FoodoListCard("Sushi", "def"));
+        placeHolderFoodoListArrayList.add(new FoodoListCard("Pasta", "ghi"));
+        placeHolderFoodoListArrayList.add(new FoodoListCard("Soup", "jkl"));
+        placeHolderFoodoListArrayList.add(new FoodoListCard("Brunch", "mno"));
+        placeHolderFoodoListArrayList.add(new FoodoListCard("Chinese", "pqr"));
+        placeHolderFoodoListArrayList.add(new FoodoListCard("Dessert/Cafe", "stu"));
+        placeHolderFoodoListArrayList.add(new FoodoListCard("Filler", "vwx"));
+        placeHolderFoodoListArrayList.add(new FoodoListCard("More Filler", "yza"));
+
+        FoodoListCardAdapter foodoListCardAdapter = new FoodoListCardAdapter(this, placeHolderFoodoListArrayList);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+
+        foodoLists.setLayoutManager(linearLayoutManager);
+        foodoLists.setAdapter(foodoListCardAdapter);
     }
 
     private void searchRestaurant(String query) {
@@ -102,10 +128,9 @@ public class MainActivity extends AppCompatActivity {
                 try (ResponseBody responseBody = response.body()) {
                     if (!response.isSuccessful())
                         throw new IOException(String.format("Unexpected code %s", response));
-                    else if(responseBody == null) {
+                    else if (responseBody == null) {
                         throw new IOException("null response from /searchRestaurantsByQuery endpoint");
-                    }
-                    else {
+                    } else {
                         searchResults = responseBody.string();
                         Log.d(TAG, String.format("response from /searchRestaurantsByQuery: %s", searchResults));
                         runOnUiThread(() -> {
