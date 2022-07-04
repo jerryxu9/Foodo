@@ -187,17 +187,17 @@
                 android:text="Send" />
 
             <Spinner
-                android:id="@+id/choose_rating"
-                android:layout_width="111dp"
+                android:id="@+id/choose_rating_spinner"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_above="@+id/reviewTextBox"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentEnd="true"
                 android:layout_centerHorizontal="true"
                 android:layout_marginStart="88dp"
-                android:spinnerMode="dropdown"
                 android:layout_marginEnd="172dp"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="12dp"
+                android:spinnerMode="dropdown" />
 
 
         </RelativeLayout>

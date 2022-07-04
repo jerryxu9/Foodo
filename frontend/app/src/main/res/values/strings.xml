@@ -10,4 +10,11 @@
     <string name="search_title">Search</string>
     <string name="add_button">Add Foodo List Button</string>
     <string name="submit_add_button">Add Foodo List</string>
+    <string-array name="rating_options">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
 </resources>
