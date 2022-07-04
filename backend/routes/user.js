@@ -2,6 +2,10 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 
+const { MongoClient } = require("mongodb");
+const uri = "mongodb://localhost:27017";
+const dbClient = new MongoClient(uri);
+
 // Get user data if account exists, else create a new doc
 // router.get("/getUser", async (req, res) => {
 //   try {
@@ -37,6 +41,19 @@ router.get("/getUser", async (req, res) => {
   } catch (err) {
     console.log(err);
   }
+});
+
+router.get("/createUser", async (req, res) => {
+  const user = await dbClient.db("users").insert({ test: "haha" });
+});
+
+router.get("/getUser", async (req, res) => {
+  const user = await dbClient.db("users").insert({ test: "haha" });
+});
+
+router.get("/findUserByEmail", async (req, res) => {
+  const user = await dbClient.db("users").find({ email: req.body.email });
+  res.send("work!!");
 });
 
 module.exports = router;
