@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SearchView;
 
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "MainActivity";
     private final OkHttpClient client = new OkHttpClient();
+    private Button placeholderSearchButton;
 
     private final String BASE_URL = "http://10.0.2.2:3000";
 
@@ -34,6 +36,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        placeholderSearchButton = findViewById(R.id.search_button_placeholder);
+
+        placeholderSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "Going to search results");
+
+                Intent searchResultsIntent = new Intent(MainActivity.this, SearchResultActivity.class);
+                startActivity(searchResultsIntent);
+            }
+        });
 
         restaurantSearch = findViewById(R.id.restaurant_search);
         restaurantSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {

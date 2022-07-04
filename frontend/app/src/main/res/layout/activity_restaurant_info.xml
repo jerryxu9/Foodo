@@ -4,6 +4,204 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_background"
     tools:context=".RestaurantInfoActivity">
+
+    <TextView
+        android:id="@+id/restaurantStatus_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="12dp"
+        android:height="72.8px"
+        android:background="@drawable/open_tag"
+        android:gravity="center"
+        android:paddingLeft="20px"
+        android:paddingRight="20px"
+        android:text="Open"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="371dp"
+        android:layout_height="250dp"
+        android:background="@drawable/restaurant_info_background"
+        android:orientation="vertical"
+        android:outlineProvider="none"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.116">
+
+        <LinearLayout
+            android:layout_width="331dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/restaurantName_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50px"
+                android:layout_marginTop="30px"
+                android:text="Tim Hortons"
+                android:textSize="50px" />
+
+            <TextView
+                android:id="@+id/restaurantRating_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="160px"
+                android:layout_marginTop="30px"
+                android:text="3.8 Stars" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/restaurantAddress_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50px"
+            android:text="6525 Oak St, Vancouver, BC V6P 3Z3" />
+
+        <TextView
+            android:id="@+id/restaurantNumber_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50px"
+            android:text="(604) 875-2638" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:text="Hours"
+            android:textAlignment="center" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Monday         6:30 p.m. - 5:00 p.m."
+            android:textAlignment="center" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tuesday        6:30 p.m. - 5:00 p.m."
+            android:textAlignment="center" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Wednesday   6:30 p.m. - 5:00 p.m."
+            android:textAlignment="center" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thursday       6:30 p.m. - 5:00 p.m."
+            android:textAlignment="center" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Friday            6:30 p.m. - 5:00 p.m."
+            android:textAlignment="center" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Saturday       6:30 p.m. - 5:00 p.m."
+            android:textAlignment="center" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sunday          6:30 p.m. - 5:00 p.m."
+            android:textAlignment="center" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="371dp"
+        android:layout_height="400dp"
+        android:background="@drawable/review_background"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        app:layout_constraintVertical_bias="0.36">
+
+        <TextView
+            android:id="@+id/Review_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50px"
+            android:layout_marginTop="30px"
+            android:text="Reviews"
+            android:textSize="50px" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/review_list"
+            android:layout_width="match_parent"
+            android:layout_height="270dp"
+            android:layout_gravity="center" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#EDF4F6">
+
+            <EditText
+                android:id="@+id/reviewTextBox"
+                android:layout_width="254dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="18dp"
+                android:layout_marginEnd="22dp"
+                android:layout_marginBottom="17dp"
+                android:layout_toStartOf="@+id/reviewSendButton"
+                android:background="@color/inner_boxes"
+                android:inputType="textMultiLine" />
+
+            <Button
+                android:id="@+id/reviewSendButton"
+                android:layout_width="59dp"
+                android:layout_height="37dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="39dp"
+                android:layout_marginEnd="18dp"
+                android:layout_marginBottom="20dp"
+                android:background="@color/white"
+                android:elevation="0dp"
+                android:text="Send" />
+
+            <Spinner
+                android:id="@+id/choose_rating"
+                android:layout_width="111dp"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/reviewTextBox"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginStart="88dp"
+                android:spinnerMode="dropdown"
+                android:layout_marginEnd="172dp"
+                android:layout_marginBottom="12dp" />
+
+
+        </RelativeLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
