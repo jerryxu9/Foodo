@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton;
+import android.widget.Button;
 import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
 
@@ -28,7 +30,8 @@ public class MainActivity extends AppCompatActivity {
     private final String BASE_URL = "http://10.0.2.2:3000";
 
     SearchView restaurantSearch;
-    ImageButton mapButton;
+    Button mapButton;
+    FloatingActionButton addFoodoListButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
         restaurantSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Log.d(TAG, String.format("Submit button pressed with query %s", query));
                 searchRestaurant(query);
                 return true;
             }
@@ -50,15 +52,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         mapButton = findViewById(R.id.map_button);
-        mapButton.setOnClickListener((View v) -> {
-            Log.d(TAG, "Pressed mapButton");
-            handleMapAction();
-        });
+        mapButton.setOnClickListener((View v) -> handleMapAction());
+
+        addFoodoListButton = findViewById(R.id.add_foodo_list_button);
+        addFoodoListButton.setOnClickListener((View v) -> handleAddFoodoListAction());
 
     }
 
     private void searchRestaurant(String query) {
-        Log.d(TAG, String.format("called doMySearch with query: %s", query));
+        Log.d(TAG, String.format("Search submit button pressed with query %s", query));
 
         String url = BASE_URL + "/searchRestaurantsByQuery";
         HttpUrl httpUrl = HttpUrl.parse(url);
@@ -68,8 +70,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
-        httpBuilder.addQueryParameter("query", query);
+        HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("query", query);
 
         Request request = new Request.Builder()
                 .url(httpBuilder.build())
@@ -88,16 +89,16 @@ public class MainActivity extends AppCompatActivity {
                 try (ResponseBody responseBody = response.body()) {
                     if (!response.isSuccessful())
                         throw new IOException(String.format("Unexpected code %s", response));
+                    else if(responseBody == null) {
+                        throw new IOException("null response from /searchRestaurantsByQuery endpoint");
+                    }
                     else {
-                        if (responseBody == null) {
-                            Log.d(TAG, "response from /searchRestaurantsByQuery is null");
-                            throw new IOException("null response from /searchRestaurantsByQuery endpoint");
-                        }
                         searchResults = responseBody.string();
+                        Log.d(TAG, String.format("response from /searchRestaurantsByQuery: %s", searchResults));
                         runOnUiThread(() -> {
                             // Async method to update UI
                         });
-                        Log.d(TAG, String.format("response from /searchRestaurantsByQuery: %s", searchResults));
+
                     }
                 }
             }
@@ -107,7 +108,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleMapAction() {
+        Log.d(TAG, "Pressed map button");
         Intent mapsIntent = new Intent(MainActivity.this, MapActivity.class);
         startActivity(mapsIntent);
+    }
+
+    private void handleAddFoodoListAction() {
+        Log.d(TAG, "Pressed add Foodo restaurant button");
+        Intent createFoodoListIntent = new Intent(MainActivity.this, CreateFoodoList.class);
+        startActivity(createFoodoListIntent);
     }
 }
