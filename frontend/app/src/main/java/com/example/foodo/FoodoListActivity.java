@@ -9,6 +9,6 @@ public class FoodoListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_foodo_list);
+        setContentView(R.layout.activity_create_foodo_list);
     }
 }

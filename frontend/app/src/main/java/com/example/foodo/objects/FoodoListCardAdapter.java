@@ -57,7 +57,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
             foodoListName = itemView.findViewById(R.id.foodo_list_name);
 
             itemView.setOnClickListener((View v) -> {
-                Log.d(TAG, "item on Foodo Lists selected");
+                Log.d(TAG, String.format("%s item on Foodo Lists selected", foodoListName.getText()));
             });
         }
     }
