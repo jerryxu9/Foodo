@@ -17,7 +17,7 @@ router.post("/createUser", async (req, res) => {
 });
 
 router.get("/getUser", async (req, res) => {
-  const user = await User.find({ _id: req.query._id });
+  const user = await User.find({ _id: req.query.id });
   res.json(user);
 });
 
