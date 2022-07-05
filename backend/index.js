@@ -22,7 +22,7 @@ const searchRoute = require("./routes/search");
 app.use("/", searchRoute);
 // User route
 const userRoute = require("./routes/user");
-app.use("/user", userRoute);
+app.use("/", userRoute);
 // Routes
 app.get("/", (req, res) => {
   res.send("Home page!!");
