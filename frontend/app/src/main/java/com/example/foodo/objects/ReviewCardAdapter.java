@@ -34,7 +34,7 @@ public class ReviewCardAdapter extends RecyclerView.Adapter<ReviewCardAdapter.Vi
         ReviewCard model = reviewCardArrayList.get(position);
         holder.reviewName.setText(model.getReviewerName());
         holder.reviewText.setText(model.getReviewText());
-        holder.reviewRating.setText(model.getReviewRating());
+        holder.reviewRating.setText(model.getReviewRating() + " stars");
     }
 
     @Override

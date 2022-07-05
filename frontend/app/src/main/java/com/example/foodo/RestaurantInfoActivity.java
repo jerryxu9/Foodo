@@ -21,21 +21,29 @@ import com.example.foodo.objects.ReviewCardAdapter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class RestaurantInfoActivity extends AppCompatActivity {
 
+    private MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private TextView restaurantName_info, restaurantAddress_info, restaurantRating_info, restaurantPhoneNumber, restaurantStatus;
     private RecyclerView reviewList;
     private Spinner spinner;
@@ -44,29 +52,22 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     private Button submitReviewButton;
     private EditText reviewTextBox;
     private final OkHttpClient client = new OkHttpClient();
-    private final String TAG = "restaurantInfoActivity";
-    private final String BASE_URL = "http://10.0.2.2:3000";
+    private final String TAG = "restaurantInfoActivity", BASE_URL = "http://10.0.2.2:3000";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_restaurant_info);
 
-        spinner = findViewById(R.id.choose_rating);
+        spinner = findViewById(R.id.choose_rating_spinner);
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(RestaurantInfoActivity.this,
+                android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.rating_options));
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerAdapter);
+
         submitReviewButton = findViewById(R.id.reviewSendButton);
         reviewTextBox = findViewById(R.id.reviewTextBox);
         reviewList = findViewById(R.id.review_list);
-
-//        submitReviewButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                String reviewText = reviewTextBox.getText().toString();
-//                Log.d(TAG, "Got following review from textbox: " + reviewText);
-//
-//                uploadReview(reviewText, "name", "rating");
-//            }
-//        });
-
 
         reviewCardArrayList = new ArrayList<>();
 
@@ -83,8 +84,29 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         restaurantStatus.setText(getIntent().getStringExtra("restaurantStatus"));
         restaurantID = getIntent().getStringExtra("restaurantID");
 
-        Log.d(TAG,getIntent().getStringExtra("restaurantStatus"));
+        submitReviewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String reviewText = reviewTextBox.getText().toString();
+                if(!reviewText.trim().isEmpty()){
+                    Log.d(TAG, "Got following review from text box: " + reviewText);
+                    Log.d(TAG, "got following rating from spinner: " + spinner.getSelectedItem().toString());
+                    addReview(restaurantID, reviewText, "name", spinner.getSelectedItem().toString());
+                    reviewTextBox.getText().clear();
+                }
+            }
+        });
 
+        setStatusBackground(restaurantStatus);
+
+        try {
+            getReviews(restaurantID);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setStatusBackground(TextView restaurantStatus){
         switch(restaurantStatus.getText().toString()){
             case "Open": restaurantStatus.setBackgroundResource(R.drawable.open_tag);
                 break;
@@ -93,25 +115,48 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             default: restaurantStatus.setBackgroundResource(R.drawable.non_operational_tag);
                 break;
         }
-
-        try {
-            getReviews(restaurantID);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
-//
-//    private void uploadReview(String text, String name, String rating){
-//        String url = buildURL("/addReview");
-//        HttpUrl httpUrl = HttpUrl.parse(url);
-//
-//        if (httpUrl == null) {
-//            Log.d(TAG, String.format("unable to parse server URL: %s", url));
-//            return;
-//        }
-//
-//
-//    }
+
+    private void addReview(String restaurantID, String name, String text, String rating){
+        String url = buildURL("/addReview");
+        HttpUrl httpUrl = HttpUrl.parse(url);
+
+        if (httpUrl == null) {
+            Log.d(TAG, String.format("unable to parse server URL: %s", url));
+            return;
+        }
+
+        Map<String, String> params = new HashMap<>();
+        params.put("google_place_id", restaurantID);
+        params.put("user_name", name);
+        params.put("review", text);
+        params.put("rating", rating);
+
+        JSONObject paramsJSON = new JSONObject(params);
+        RequestBody body = RequestBody.create(paramsJSON.toString(), JSON);
+        Request request = new Request.Builder()
+                .url(httpUrl)
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()){
+                    if (!response.isSuccessful())
+                        throw new IOException(String.format("Unexpected code %s", response));
+                    else {
+                        Log.d(TAG, responseBody.string());
+                    }
+                }
+            }
+        });
+    }
 
     private void getReviews(String restaurantID) {
         Log.d(TAG, String.format("searching for restaurant with ID: %s", restaurantID));
