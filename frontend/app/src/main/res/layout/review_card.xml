@@ -37,6 +37,7 @@
             android:id="@+id/reviewRating"
             android:layout_width="117dp"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="70dp"
@@ -45,7 +46,6 @@
             android:layout_marginEnd="16dp"
             android:layout_toRightOf="@id/reviewName"
             android:text="@string/restaurant_rating"
-            android:layout_alignParentLeft="true"
             android:textColor="@color/black"
             android:textSize="11sp" />
 

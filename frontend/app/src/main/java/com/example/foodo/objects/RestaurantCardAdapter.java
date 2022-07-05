@@ -15,6 +15,8 @@ import com.example.foodo.RestaurantInfoActivity;
 
 import java.util.ArrayList;
 
+import okhttp3.OkHttpClient;
+
 public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAdapter.Viewholder> {
 
     private Context context;
@@ -37,14 +39,13 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         RestaurantCard model = restaurantCardArrayList.get(position);
         holder.restaurantName.setText(model.getName());
         holder.restaurantAddress.setText("" + model.getAddress());
-        holder.restaurantRating.setText(model.getRating());
+        holder.restaurantRating.setText(model.getRating() + " stars");
         holder.restaurantStatus.setText(model.getStatus());
         switch(model.getStatus()){
             case "Open": holder.restaurantStatus.setBackgroundResource(R.drawable.open_tag); break;
             case "Closed": holder.restaurantStatus.setBackgroundResource(R.drawable.closed_tag); break;
             default: holder.restaurantStatus.setBackgroundResource(R.drawable.non_operational_tag); break;
         }
-        holder.setRestaurantPhoneNumber(model.getPhoneNumber());
         holder.setRestaurantID(model.getId());
     }
 
@@ -55,7 +56,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
     public class Viewholder extends RecyclerView.ViewHolder {
         private TextView restaurantName, restaurantAddress, restaurantRating, restaurantStatus;
-        private String restaurantPhoneNumber, restaurantID;
+        private String restaurantID;
 
         public Viewholder(@NonNull View itemView) {
             super(itemView);
@@ -66,12 +67,8 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
-
-                //Also need to get restaurant ID here so that we can get the list of reviews in the
-                //restaurant info view
                 public void onClick(View v) {
                     v.getContext().startActivity(new Intent(v.getContext(), RestaurantInfoActivity.class)
-                            .putExtra("restaurantPhoneNumber", restaurantPhoneNumber)
                             .putExtra("restaurantName", restaurantName.getText())
                             .putExtra("restaurantAddress", restaurantAddress.getText())
                             .putExtra("restaurantRating", restaurantRating.getText())
@@ -79,10 +76,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                             .putExtra("restaurantID", restaurantID));
                 }
             });
-        }
-
-        public void setRestaurantPhoneNumber(String phoneNumber){
-            this.restaurantPhoneNumber = phoneNumber;
         }
 
         public void setRestaurantID(String id){

@@ -16,6 +16,9 @@ import com.example.foodo.objects.FoodoListCard;
 import com.example.foodo.objects.FoodoListCardAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -35,25 +38,12 @@ public class MainActivity extends AppCompatActivity {
     private SearchView restaurantSearch;
     private Button mapButton;
     private FloatingActionButton addFoodoListButton;
-    private Button placeholderSearchButton;
     private RecyclerView foodoLists;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        placeholderSearchButton = findViewById(R.id.search_button_placeholder);
-
-        placeholderSearchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "Going to search results");
-
-                Intent searchResultsIntent = new Intent(MainActivity.this, SearchResultActivity.class);
-                startActivity(searchResultsIntent);
-            }
-        });
 
         restaurantSearch = findViewById(R.id.restaurant_search);
         restaurantSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -134,7 +124,16 @@ public class MainActivity extends AppCompatActivity {
                         searchResults = responseBody.string();
                         Log.d(TAG, String.format("response from /searchRestaurantsByQuery: %s", searchResults));
                         runOnUiThread(() -> {
-                            // Async method to update UI
+                            try {
+                                JSONArray restaurantResultsArray = new JSONArray(searchResults);
+                                Log.d(TAG, restaurantResultsArray.toString());
+                                Intent searchResultIntent = new Intent(MainActivity.this, SearchResultActivity.class);
+                                searchResultIntent.putExtra("restaurantResultsArray", restaurantResultsArray.toString());
+                                searchResultIntent.putExtra("query", query);
+                                startActivity(searchResultIntent);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         });
 
                     }
