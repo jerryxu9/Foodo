@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const { FoodoRestaurantSchema } = require("./FoodoRestaurant");
-const { UserAccountSchema } = require("./UserAccount");
 
 const FoodoListSchema = mongoose.Schema({
   name: {
@@ -9,14 +8,9 @@ const FoodoListSchema = mongoose.Schema({
   },
   restaurants: {
     type: [FoodoRestaurantSchema],
-    // type: {
-    //   place_id: String,
-    //   name: String,
-    //   isVisited: Boolean,
-    // },
   },
   users: {
-    type: [UserAccountSchema], // should we user a UserAccount schema or just email?
+    type: [String],
   },
 });
 
