@@ -9,7 +9,7 @@
     <string name="map_button">Map Button</string>
     <string name="search_title">Search</string>
     <string name="add_button">Add Foodo List Button</string>
-    <string name="create_foodo_list_submit_button">Add Foodo List</string>
+    <string name="create_foodo_list_submit_button">Create Foodo List</string>
     <string name="create_foodo_list_hint">Enter Foodo List Name</string>
     <string-array name="rating_options">
         <item>1</item>

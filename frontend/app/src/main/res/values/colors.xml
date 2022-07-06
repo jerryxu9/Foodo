@@ -9,6 +9,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="app_background">#F3F9FC</color>
     <color name="inner_boxes">#FCFEFF</color>
-    <color name="foodo_list_card_1">#FFFAF3</color>
+    <color name="gray_stroke">#555555</color>
     <color name="app_shadow">#7AA7B8</color>
+    <color name="foodo_blue">#5CB1FF</color>
 </resources>
