@@ -45,7 +45,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     private Spinner spinner;
     private ArrayList<ReviewCard> reviewCardArrayList;
     private String restaurantID;
-    private Button submitReviewButton;
+    private Button submitReviewButton, addRestaurantToFoodoListButton;
     private EditText reviewTextBox;
     private final OkHttpClient client = new OkHttpClient();
     private final String TAG = "restaurantInfoActivity", BASE_URL = "http://10.0.2.2:3000";
@@ -70,6 +70,13 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             }
         });
 
+        addRestaurantToFoodoListButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
         setStatusBackground(restaurantStatus);
 
         searchRestaurantInfoByID(restaurantID);
@@ -85,6 +92,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         reviewCardArrayList = new ArrayList<>();
 
         submitReviewButton = findViewById(R.id.reviewSendButton);
+        addRestaurantToFoodoListButton = findViewById(R.id.add_restaurant_to_list_button);
         reviewTextBox = findViewById(R.id.reviewTextBox);
         reviewList = findViewById(R.id.review_list);
         restaurantAddress_info = findViewById(R.id.restaurantAddress_info);
