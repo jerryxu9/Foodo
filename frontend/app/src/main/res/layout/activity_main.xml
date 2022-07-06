@@ -49,7 +49,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
-        android:contentDescription="@string/submit_add_button"
+        android:contentDescription="@string/create_foodo_list_submit_button"
         android:outlineAmbientShadowColor="@color/black"
         android:src="@drawable/add_button_icon"
         app:backgroundTint="@color/app_background"
