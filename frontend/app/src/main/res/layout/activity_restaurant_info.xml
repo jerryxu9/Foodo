@@ -25,217 +25,245 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="371dp"
-        android:layout_height="250dp"
-        android:background="@drawable/restaurant_info_background"
-        android:orientation="vertical"
-        android:outlineProvider="none"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.116">
-
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:id="@+id/linearLayout"
+            android:layout_width="371dp"
+            android:layout_height="280dp"
+            android:background="@drawable/restaurant_info_background"
+            android:orientation="vertical"
+            android:outlineProvider="none"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.116">
 
-            <TextView
-                android:id="@+id/restaurantName_info"
-                android:layout_width="217dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="50px"
-                android:layout_marginTop="30px"
-                android:text="Tim Hortons"
-                android:textSize="50px" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/restaurantName_info"
+                    android:layout_width="217dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50px"
+                    android:layout_marginTop="30px"
+                    android:text="Tim Hortons"
+                    android:textSize="50px" />
+
+                <TextView
+                    android:id="@+id/restaurantRating_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="160px"
+                    android:layout_marginTop="30px"
+                    android:text="3.8 Stars"
+                    android:textSize="12dp"/>
+
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/restaurantRating_info"
+                android:id="@+id/restaurantAddress_info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="160px"
-                android:layout_marginTop="30px"
-                android:text="3.8 Stars" />
+                android:layout_marginStart="50px"
+                android:textSize="12dp"
+                android:text="6525 Oak St, Vancouver, BC V6P 3Z3" />
 
+            <TextView
+                android:id="@+id/restaurantNumber_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50px"
+                android:textSize="12dp"
+                android:text="(604) 875-2638" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Hours"
+                android:textSize="12dp"
+                android:textAlignment="center" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="25dp"
+                    android:textSize="12dp"
+                    android:text="Monday"
+                    android:textAlignment="center" />
+
+                <TextView
+                    android:id="@+id/Monday_Hours"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:textSize="12dp"
+                    android:text="Monday Hours"
+                    android:textAlignment="center" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="25dp"
+                    android:text="Tuesday"
+                    android:textSize="12dp"
+                    android:textAlignment="center" />
+
+                <TextView
+                    android:id="@+id/Tuesday_Hours"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:text="Tuesday Hours"
+                    android:textSize="12dp"
+                    android:textAlignment="center" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="25dp"
+                    android:text="Wednesday"
+                    android:textSize="12dp"
+                    android:textAlignment="center" />
+
+                <TextView
+                    android:id="@+id/Wednesday_Hours"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:text="Wednesday Hours"
+                    android:textSize="12dp"
+                    android:textAlignment="center" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="25dp"
+                    android:text="Thursday"
+                    android:textSize="12dp"
+                    android:textAlignment="center" />
+
+                <TextView
+                    android:id="@+id/Thursday_Hours"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:text="Thursday Hours"
+                    android:textSize="12dp"
+                    android:textAlignment="center" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="25dp"
+                    android:text="Friday"
+                    android:textSize="12dp"
+                    android:textAlignment="center" />
+
+                <TextView
+                    android:id="@+id/Friday_Hours"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:text="Friday Hours"
+                    android:textSize="12dp"
+                    android:textAlignment="center" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="25dp"
+                    android:text="Saturday"
+                    android:textSize="12dp"
+                    android:textAlignment="center" />
+
+                <TextView
+                    android:id="@+id/Saturday_Hours"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:text="Saturday Hours"
+                    android:textSize="12dp"
+                    android:textAlignment="center" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="25dp"
+                    android:text="Sunday"
+                    android:textSize="12dp"
+                    android:textAlignment="center" />
+
+                <TextView
+                    android:id="@+id/Sunday_Hours"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:text="Sunday Hours"
+                    android:textSize="12dp"
+                    android:textAlignment="center" />
+            </LinearLayout>
+
+            <Button
+                android:layout_width="46dp"
+                android:layout_height="46dp"
+                android:id="@+id/add_restaurant_to_list_button"
+                android:background="@drawable/add_restaurant_button"
+                android:layout_gravity="right"
+                android:layout_marginTop="12dp"
+                android:layout_marginRight="20dp"/>
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/restaurantAddress_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="50px"
-            android:text="6525 Oak St, Vancouver, BC V6P 3Z3" />
-
-        <TextView
-            android:id="@+id/restaurantNumber_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="50px"
-            android:text="(604) 875-2638" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Hours"
-            android:textAlignment="center" />
-
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Monday"
-                android:layout_marginLeft="25dp"
-                android:textAlignment="center" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/Monday_Hours"
-                android:text="Monday Hours"
-                android:layout_marginStart="15dp"
-                android:textAlignment="center" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Tuesday"
-                android:layout_marginLeft="25dp"
-                android:textAlignment="center" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Tuesday Hours"
-                android:id="@+id/Tuesday_Hours"
-                android:layout_marginStart="15dp"
-                android:textAlignment="center" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Wednesday"
-                android:layout_marginLeft="25dp"
-                android:textAlignment="center" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Wednesday Hours"
-                android:id="@+id/Wednesday_Hours"
-                android:layout_marginStart="15dp"
-                android:textAlignment="center" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Thursday"
-                android:layout_marginLeft="25dp"
-                android:textAlignment="center" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Thursday Hours"
-                android:id="@+id/Thursday_Hours"
-                android:layout_marginStart="15dp"
-                android:textAlignment="center" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Friday"
-                android:layout_marginLeft="25dp"
-                android:textAlignment="center" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Friday Hours"
-                android:id="@+id/Friday_Hours"
-                android:layout_marginStart="15dp"
-                android:textAlignment="center" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Saturday"
-                android:layout_marginLeft="25dp"
-                android:textAlignment="center" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Saturday Hours"
-                android:id="@+id/Saturday_Hours"
-                android:layout_marginStart="15dp"
-                android:textAlignment="center" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Sunday"
-                android:layout_marginLeft="25dp"
-                android:textAlignment="center" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Sunday Hours"
-                android:id="@+id/Sunday_Hours"
-                android:layout_marginStart="15dp"
-                android:textAlignment="center" />
-        </LinearLayout>
-    </LinearLayout>
 
     <LinearLayout
         android:layout_width="371dp"
