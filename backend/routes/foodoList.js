@@ -16,7 +16,6 @@ router.post("/createFoodoList", async (req, res) => {
         users: [req.body.userID],
       });
       const response = await newList.save();
-      console.log(response);
       res.json(response);
     }
   } catch (err) {
