@@ -41,9 +41,6 @@
             android:name=".SearchResultActivity"
             android:exported="false" />
         <activity
-            android:name=".CreateFoodoList"
-            android:exported="false" />
-        <activity
             android:name=".MapActivity"
             android:exported="false" />
         <activity
