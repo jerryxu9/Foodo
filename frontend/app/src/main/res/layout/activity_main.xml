@@ -34,15 +34,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.042" />
 
-    <Button
-        android:id="@+id/search_button_placeholder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Search"
-        tools:layout_editor_absoluteX="165dp"
-        tools:layout_editor_absoluteY="522dp" />
-
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/create_foodo_list_button"
         android:layout_width="wrap_content"

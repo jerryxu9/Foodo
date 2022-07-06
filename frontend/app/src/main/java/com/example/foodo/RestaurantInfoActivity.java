@@ -1,6 +1,5 @@
 package com.example.foodo;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,7 +20,6 @@ import com.example.foodo.objects.ReviewCardAdapter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,11 +28,8 @@ import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
-import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -44,7 +39,8 @@ import okhttp3.ResponseBody;
 public class RestaurantInfoActivity extends AppCompatActivity {
 
     private MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    private TextView restaurantName_info, restaurantAddress_info, restaurantRating_info, restaurantPhoneNumber, restaurantStatus;
+    private TextView restaurantName_info, restaurantAddress_info, restaurantRating_info, restaurantPhoneNumber, restaurantStatus,
+            mondayHours, tuesdayHours, wednesdayHours, thursdayHours, fridayHours, saturdayHours, sundayHours;
     private RecyclerView reviewList;
     private Spinner spinner;
     private ArrayList<ReviewCard> reviewCardArrayList;
@@ -58,31 +54,8 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_restaurant_info);
-
-        spinner = findViewById(R.id.choose_rating_spinner);
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(RestaurantInfoActivity.this,
-                android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.rating_options));
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(spinnerAdapter);
-
-        submitReviewButton = findViewById(R.id.reviewSendButton);
-        reviewTextBox = findViewById(R.id.reviewTextBox);
-        reviewList = findViewById(R.id.review_list);
-
-        reviewCardArrayList = new ArrayList<>();
-
-        restaurantAddress_info = findViewById(R.id.restaurantAddress_info);
-        restaurantName_info = findViewById(R.id.restaurantName_info);
-        restaurantRating_info = findViewById(R.id.restaurantRating_info);
-        restaurantPhoneNumber = findViewById(R.id.restaurantNumber_info);
-        restaurantStatus = findViewById(R.id.restaurantStatus_info);
-
-        restaurantName_info.setText(getIntent().getStringExtra("restaurantName"));
-        restaurantAddress_info.setText(getIntent().getStringExtra("restaurantAddress"));
-        restaurantRating_info.setText(getIntent().getStringExtra("restaurantRating"));
-        restaurantPhoneNumber.setText(getIntent().getStringExtra("restaurantPhoneNumber"));
-        restaurantStatus.setText(getIntent().getStringExtra("restaurantStatus"));
-        restaurantID = getIntent().getStringExtra("restaurantID");
+        initializeComponents();
+        getIntentExtras();
 
         submitReviewButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,7 +64,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                 if(!reviewText.trim().isEmpty()){
                     Log.d(TAG, "Got following review from text box: " + reviewText);
                     Log.d(TAG, "got following rating from spinner: " + spinner.getSelectedItem().toString());
-                    addReview(restaurantID, reviewText, "name", spinner.getSelectedItem().toString());
+                    addReview(restaurantID, "name", reviewText, spinner.getSelectedItem().toString());
                     reviewTextBox.getText().clear();
                 }
             }
@@ -99,11 +72,52 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
         setStatusBackground(restaurantStatus);
 
+        searchRestaurantInfoByID(restaurantID);
+
         try {
             getReviews(restaurantID);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void initializeComponents(){
+        reviewCardArrayList = new ArrayList<>();
+
+        submitReviewButton = findViewById(R.id.reviewSendButton);
+        reviewTextBox = findViewById(R.id.reviewTextBox);
+        reviewList = findViewById(R.id.review_list);
+        restaurantAddress_info = findViewById(R.id.restaurantAddress_info);
+        restaurantName_info = findViewById(R.id.restaurantName_info);
+        restaurantRating_info = findViewById(R.id.restaurantRating_info);
+        restaurantPhoneNumber = findViewById(R.id.restaurantNumber_info);
+        restaurantStatus = findViewById(R.id.restaurantStatus_info);
+
+        mondayHours = findViewById(R.id.Monday_Hours);
+        tuesdayHours = findViewById(R.id.Tuesday_Hours);
+        wednesdayHours = findViewById(R.id.Wednesday_Hours);
+        thursdayHours = findViewById(R.id.Thursday_Hours);
+        fridayHours = findViewById(R.id.Friday_Hours);
+        saturdayHours = findViewById(R.id.Saturday_Hours);
+        sundayHours = findViewById(R.id.Sunday_Hours);
+
+        initializeSpinner();
+    }
+
+    private void initializeSpinner(){
+        spinner = findViewById(R.id.choose_rating_spinner);
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(RestaurantInfoActivity.this,
+                android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.rating_options));
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerAdapter);
+    }
+
+    private void getIntentExtras(){
+        restaurantName_info.setText(getIntent().getStringExtra("restaurantName"));
+        restaurantAddress_info.setText(getIntent().getStringExtra("restaurantAddress"));
+        restaurantRating_info.setText(getIntent().getStringExtra("restaurantRating"));
+        restaurantStatus.setText(getIntent().getStringExtra("restaurantStatus"));
+        restaurantID = getIntent().getStringExtra("restaurantID");
     }
 
     private void setStatusBackground(TextView restaurantStatus){
@@ -116,6 +130,65 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                 break;
         }
     }
+
+    private void searchRestaurantInfoByID(String restaurantID){
+        String url = buildURL("/searchRestaurantInfoByID");
+        HttpUrl httpUrl = HttpUrl.parse(url);
+        HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
+        httpBuilder.addQueryParameter("id", restaurantID);
+
+        Request request = new Request.Builder()
+                .url(httpBuilder.build())
+                .build();
+        Log.d(TAG, String.format("Search Request invoked by searchRestaurantInfoByID to %s with query %s", httpBuilder.build(), restaurantID));
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()){
+                    if (!response.isSuccessful())
+                        throw new IOException(String.format("Unexpected code %s", response));
+                    else {
+
+                        String responseBodyString = responseBody.string();
+                        Log.d(TAG, responseBodyString);
+
+                        runOnUiThread(()->{
+                            try {
+                                JSONObject restaurantObj = new JSONObject(responseBodyString);
+                                if(restaurantObj.has("formatted_phone_number")){
+                                    restaurantPhoneNumber.setText(restaurantObj.getString("formatted_phone_number"));
+                                }else{
+                                    restaurantPhoneNumber.setText("Phone Number Unavailable");
+                                }
+                                JSONArray openingHours = restaurantObj.getJSONObject("opening_hours").getJSONArray("weekday_text");
+                                Log.d(TAG, openingHours.toString());
+                                Log.d(TAG, openingHours.getString(0));
+                                Log.d(TAG, openingHours.getString(0).split(" ", 2)[0]);
+
+                                mondayHours.setText(openingHours.getString(0).split(" ", 2)[1]);
+                                tuesdayHours.setText(openingHours.getString(1).split(" ", 2)[1]);
+                                wednesdayHours.setText(openingHours.getString(2).split(" ", 2)[1]);
+                                thursdayHours.setText(openingHours.getString(3).split(" ", 2)[1]);
+                                fridayHours.setText(openingHours.getString(4).split(" ", 2)[1]);
+                                saturdayHours.setText(openingHours.getString(5).split(" ", 2)[1]);
+                                sundayHours.setText(openingHours.getString(6).split(" ", 2)[1]);
+                            } catch (JSONException e) {
+                                restaurantPhoneNumber.setText("Phone Number Unavailable");
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+
 
     private void addReview(String restaurantID, String name, String text, String rating){
         String url = buildURL("/addReview");
@@ -222,8 +295,8 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             }
         });
     }
-
     private String buildURL(String path){
         return BASE_URL + path;
     }
+
 }
