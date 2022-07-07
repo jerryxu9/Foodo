@@ -82,7 +82,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         addRestaurantToFoodoListButton.setOnClickListener((View view) -> {
             initializePopUp(view);
         });
-
+        
         setStatusBackground(restaurantStatus);
         searchRestaurantInfoByID(restaurantID);
         try {
