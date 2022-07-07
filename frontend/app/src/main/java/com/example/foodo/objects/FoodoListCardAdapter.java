@@ -5,7 +5,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -49,6 +48,30 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
         return foodoListArrayList.size();
     }
 
+    /**
+     * Returns whether the given FoodoListCard ID already exists amongst the rendered FoodoListCards
+     *
+     * @param id A FoodoList ID obtained from the backend
+     * @return True if ID exists, false otherwise
+     */
+
+    public boolean checkIfIDExists(String id) {
+        for (int i = 0; i < foodoListArrayList.size(); i++) {
+            if (foodoListArrayList.get(i).getId() == id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void handleOpenFoodoListAction() {
+
+    }
+
+    private void handleDeleteFoodoListAction() {
+        Log.d(TAG, "Pressed delete Foodo restaurant button");
+    }
+
     public class Viewholder extends RecyclerView.ViewHolder {
 
         private final TextView foodoListName;
@@ -69,12 +92,5 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
         }
     }
 
-    private void handleOpenFoodoListAction() {
-
-    }
-
-    private void handleDeleteFoodoListAction() {
-        Log.d(TAG, "Pressed delete Foodo restaurant button");
-    }
 
 }
