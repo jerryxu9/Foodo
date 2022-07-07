@@ -56,7 +56,9 @@ public class SearchResultActivity extends AppCompatActivity {
                         restaurantResult.getString("address"),
                         restaurantResult.getString("GoogleRating"),
                         businessStatus,
-                        restaurantResult.getString("id")));
+                        restaurantResult.getString("id"),
+                        restaurantResult.getDouble("lat"),
+                        restaurantResult.getDouble("lng")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
