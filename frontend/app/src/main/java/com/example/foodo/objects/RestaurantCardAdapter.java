@@ -47,6 +47,8 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
             default: holder.restaurantStatus.setBackgroundResource(R.drawable.non_operational_tag); break;
         }
         holder.setRestaurantID(model.getId());
+        holder.setLat(model.getLat());
+        holder.setLng(model.getLng());
     }
 
     @Override
@@ -57,6 +59,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
     public class Viewholder extends RecyclerView.ViewHolder {
         private TextView restaurantName, restaurantAddress, restaurantRating, restaurantStatus;
         private String restaurantID;
+        private double lat, lng;
 
         public Viewholder(@NonNull View itemView) {
             super(itemView);
@@ -73,13 +76,23 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                             .putExtra("restaurantAddress", restaurantAddress.getText())
                             .putExtra("restaurantRating", restaurantRating.getText())
                             .putExtra("restaurantStatus", restaurantStatus.getText())
-                            .putExtra("restaurantID", restaurantID));
+                            .putExtra("restaurantID", restaurantID)
+                            .putExtra("lat", lat)
+                            .putExtra("lng", lng));
                 }
             });
         }
 
         public void setRestaurantID(String id){
             this.restaurantID = id;
+        }
+
+        public void setLat(double lat){
+            this.lat = lat;
+        }
+
+        public void setLng(double lng){
+            this.lng = lng;
         }
     }
 }
