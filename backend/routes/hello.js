@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const Hello = require("../models/Hello");
 
+// This file contains examples for reference
+
 // Get all hello messages
 router.get("/", async (req, res) => {
   try {

@@ -52,6 +52,8 @@ router.patch("/addRestaurantToList", async (req, res) => {
       place_id: req.body.restaurantID,
       name: req.body.restaurantName,
       isVisited: req.body.isVisited,
+      lat: req.body.lat,
+      lng: req.body.lng,
     });
 
     const updatedList = await FoodoListModel.findByIdAndUpdate(
