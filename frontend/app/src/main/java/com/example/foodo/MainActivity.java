@@ -3,30 +3,19 @@ package com.example.foodo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.PopupWindow;
 import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.foodo.objects.FoodoListCard;
-import com.example.foodo.objects.FoodoListCardAdapter;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.example.foodo.service.FoodoListService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -44,11 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private SearchView restaurantSearch;
     private Button mapButton;
 
-    private FloatingActionButton createFoodoListButton;
-    private Button placeholderSearchButton;
-
-    private RecyclerView foodoLists;
-    private PopupWindow createFoodoListPopupWindow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,38 +56,11 @@ public class MainActivity extends AppCompatActivity {
         mapButton = findViewById(R.id.map_button);
         mapButton.setOnClickListener((View v) -> handleMapAction());
 
-        createFoodoListButton = findViewById(R.id.create_foodo_list_button);
-        createFoodoListButton.setOnClickListener((View v) -> handleCreateFoodoListAction());
-
-        initializeFoodoLists();
-    }
-
-    private void initializeFoodoLists() {
-
-        // TODO: Add check to see if user is signed in
-        foodoLists = findViewById(R.id.foodo_lists);
-        ArrayList<FoodoListCard> placeHolderFoodoListArrayList = new ArrayList<>();
-
-        // TODO: replace this with an api call and render the output instead
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Bubble tea!", "abc"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Sushi", "def"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Pasta", "ghi"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Soup", "jkl"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Brunch", "mno"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Chinese", "pqr"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Hello", "jkl"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Test", "mno"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("filler", "pqr"));
-
-        FoodoListCardAdapter foodoListCardAdapter = new FoodoListCardAdapter(this, placeHolderFoodoListArrayList);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-
-        foodoLists.setLayoutManager(linearLayoutManager);
-        foodoLists.setAdapter(foodoListCardAdapter);
+        FoodoListService foodoListService = new FoodoListService(this, client);
+        foodoListService.setup();
     }
 
     private void searchRestaurant(String query) {
-        Log.d(TAG, String.format("Search submit button pressed with query %s", query));
 
         String url = BASE_URL + "/searchRestaurantsByQuery";
         HttpUrl httpUrl = HttpUrl.parse(url);
@@ -151,6 +108,8 @@ public class MainActivity extends AppCompatActivity {
                         });
 
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -162,37 +121,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Pressed map button");
         Intent mapsIntent = new Intent(MainActivity.this, MapActivity.class);
         startActivity(mapsIntent);
-    }
-
-    private void handleCreateFoodoListAction() {
-        Log.d(TAG, "Pressed add Foodo restaurant button");
-        LayoutInflater layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-        ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.activity_create_foodo_list, null);
-
-        ConstraintLayout createFoodoListConstraintLayout = findViewById(R.id.constraint);
-
-        createFoodoListPopupWindow = new PopupWindow(container, 900, 900, true);
-        createFoodoListPopupWindow.showAtLocation(createFoodoListConstraintLayout, Gravity.CENTER, 0, 0);
-
-        container.findViewById(R.id.create_foodo_list_confirm_button).setOnClickListener((View v) -> {
-            createFoodoList();
-            createFoodoListPopupWindow.dismiss();
-        });
-
-        container.findViewById(R.id.create_foodo_list_cancel_button).setOnClickListener((View v) -> {
-            Log.d(TAG, "Cancelled creating Foodo list");
-            createFoodoListPopupWindow.dismiss();
-        });
-
-        container.setOnTouchListener((View v, MotionEvent event) -> {
-            Log.d(TAG, "Pressed outside Create Foodo List popup window");
-            createFoodoListPopupWindow.dismiss();
-            return false;
-        });
-    }
-
-    private void createFoodoList() {
-        Log.d(TAG, "Confirmed creating Foodo list");
     }
 
 
