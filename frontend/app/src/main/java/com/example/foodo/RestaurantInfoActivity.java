@@ -1,5 +1,6 @@
 package com.example.foodo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -57,6 +58,9 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     private final OkHttpClient client = new OkHttpClient();
     private final String TAG = "restaurantInfoActivity", BASE_URL = "http://10.0.2.2:3000";
     private PopupWindow createAddRestaurantToListPopupWindow;
+    private double lng, lat;
+    private ArrayList<String> foodoListNames;
+    private HashMap<String, String> foodoListIDandNames;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,33 +80,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         });
 
         addRestaurantToFoodoListButton.setOnClickListener((View view) -> {
-            Log.d(TAG, "Pressed add Foodo restaurant button");
-            LayoutInflater layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-            ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.activity_add_restaurant_to_list, null);
-
-            addResToListSpinner = container.findViewById(R.id.choose_foodolist_spinner);
-
-            //Need to get names of all foodolists that the user created here
-            //CALL /getFoodoList ENDPOINT
-            ArrayAdapter<String> addResToListSpinnerAdapter = new ArrayAdapter<>(RestaurantInfoActivity.this,
-                    android.R.layout.simple_list_item_1, new String[]{"Bubble Tea", "Fancy Food", "KBBQ"}); //filler foodolist names
-            addResToListSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            addResToListSpinner.setAdapter(addResToListSpinnerAdapter);
-
-            createAddRestaurantToListPopupWindow = new PopupWindow(container, 900, 900, true);
-            createAddRestaurantToListPopupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
-
-            container.findViewById(R.id.add_res_to_list_confirm_button).setOnClickListener((View v) -> {
-                Log.d(TAG, "adding restaurant to " + addResToListSpinner.getSelectedItem().toString());
-                createAddRestaurantToListPopupWindow.dismiss();
-
-                //CALL /addRestaurantToList ENDPOINT
-            });
-
-            container.findViewById(R.id.add_res_to_list_cancel_button).setOnClickListener((View v) -> {
-                Log.d(TAG, "Cancelled adding restaurant to list");
-                createAddRestaurantToListPopupWindow.dismiss();
-            });
+            initializePopUp(view);
         });
 
         setStatusBackground(restaurantStatus);
@@ -114,8 +92,52 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         }
     }
 
+    private void initializePopUp(View view){
+        Log.d(TAG, "Pressed add Foodo restaurant button");
+        LayoutInflater layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.activity_add_restaurant_to_list, null);
+
+        addResToListSpinner = container.findViewById(R.id.choose_foodolist_spinner);
+
+        String[] foodoListNames = getFoodoListsPrimitiveArray();
+
+        Log.d(TAG, foodoListNames.toString());
+
+        ArrayAdapter<String> addResToListSpinnerAdapter = new ArrayAdapter<>(RestaurantInfoActivity.this,
+                android.R.layout.simple_list_item_1, foodoListNames);
+        addResToListSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        addResToListSpinner.setAdapter(addResToListSpinnerAdapter);
+
+        createAddRestaurantToListPopupWindow = new PopupWindow(container, 900, 900, true);
+        createAddRestaurantToListPopupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+
+        container.findViewById(R.id.add_res_to_list_confirm_button).setOnClickListener((View v) -> {
+            Log.d(TAG, "adding restaurant to " + addResToListSpinner.getSelectedItem().toString());
+            addRestaurantToList(foodoListIDandNames.get(addResToListSpinner.getSelectedItem().toString()));
+            createAddRestaurantToListPopupWindow.dismiss();
+        });
+
+        container.findViewById(R.id.add_res_to_list_cancel_button).setOnClickListener((View v) -> {
+            Log.d(TAG, "Cancelled adding restaurant to list");
+            createAddRestaurantToListPopupWindow.dismiss();
+        });
+    }
+
+    private String[] getFoodoListsPrimitiveArray(){
+        String[] foodoListArray = new String[foodoListNames.size()];
+
+        for(int i = 0; i < foodoListNames.size(); i++){
+            foodoListArray[i] = foodoListNames.get(i);
+        }
+        return foodoListArray;
+    }
+
     private void initializeComponents(){
         reviewCardArrayList = new ArrayList<>();
+        foodoListNames = new ArrayList<>();
+        foodoListIDandNames = new HashMap<>();
+
+        getFoodoLists("Jim@Jim.com");
 
         submitReviewButton = findViewById(R.id.reviewSendButton);
         addRestaurantToFoodoListButton = findViewById(R.id.add_restaurant_to_list_button);
@@ -152,6 +174,8 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         restaurantRating_info.setText(getIntent().getStringExtra("restaurantRating"));
         restaurantStatus.setText(getIntent().getStringExtra("restaurantStatus"));
         restaurantID = getIntent().getStringExtra("restaurantID");
+        lat = getIntent().getDoubleExtra("lat", 0);
+        lng = getIntent().getDoubleExtra("lng", 0);
     }
 
     private void setStatusBackground(TextView restaurantStatus){
@@ -163,6 +187,92 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             default: restaurantStatus.setBackgroundResource(R.drawable.non_operational_tag);
                 break;
         }
+    }
+
+    private void getFoodoLists(String userID){
+        String url = buildURL("/getFoodoLists");
+        HttpUrl httpUrl = HttpUrl.parse(url);
+        HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
+        httpBuilder.addQueryParameter("userID", userID);
+
+        Request request = new Request.Builder()
+                .url(httpBuilder.build())
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                String searchResults;
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful())
+                        throw new IOException(String.format("Unexpected code %s", response));
+                    else if (responseBody == null) {
+                        throw new IOException("null response from /searchRestaurantsByQuery endpoint");
+                    } else {
+                        searchResults = responseBody.string();
+                        Log.d(TAG, String.format("response from /getFoodoLists: %s", searchResults));
+
+                        JSONArray foodoListsJSON = new JSONArray(searchResults);
+                        for(int i = 0; i < foodoListsJSON.length(); i++){
+                            foodoListNames.add(foodoListsJSON.getJSONObject(i).getString("name"));
+                            foodoListIDandNames.put(foodoListsJSON.getJSONObject(i).getString("name"), foodoListsJSON.getJSONObject(i).getString("_id"));
+                        }
+
+                        Log.d(TAG, foodoListNames.toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void addRestaurantToList(String listID){
+        String url = buildURL("/addRestaurantToList");
+        HttpUrl httpUrl = HttpUrl.parse(url);
+
+        if (httpUrl == null) {
+            Log.d(TAG, String.format("unable to parse server URL: %s", url));
+            return;
+        }
+
+        Map<String, String> params = new HashMap<>();
+        params.put("listID", listID);
+        params.put("restaurantID", restaurantID);
+        params.put("restaurantName", restaurantName_info.getText().toString());
+        params.put("isVisited", "false");
+        params.put("lat", Double.toString(lat));
+        params.put("lng", Double.toString(lng));
+
+        JSONObject paramsJSON = new JSONObject(params);
+        RequestBody body = RequestBody.create(paramsJSON.toString(), JSON);
+        Request request = new Request.Builder()
+                .url(httpUrl)
+                .patch(body)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()){
+                    if (!response.isSuccessful())
+                        throw new IOException(String.format("Unexpected code %s", response));
+                    else {
+                        Log.d(TAG, responseBody.string());
+                    }
+                }
+            }
+        });
     }
 
     private void searchRestaurantInfoByID(String restaurantID){
@@ -188,7 +298,6 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                     if (!response.isSuccessful())
                         throw new IOException(String.format("Unexpected code %s", response));
                     else {
-
                         String responseBodyString = responseBody.string();
                         Log.d(TAG, responseBodyString);
 
@@ -204,7 +313,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
                                 setWeekHours(new TextView[]{mondayHours, tuesdayHours, wednesdayHours, thursdayHours, fridayHours, saturdayHours, sundayHours}, openingHours);
                             } catch (JSONException e) {
-                                restaurantPhoneNumber.setText("Phone Number Unavailable");
+                                e.printStackTrace();
                             }
                         });
                     }
@@ -324,8 +433,8 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             }
         });
     }
+
     private String buildURL(String path){
         return BASE_URL + path;
     }
-
 }

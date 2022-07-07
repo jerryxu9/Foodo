@@ -2,13 +2,16 @@ package com.example.foodo.objects;
 
 public class RestaurantCard {
     private String name, address, rating, status, id;
+    private double lat, lng;
 
-    public RestaurantCard(String name, String address, String rating, String status, String id){
+    public RestaurantCard(String name, String address, String rating, String status, String id, double lat, double lng){
         this.name = name;
         this.address = address;
         this.rating = rating;
         this.status = status;
         this.id = id;
+        this.lat = lat;
+        this.lng = lng;
     }
 
     public String getName(){
@@ -29,5 +32,13 @@ public class RestaurantCard {
 
     public String getId(){
         return id;
+    }
+
+    public double getLat() {
+        return lat;
+    }
+
+    public double getLng(){
+        return lng;
     }
 }
