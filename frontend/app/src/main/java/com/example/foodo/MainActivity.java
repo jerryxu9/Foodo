@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
     private final OkHttpClient client = new OkHttpClient();
     private final String BASE_URL = "http://10.0.2.2:3000";
-    private final String USERID = "test@gmail.com";
     private SearchView restaurantSearch;
     private Button mapButton;
 
