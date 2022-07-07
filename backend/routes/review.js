@@ -14,7 +14,7 @@ router.get("/getReviews", async (req, res) => {
   }
 });
 
-// Post a new review (done testing)
+// Post a new review
 router.post("/addReview", async (req, res) => {
   try {
     const review = new Review({ ...req.body });

@@ -7,7 +7,5 @@
         android:color="@color/app_shadow"
         android:width="3dp">
     </stroke>
-    <size
-        android:width="800px"
-        android:height="800px"></size>
+
 </shape>
