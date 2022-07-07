@@ -34,7 +34,7 @@ router.get("/searchRestaurantInfoByID", async (req, res) => {
     let place_details_string =
       "https://maps.googleapis.com/maps/api/place/details/json?place_id=" +
       req.query.id +
-      "&fields=place_id,name,formatted_address,business_status,opening_hours/open_now,opening_hours/weekday_text,rating,formatted_phone_number" +
+      "&fields=place_id,name,formatted_address,business_status,opening_hours/open_now,opening_hours/weekday_text,rating,formatted_phone_number,geometry/location" +
       "&key=" +
       process.env.GOOGLE_PLACES_API_KEY;
 

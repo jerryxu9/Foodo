@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// This is an example schema used for reference
 const HelloSchema = mongoose.Schema({
   title: {
     type: String,
