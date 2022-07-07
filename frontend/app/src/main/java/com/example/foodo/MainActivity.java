@@ -2,10 +2,10 @@ package com.example.foodo;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.JsonReader;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -24,8 +24,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import okhttp3.Call;
@@ -41,11 +43,10 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
     private final OkHttpClient client = new OkHttpClient();
     private final String BASE_URL = "http://10.0.2.2:3000";
+    private final String USERID = "test@gmail.com";
     private SearchView restaurantSearch;
     private Button mapButton;
-
     private FloatingActionButton createFoodoListButton;
-    private Button placeholderSearchButton;
 
     private RecyclerView foodoLists;
     private PopupWindow createFoodoListPopupWindow;
@@ -82,28 +83,62 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO: Add check to see if user is signed in
         foodoLists = findViewById(R.id.foodo_lists);
-        ArrayList<FoodoListCard> placeHolderFoodoListArrayList = new ArrayList<>();
+        ArrayList<FoodoListCard> foodoListCardArrayList = getFoodoLists();
 
-        // TODO: replace this with an api call and render the output instead
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Bubble tea!", "abc"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Sushi", "def"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Pasta", "ghi"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Soup", "jkl"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Brunch", "mno"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Chinese", "pqr"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Hello", "jkl"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("Test", "mno"));
-        placeHolderFoodoListArrayList.add(new FoodoListCard("filler", "pqr"));
-
-        FoodoListCardAdapter foodoListCardAdapter = new FoodoListCardAdapter(this, placeHolderFoodoListArrayList);
+        FoodoListCardAdapter foodoListCardAdapter = new FoodoListCardAdapter(this, foodoListCardArrayList);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
 
         foodoLists.setLayoutManager(linearLayoutManager);
         foodoLists.setAdapter(foodoListCardAdapter);
+
+    }
+
+    public ArrayList<FoodoListCard> getFoodoLists() {
+        String url = BASE_URL + "/getFoodoLists";
+        HttpUrl httpUrl = HttpUrl.parse(url);
+        ArrayList<FoodoListCard> result = new ArrayList<>();
+
+        if (httpUrl == null) {
+            Log.d(TAG, String.format("unable to parse server URL: %s", url));
+            return new ArrayList<>();
+        }
+
+        HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("userID", USERID);
+
+        Request request = new Request.Builder()
+                .url(httpBuilder.build())
+                .build();
+
+        client.newCall((request)).enqueue(new Callback() {
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful())
+                        throw new IOException(String.format("Unexpected code %s", response));
+                    else if (responseBody == null) {
+                        throw new IOException("null response from /getFoodoLists endpoint");
+                    } else {
+                        JSONArray foodoListJSONArray = new JSONArray(responseBody.string());
+                        for (int i = 0; i < foodoListJSONArray.length(); i++) {
+                            JSONObject curr = (JSONObject) foodoListJSONArray.get(i);
+                            result.add(new FoodoListCard(curr.getString("name"), "abc"));
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        return result;
     }
 
     private void searchRestaurant(String query) {
-        Log.d(TAG, String.format("Search submit button pressed with query %s", query));
 
         String url = BASE_URL + "/searchRestaurantsByQuery";
         HttpUrl httpUrl = HttpUrl.parse(url);
@@ -151,6 +186,8 @@ public class MainActivity extends AppCompatActivity {
                         });
 
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -171,28 +208,23 @@ public class MainActivity extends AppCompatActivity {
 
         ConstraintLayout createFoodoListConstraintLayout = findViewById(R.id.constraint);
 
-        createFoodoListPopupWindow = new PopupWindow(container, 900, 900, true);
+        createFoodoListPopupWindow = new PopupWindow(container, 800, 800, true);
         createFoodoListPopupWindow.showAtLocation(createFoodoListConstraintLayout, Gravity.CENTER, 0, 0);
 
         container.findViewById(R.id.create_foodo_list_confirm_button).setOnClickListener((View v) -> {
             createFoodoList();
-            createFoodoListPopupWindow.dismiss();
         });
 
         container.findViewById(R.id.create_foodo_list_cancel_button).setOnClickListener((View v) -> {
             Log.d(TAG, "Cancelled creating Foodo list");
             createFoodoListPopupWindow.dismiss();
         });
-
-        container.setOnTouchListener((View v, MotionEvent event) -> {
-            Log.d(TAG, "Pressed outside Create Foodo List popup window");
-            createFoodoListPopupWindow.dismiss();
-            return false;
-        });
     }
 
     private void createFoodoList() {
         Log.d(TAG, "Confirmed creating Foodo list");
+
+        createFoodoListPopupWindow.dismiss();
     }
 
 

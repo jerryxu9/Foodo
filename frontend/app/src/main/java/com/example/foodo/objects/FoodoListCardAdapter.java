@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -58,8 +59,22 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
 
             itemView.setOnClickListener((View v) -> {
                 Log.d(TAG, String.format("%s item on Foodo Lists selected", foodoListName.getText()));
+                handleOpenFoodoListAction();
+            });
+
+            itemView.findViewById(R.id.delete_foodo_list_button).setOnClickListener((View v) -> {
+                Log.d(TAG, String.format("%s Foodo List delete button selected", foodoListName.getText()));
+                handleDeleteFoodoListAction();
             });
         }
+    }
+
+    private void handleOpenFoodoListAction() {
+
+    }
+
+    private void handleDeleteFoodoListAction() {
+        Log.d(TAG, "Pressed delete Foodo restaurant button");
     }
 
 }
