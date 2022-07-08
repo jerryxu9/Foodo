@@ -19,4 +19,6 @@
         <item>5</item>
     </string-array>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="share_foodo_list_hint">Enter user email</string>
+    <string name="share_foodo_list_submit_button">Share Foodo List</string>
 </resources>

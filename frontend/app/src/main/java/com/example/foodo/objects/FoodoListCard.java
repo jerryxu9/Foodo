@@ -2,7 +2,7 @@ package com.example.foodo.objects;
 
 public class FoodoListCard {
     private String name;
-    private final String id;
+    private String id;
 
     public FoodoListCard(String name, String id) {
         this.name = name;
