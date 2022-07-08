@@ -37,7 +37,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
     private final String listID;
     private final String BASE_URL = "http://10.0.2.2:3000";
     private final OkHttpClient client = new OkHttpClient();
-    private String restaurantID;
+    private String cardID;
 
     public RestaurantCardAdapter(Context context, ArrayList<RestaurantCard> restaurantCardArrayList, String listID) {
         this.context = context;
@@ -71,7 +71,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                 break;
         }
 
-        restaurantID = model.getId();
+        cardID = model.getCardID();
 
         boolean isInFoodoList = model.getInFoodoList();
         holder.setIsInFoodoList(isInFoodoList);
@@ -87,7 +87,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
             holder.deleteRestaurantFromFoodoListButton.setVisibility(View.INVISIBLE);
         }
 
-        holder.setRestaurantID(model.getId());
+        holder.setGooglePlacesID(model.getGooglePlacesID());
         holder.setLat(model.getLat());
         holder.setLng(model.getLng());
     }
@@ -97,9 +97,9 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
 
-        String json = String.format("{\"listID\": \"%s\", \"restaurantID\": \"%s\"}", listID, restaurantID);
+        String json = String.format("{\"listID\": \"%s\", \"cardID\": \"%s\"}", listID, cardID);
         Log.d(TAG, listID);
-        Log.d(TAG, restaurantID);
+        Log.d(TAG, cardID);
         RequestBody body = RequestBody.create(
                 MediaType.parse("application/json"), json);
 
@@ -142,7 +142,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         private final TextView restaurantRating;
         private final TextView restaurantStatus;
         private final Button deleteRestaurantFromFoodoListButton;
-        private String restaurantID;
+        private String googlePlacesID;
         private double lat, lng;
         private boolean isInFoodoList;
 
@@ -163,7 +163,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                             .putExtra("restaurantAddress", restaurantAddress.getText())
                             .putExtra("restaurantRating", restaurantRating.getText())
                             .putExtra("restaurantStatus", restaurantStatus.getText())
-                            .putExtra("restaurantID", restaurantID)
+                            .putExtra("googlePlacesID", googlePlacesID)
                             .putExtra("lat", lat)
                             .putExtra("lng", lng)
                             .putExtra("isInFoodoList", isInFoodoList));
@@ -176,8 +176,8 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
             return (String) restaurantName.getText();
         }
 
-        public void setRestaurantID(String id) {
-            this.restaurantID = id;
+        public void setGooglePlacesID(String googlePlacesID) {
+            this.googlePlacesID = googlePlacesID;
         }
 
         public void setLat(double lat) {

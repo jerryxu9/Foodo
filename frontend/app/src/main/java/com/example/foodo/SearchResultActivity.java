@@ -58,6 +58,7 @@ public class SearchResultActivity extends AppCompatActivity {
                         restaurantResult.getString("GoogleRating"),
                         businessStatus,
                         restaurantResult.getString("id"),
+                        "dummy_id",
                         restaurantResult.getDouble("lat"),
                         restaurantResult.getDouble("lng"),
                         isInFoodoList));

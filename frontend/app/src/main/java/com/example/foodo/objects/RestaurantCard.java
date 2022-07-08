@@ -1,21 +1,17 @@
 package com.example.foodo.objects;
 
 public class RestaurantCard {
-    private final String name;
-    private final String address;
-    private final String rating;
-    private final String status;
-    private final String id;
-    private final double lat;
-    private final double lng;
+    private final String name, address, rating, status, googlePlacesID, cardID;
+    private final double lat, lng;
     private final boolean isInFoodoList;
 
-    public RestaurantCard(String name, String address, String rating, String status, String id, double lat, double lng, boolean isInFoodoList) {
+    public RestaurantCard(String name, String address, String rating, String status, String googlePlacesID, String cardID, double lat, double lng, boolean isInFoodoList) {
         this.name = name;
         this.address = address;
         this.rating = rating;
         this.status = status;
-        this.id = id;
+        this.googlePlacesID = googlePlacesID;
+        this.cardID = cardID;
         this.lat = lat;
         this.lng = lng;
         this.isInFoodoList = isInFoodoList;
@@ -37,8 +33,12 @@ public class RestaurantCard {
         return status;
     }
 
-    public String getId() {
-        return id;
+    public String getGooglePlacesID() {
+        return googlePlacesID;
+    }
+
+    public String getCardID() {
+        return cardID;
     }
 
     public double getLat() {

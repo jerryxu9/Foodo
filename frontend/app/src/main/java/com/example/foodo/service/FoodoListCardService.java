@@ -138,6 +138,7 @@ public class FoodoListCardService {
                                         restaurantObj.getString("formatted_address"),
                                         restaurantObj.getString("rating"),
                                         businessStatus,
+                                        googlePlaceID,
                                         cardID,
                                         restaurantObj.getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
                                         restaurantObj.getJSONObject("geometry").getJSONObject("location").getDouble("lng"),

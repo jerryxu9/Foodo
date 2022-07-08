@@ -50,7 +50,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     private RecyclerView reviewList;
     private Spinner spinner, addResToListSpinner;
     private ArrayList<ReviewCard> reviewCardArrayList;
-    private String restaurantID;
+    private String googlePlacesID;
     private Button submitReviewButton, addRestaurantToFoodoListButton;
     private EditText reviewTextBox;
     private PopupWindow createAddRestaurantToListPopupWindow;
@@ -71,7 +71,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             if (!reviewText.trim().isEmpty()) {
                 Log.d(TAG, "Got following review from text box: " + reviewText);
                 Log.d(TAG, "got following rating from spinner: " + spinner.getSelectedItem().toString());
-                addReview(restaurantID, "name", reviewText, spinner.getSelectedItem().toString());
+                addReview(googlePlacesID, "name", reviewText, spinner.getSelectedItem().toString());
                 reviewTextBox.getText().clear();
             }
         });
@@ -87,9 +87,9 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         }
 
         setStatusBackground(restaurantStatus);
-        searchRestaurantInfoByID(restaurantID);
+        searchRestaurantInfoByID(googlePlacesID);
         try {
-            getReviews(restaurantID);
+            getReviews(googlePlacesID);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -179,7 +179,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         restaurantAddress_info.setText(getIntent().getStringExtra("restaurantAddress"));
         restaurantRating_info.setText(getIntent().getStringExtra("restaurantRating"));
         restaurantStatus.setText(getIntent().getStringExtra("restaurantStatus"));
-        restaurantID = getIntent().getStringExtra("restaurantID");
+        googlePlacesID = getIntent().getStringExtra("googlePlacesID");
         lat = getIntent().getDoubleExtra("lat", 0);
         lng = getIntent().getDoubleExtra("lng", 0);
         isInFoodoList = getIntent().getBooleanExtra("isInFoodoList", isInFoodoList);
@@ -253,7 +253,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
         Map<String, String> params = new HashMap<>();
         params.put("listID", listID);
-        params.put("restaurantID", restaurantID);
+        params.put("googlePlacesID", googlePlacesID);
         params.put("restaurantName", restaurantName_info.getText().toString());
         params.put("isVisited", "false");
         params.put("lat", Double.toString(lat));
