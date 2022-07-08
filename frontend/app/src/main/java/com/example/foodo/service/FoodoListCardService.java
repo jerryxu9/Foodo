@@ -133,6 +133,7 @@ public class FoodoListCardService {
                         foodoCardActivity.runOnUiThread(() -> {
                             try {
                                 // Disable the add button because it's already in the Foodolist.
+                                boolean addButtonEnabled = false;
                                 RestaurantCard restaurantCard = new RestaurantCard(restaurantObj.getString("name"),
                                         restaurantObj.getString("formatted_address"),
                                         restaurantObj.getString("rating"),
@@ -140,7 +141,7 @@ public class FoodoListCardService {
                                         restaurantObj.getString("place_id"),
                                         restaurantObj.getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
                                         restaurantObj.getJSONObject("geometry").getJSONObject("location").getDouble("lng"),
-                                        false);
+                                        addButtonEnabled);
                                 restaurantCardArrayList.add(restaurantCard);
                             } catch (JSONException e) {
                                 e.printStackTrace();

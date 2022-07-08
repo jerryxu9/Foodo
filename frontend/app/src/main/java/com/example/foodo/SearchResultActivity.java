@@ -33,25 +33,26 @@ public class SearchResultActivity extends AppCompatActivity {
         populateSearchResultList();
     }
 
-    private void setSearchBarText(){
+    private void setSearchBarText() {
         searchText.setText(getIntent().getStringExtra("query"));
     }
 
-    private void populateSearchResultList(){
+    private void populateSearchResultList() {
         try {
             JSONArray restaurantResultsArray = new JSONArray(getIntent().getStringExtra("restaurantResultsArray"));
-            for(int i = 0; i < restaurantResultsArray.length(); i++){
+            for (int i = 0; i < restaurantResultsArray.length(); i++) {
                 JSONObject restaurantResult = restaurantResultsArray.getJSONObject(i);
                 String businessStatus;
-                if(restaurantResult.getString("businessStatus").equals("OPERATIONAL")){
-                    if(restaurantResult.getString("openNow").equals("true")){
+                if (restaurantResult.getString("businessStatus").equals("OPERATIONAL")) {
+                    if (restaurantResult.getString("openNow").equals("true")) {
                         businessStatus = "Open";
-                    }else{
+                    } else {
                         businessStatus = "Closed";
                     }
-                }else{
+                } else {
                     businessStatus = restaurantResult.getString("businessStatus");
                 }
+                boolean addButtonEnabled = true;
                 restaurantCardArrayList.add(new RestaurantCard(restaurantResult.getString("name"),
                         restaurantResult.getString("address"),
                         restaurantResult.getString("GoogleRating"),
@@ -59,7 +60,7 @@ public class SearchResultActivity extends AppCompatActivity {
                         restaurantResult.getString("id"),
                         restaurantResult.getDouble("lat"),
                         restaurantResult.getDouble("lng"),
-                        true));
+                        addButtonEnabled));
             }
         } catch (JSONException e) {
             e.printStackTrace();
