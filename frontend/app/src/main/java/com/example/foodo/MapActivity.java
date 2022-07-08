@@ -42,7 +42,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         markers = new ArrayList<>();
-        getFoodoLists("Jim@Jim.com");
+        getFoodoLists("test@fmail.com");
 
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());

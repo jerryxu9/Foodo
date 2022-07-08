@@ -52,7 +52,7 @@ public class SearchResultActivity extends AppCompatActivity {
                 } else {
                     businessStatus = restaurantResult.getString("businessStatus");
                 }
-                boolean addButtonEnabled = true;
+                boolean isInFoodoList = false;
                 restaurantCardArrayList.add(new RestaurantCard(restaurantResult.getString("name"),
                         restaurantResult.getString("address"),
                         restaurantResult.getString("GoogleRating"),
@@ -60,7 +60,7 @@ public class SearchResultActivity extends AppCompatActivity {
                         restaurantResult.getString("id"),
                         restaurantResult.getDouble("lat"),
                         restaurantResult.getDouble("lng"),
-                        addButtonEnabled));
+                        isInFoodoList));
             }
         } catch (JSONException e) {
             e.printStackTrace();

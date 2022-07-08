@@ -2,9 +2,11 @@ package com.example.foodo.objects;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,6 +21,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
     private final Context context;
     private final ArrayList<RestaurantCard> restaurantCardArrayList;
+    private final String TAG = "RestaurantCardAdapter";
 
     public RestaurantCardAdapter(Context context, ArrayList<RestaurantCard> restaurantCardArrayList) {
         this.context = context;
@@ -50,7 +53,20 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                 holder.restaurantStatus.setBackgroundResource(R.drawable.non_operational_tag);
                 break;
         }
-        holder.setAddButtonEnabled(model.getAddButtonEnabled());
+
+        boolean isInFoodoList = model.getInFoodoList();
+        holder.setIsInFoodoList(isInFoodoList);
+
+        // Enable delete button only if RestaurantCard is rendered from Foodo List
+        if (isInFoodoList) {
+            holder.deleteRestaurantFromFoodoListButton.setOnClickListener((View v) -> {
+                Log.d(TAG, String.format("Delete %s", model.getName()));
+            });
+        } else {
+            holder.deleteRestaurantFromFoodoListButton.setEnabled(false);
+            holder.deleteRestaurantFromFoodoListButton.setVisibility(View.INVISIBLE);
+        }
+
         holder.setRestaurantID(model.getId());
         holder.setLat(model.getLat());
         holder.setLng(model.getLng());
@@ -68,7 +84,8 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         private final TextView restaurantStatus;
         private String restaurantID;
         private double lat, lng;
-        private boolean addButtonEnabled;
+        private boolean isInFoodoList;
+        private final Button deleteRestaurantFromFoodoListButton;
 
         public Viewholder(@NonNull View itemView) {
             super(itemView);
@@ -76,6 +93,8 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
             restaurantAddress = itemView.findViewById(R.id.restaurantAddress);
             restaurantRating = itemView.findViewById(R.id.restaurantRating);
             restaurantStatus = itemView.findViewById(R.id.restaurantStatus);
+
+            deleteRestaurantFromFoodoListButton = itemView.findViewById(R.id.delete_restaurant_from_foodo_list_button);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -88,9 +107,10 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                             .putExtra("restaurantID", restaurantID)
                             .putExtra("lat", lat)
                             .putExtra("lng", lng)
-                            .putExtra("addButtonEnabled", addButtonEnabled));
+                            .putExtra("isInFoodoList", isInFoodoList));
                 }
             });
+
         }
 
         public void setRestaurantID(String id) {
@@ -105,8 +125,12 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
             this.lng = lng;
         }
 
-        public void setAddButtonEnabled(boolean addButtonEnabled) {
-            this.addButtonEnabled = addButtonEnabled;
+        public void setIsInFoodoList(boolean isInFoodoList) {
+            this.isInFoodoList = isInFoodoList;
+        }
+
+        public void setFoodoListID(String listID) {
+
         }
     }
 }
