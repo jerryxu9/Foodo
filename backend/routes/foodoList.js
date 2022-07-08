@@ -35,6 +35,17 @@ router.get("/getFoodoLists", async (req, res) => {
   }
 });
 
+// Get all the restaurants under a Foodo list given its ID
+router.get("/getRestaurantIDsByFoodoListID", async (req, res) => {
+  try {
+    const list = await FoodoListModel.findById(req.query.listID);
+    const restaurants = list.restaurants;
+    res.json(restaurants)
+  } catch (err) {
+    res.json(err);
+  }
+})
+
 // Delete a Foodo list from db
 router.delete("/deleteFoodoList", async (req, res) => {
   try {
@@ -139,5 +150,7 @@ router.patch("/checkRestaurantOnList", async (req, res) => {
     res.json(err);
   }
 });
+
+
 
 module.exports = router;
