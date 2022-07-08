@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.foodo.R;
 import com.example.foodo.objects.FoodoListCard;
 import com.example.foodo.objects.FoodoListCardAdapter;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
@@ -82,7 +85,6 @@ public class FoodoListService {
         loadFoodoLists();
     }
 
-
     public void loadFoodoLists() {
         String url = BASE_URL + "/getFoodoLists";
         HttpUrl httpUrl = HttpUrl.parse(url);
@@ -133,7 +135,6 @@ public class FoodoListService {
 
     }
 
-
     private void handleCreateFoodoListAction() {
         LayoutInflater layoutInflater = (LayoutInflater) main_activity.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.create_foodo_list_popup, null);
@@ -145,6 +146,7 @@ public class FoodoListService {
 
         container.findViewById(R.id.create_foodo_list_confirm_button).setOnClickListener((View v) -> {
             try {
+                authenticateAccount(GoogleSignIn.getLastSignedInAccount(main_activity));
                 createFoodoList(container);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -165,7 +167,13 @@ public class FoodoListService {
     }
 
     private void createFoodoList(ViewGroup viewGroup) throws IOException {
+        }else{
 
+        }
+
+    }
+
+    private void createFoodoList(ViewGroup container) throws IOException {
         String url = BASE_URL + "/createFoodoList";
         HttpUrl httpUrl = HttpUrl.parse(url);
 
