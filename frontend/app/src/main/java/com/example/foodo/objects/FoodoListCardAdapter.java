@@ -206,7 +206,6 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                     }
                 }
             });
-
         }
 
         private void handleShareFoodoListAction() {

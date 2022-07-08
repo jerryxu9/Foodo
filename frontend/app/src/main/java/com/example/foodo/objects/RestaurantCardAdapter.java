@@ -1,5 +1,6 @@
 package com.example.foodo.objects;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -15,17 +16,33 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.foodo.R;
 import com.example.foodo.RestaurantInfoActivity;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAdapter.Viewholder> {
 
     private final Context context;
     private final ArrayList<RestaurantCard> restaurantCardArrayList;
     private final String TAG = "RestaurantCardAdapter";
+    private final String listID;
+    private final String BASE_URL = "http://10.0.2.2:3000";
+    private final OkHttpClient client = new OkHttpClient();
+    private String restaurantID;
 
-    public RestaurantCardAdapter(Context context, ArrayList<RestaurantCard> restaurantCardArrayList) {
+    public RestaurantCardAdapter(Context context, ArrayList<RestaurantCard> restaurantCardArrayList, String listID) {
         this.context = context;
         this.restaurantCardArrayList = restaurantCardArrayList;
+        this.listID = listID;
     }
 
     @NonNull
@@ -54,13 +71,16 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                 break;
         }
 
+        restaurantID = model.getId();
+
         boolean isInFoodoList = model.getInFoodoList();
         holder.setIsInFoodoList(isInFoodoList);
 
         // Enable delete button only if RestaurantCard is rendered from Foodo List
         if (isInFoodoList) {
             holder.deleteRestaurantFromFoodoListButton.setOnClickListener((View v) -> {
-                Log.d(TAG, String.format("Delete %s", model.getName()));
+                Log.d(TAG, String.format("Deleted %s", model.getName()));
+                deleteRestaurantFromList(holder);
             });
         } else {
             holder.deleteRestaurantFromFoodoListButton.setEnabled(false);
@@ -70,6 +90,45 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         holder.setRestaurantID(model.getId());
         holder.setLat(model.getLat());
         holder.setLng(model.getLng());
+    }
+
+    private void deleteRestaurantFromList(Viewholder holder) {
+        String url = BASE_URL + "/deleteRestaurantFromList";
+
+        HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
+
+        String json = String.format("{\"listID\": \"%s\", \"restaurantID\": \"%s\"}", listID, restaurantID);
+        Log.d(TAG, listID);
+        Log.d(TAG, restaurantID);
+        RequestBody body = RequestBody.create(
+                MediaType.parse("application/json"), json);
+
+        Request request = new Request.Builder()
+                .url(httpBuilder.build())
+                .patch(body)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    Log.d(TAG, String.format("Delete restaurant %s on foodo list under list id %s failed", holder.getRestaurantName(), listID));
+                } else {
+                    ResponseBody responseBody = response.body();
+                    Log.d(TAG, responseBody.string());
+                    Log.d(TAG, String.format("Delete restaurant %s on foodo list under list id %s succeeded", holder.getRestaurantName(), listID));
+                    ((Activity) context).runOnUiThread(() -> {
+                        restaurantCardArrayList.remove(holder.getLayoutPosition());
+                        notifyItemRemoved(holder.getLayoutPosition());
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override
@@ -82,10 +141,10 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         private final TextView restaurantAddress;
         private final TextView restaurantRating;
         private final TextView restaurantStatus;
+        private final Button deleteRestaurantFromFoodoListButton;
         private String restaurantID;
         private double lat, lng;
         private boolean isInFoodoList;
-        private final Button deleteRestaurantFromFoodoListButton;
 
         public Viewholder(@NonNull View itemView) {
             super(itemView);
@@ -113,6 +172,10 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         }
 
+        public String getRestaurantName() {
+            return (String) restaurantName.getText();
+        }
+
         public void setRestaurantID(String id) {
             this.restaurantID = id;
         }
@@ -127,10 +190,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         public void setIsInFoodoList(boolean isInFoodoList) {
             this.isInFoodoList = isInFoodoList;
-        }
-
-        public void setFoodoListID(String listID) {
-
         }
     }
 }

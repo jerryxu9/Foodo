@@ -9,6 +9,7 @@
     tools:context=".FoodoListActivity">
 
     <TextView
+        android:id="@+id/textView"
         android:layout_width="254dp"
         android:layout_height="55dp"
         android:gravity="center"

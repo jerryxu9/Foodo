@@ -66,7 +66,7 @@ public class SearchResultActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        RestaurantCardAdapter restaurantCardAdapter = new RestaurantCardAdapter(this, restaurantCardArrayList);
+        RestaurantCardAdapter restaurantCardAdapter = new RestaurantCardAdapter(this, restaurantCardArrayList, "dummyID");
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
 
         searchResults.setLayoutManager(linearLayoutManager);

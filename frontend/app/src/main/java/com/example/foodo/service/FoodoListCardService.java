@@ -50,7 +50,7 @@ public class FoodoListCardService {
         restaurantsView = foodoCardActivity.findViewById(R.id.foodo_list_card_restaurants_list);
         populateRestaurantCardsArray();
 
-        restaurantCardAdapter = new RestaurantCardAdapter(foodoCardActivity, restaurantCardArrayList);
+        restaurantCardAdapter = new RestaurantCardAdapter(foodoCardActivity, restaurantCardArrayList, listID);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(foodoCardActivity, LinearLayoutManager.VERTICAL, false);
 
         restaurantsView.setLayoutManager(linearLayoutManager);
@@ -85,8 +85,9 @@ public class FoodoListCardService {
                         // For each restaurant, collect its information and render it as a card.
                         for (int i = 0; i < foodoListJSONArray.length(); i++) {
                             JSONObject restaurant = foodoListJSONArray.getJSONObject(i);
-                            String place_id = restaurant.getString("place_id");
-                            searchRestaurantInfo(place_id);
+                            String placeID = restaurant.getString("place_id");
+                            String cardID = restaurant.getString("_id");
+                            searchRestaurantInfo(placeID, cardID);
                         }
                     }
                 } catch (Exception e) {
@@ -102,7 +103,7 @@ public class FoodoListCardService {
 
     }
 
-    private void searchRestaurantInfo(String googlePlaceID) {
+    private void searchRestaurantInfo(String googlePlaceID, String cardID) {
 
         String url = BASE_URL + "/searchRestaurantInfoByID";
         HttpUrl httpUrl = HttpUrl.parse(url);
@@ -137,7 +138,7 @@ public class FoodoListCardService {
                                         restaurantObj.getString("formatted_address"),
                                         restaurantObj.getString("rating"),
                                         businessStatus,
-                                        restaurantObj.getString("place_id"),
+                                        cardID,
                                         restaurantObj.getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
                                         restaurantObj.getJSONObject("geometry").getJSONObject("location").getDouble("lng"),
                                         isInFoodoList);
