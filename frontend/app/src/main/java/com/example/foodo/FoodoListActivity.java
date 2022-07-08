@@ -1,25 +1,21 @@
 package com.example.foodo;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.foodo.service.FoodoListCardService;
+
+import org.json.JSONException;
 
 public class FoodoListActivity extends AppCompatActivity {
 
 
-    private TextView foodoListCardName;
-
-
-    private String listID, name;
     private final String TAG = "FoodoListActivity";
-
-    private  FoodoListCardService foodoListCardService;
+    private TextView foodoListCardName;
+    private String listID, name;
+    private FoodoListCardService foodoListCardService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,13 +24,8 @@ public class FoodoListActivity extends AppCompatActivity {
 
         getIntentExtras();
         initializeComponents();
-
-        populateRestaurantsList();
     }
 
-    private void populateRestaurantsList(){
-
-    }
 
     private void initializeComponents() {
         foodoListCardName = findViewById(R.id.foodo_list_card_name);
@@ -42,6 +33,7 @@ public class FoodoListActivity extends AppCompatActivity {
 
         foodoListCardService = new FoodoListCardService(this, listID);
         foodoListCardService.setup();
+
     }
 
     private void getIntentExtras() {

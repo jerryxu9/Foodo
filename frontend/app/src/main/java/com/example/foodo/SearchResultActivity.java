@@ -58,7 +58,8 @@ public class SearchResultActivity extends AppCompatActivity {
                         businessStatus,
                         restaurantResult.getString("id"),
                         restaurantResult.getDouble("lat"),
-                        restaurantResult.getDouble("lng")));
+                        restaurantResult.getDouble("lng"),
+                        true));
             }
         } catch (JSONException e) {
             e.printStackTrace();

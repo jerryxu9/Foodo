@@ -10,11 +10,11 @@
 
     <TextView
         android:id="@+id/foodo_list_card_name"
-        android:layout_width="500dp"
-        android:layout_height="100dp"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
         android:gravity="center"
-        android:textSize="32sp"
         android:textColor="@color/black"
+        android:textSize="32sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,12 +23,13 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/foodo_list_card_restaurants_list"
-        android:layout_width="800dp"
-        android:layout_height="1200dp"
-        android:layout_marginTop="96dp"
+        android:layout_width="342dp"
+        android:layout_height="550dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/foodo_list_card_name"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.614" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

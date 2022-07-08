@@ -1,24 +1,20 @@
 package com.example.foodo;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -46,7 +42,9 @@ import okhttp3.ResponseBody;
 
 public class RestaurantInfoActivity extends AppCompatActivity {
 
-    private MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private final OkHttpClient client = new OkHttpClient();
+    private final String TAG = "restaurantInfoActivity", BASE_URL = "http://10.0.2.2:3000";
+    private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private TextView restaurantName_info, restaurantAddress_info, restaurantRating_info, restaurantPhoneNumber, restaurantStatus,
             mondayHours, tuesdayHours, wednesdayHours, thursdayHours, fridayHours, saturdayHours, sundayHours;
     private RecyclerView reviewList;
@@ -55,10 +53,9 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     private String restaurantID;
     private Button submitReviewButton, addRestaurantToFoodoListButton;
     private EditText reviewTextBox;
-    private final OkHttpClient client = new OkHttpClient();
-    private final String TAG = "restaurantInfoActivity", BASE_URL = "http://10.0.2.2:3000";
     private PopupWindow createAddRestaurantToListPopupWindow;
     private double lng, lat;
+    private boolean addButtonEnabled;
     private ArrayList<String> foodoListNames;
     private HashMap<String, String> foodoListIDandNames;
 
@@ -70,19 +67,26 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         getIntentExtras();
 
         submitReviewButton.setOnClickListener((View v) -> {
-                String reviewText = reviewTextBox.getText().toString();
-                if(!reviewText.trim().isEmpty()){
-                    Log.d(TAG, "Got following review from text box: " + reviewText);
-                    Log.d(TAG, "got following rating from spinner: " + spinner.getSelectedItem().toString());
-                    addReview(restaurantID, "name", reviewText, spinner.getSelectedItem().toString());
-                    reviewTextBox.getText().clear();
-                 }
+            String reviewText = reviewTextBox.getText().toString();
+            if (!reviewText.trim().isEmpty()) {
+                Log.d(TAG, "Got following review from text box: " + reviewText);
+                Log.d(TAG, "got following rating from spinner: " + spinner.getSelectedItem().toString());
+                addReview(restaurantID, "name", reviewText, spinner.getSelectedItem().toString());
+                reviewTextBox.getText().clear();
+            }
         });
 
-        addRestaurantToFoodoListButton.setOnClickListener((View view) -> {
-            initializePopUp(view);
-        });
-        
+
+        // Hide add button if info page displayed by clicking on restaurant in Foodo list
+        if (addButtonEnabled) {
+            addRestaurantToFoodoListButton.setOnClickListener((View view) -> {
+                initializePopUp(view);
+            });
+        } else {
+            addRestaurantToFoodoListButton.setEnabled(false);
+            addRestaurantToFoodoListButton.setVisibility(View.INVISIBLE);
+        }
+
         setStatusBackground(restaurantStatus);
         searchRestaurantInfoByID(restaurantID);
         try {
@@ -92,7 +96,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         }
     }
 
-    private void initializePopUp(View view){
+    private void initializePopUp(View view) {
         Log.d(TAG, "Pressed add Foodo restaurant button");
         LayoutInflater layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.activity_add_restaurant_to_list, null);
@@ -123,16 +127,16 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         });
     }
 
-    private String[] getFoodoListsPrimitiveArray(){
+    private String[] getFoodoListsPrimitiveArray() {
         String[] foodoListArray = new String[foodoListNames.size()];
 
-        for(int i = 0; i < foodoListNames.size(); i++){
+        for (int i = 0; i < foodoListNames.size(); i++) {
             foodoListArray[i] = foodoListNames.get(i);
         }
         return foodoListArray;
     }
 
-    private void initializeComponents(){
+    private void initializeComponents() {
         reviewCardArrayList = new ArrayList<>();
         foodoListNames = new ArrayList<>();
         foodoListIDandNames = new HashMap<>();
@@ -160,7 +164,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         initializeSpinner();
     }
 
-    private void initializeSpinner(){
+    private void initializeSpinner() {
         spinner = findViewById(R.id.choose_rating_spinner);
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(RestaurantInfoActivity.this,
                 android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.rating_options));
@@ -168,7 +172,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         spinner.setAdapter(spinnerAdapter);
     }
 
-    private void getIntentExtras(){
+    private void getIntentExtras() {
         restaurantName_info.setText(getIntent().getStringExtra("restaurantName"));
         restaurantAddress_info.setText(getIntent().getStringExtra("restaurantAddress"));
         restaurantRating_info.setText(getIntent().getStringExtra("restaurantRating"));
@@ -176,20 +180,24 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         restaurantID = getIntent().getStringExtra("restaurantID");
         lat = getIntent().getDoubleExtra("lat", 0);
         lng = getIntent().getDoubleExtra("lng", 0);
+        addButtonEnabled = getIntent().getBooleanExtra("addButtonEnabled", addButtonEnabled);
     }
 
-    private void setStatusBackground(TextView restaurantStatus){
-        switch(restaurantStatus.getText().toString()){
-            case "Open": restaurantStatus.setBackgroundResource(R.drawable.open_tag);
+    private void setStatusBackground(TextView restaurantStatus) {
+        switch (restaurantStatus.getText().toString()) {
+            case "Open":
+                restaurantStatus.setBackgroundResource(R.drawable.open_tag);
                 break;
-            case "Closed": restaurantStatus.setBackgroundResource(R.drawable.closed_tag);
+            case "Closed":
+                restaurantStatus.setBackgroundResource(R.drawable.closed_tag);
                 break;
-            default: restaurantStatus.setBackgroundResource(R.drawable.non_operational_tag);
+            default:
+                restaurantStatus.setBackgroundResource(R.drawable.non_operational_tag);
                 break;
         }
     }
 
-    private void getFoodoLists(String userID){
+    private void getFoodoLists(String userID) {
         String url = buildURL("/getFoodoLists");
         HttpUrl httpUrl = HttpUrl.parse(url);
         HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
@@ -212,13 +220,13 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                     if (!response.isSuccessful())
                         throw new IOException(String.format("Unexpected code %s", response));
                     else if (responseBody == null) {
-                        throw new IOException("null response from /searchRestaurantsByQuery endpoint");
+                        throw new IOException("null response from /getFoodoLists endpoint");
                     } else {
                         searchResults = responseBody.string();
                         Log.d(TAG, String.format("response from /getFoodoLists: %s", searchResults));
 
                         JSONArray foodoListsJSON = new JSONArray(searchResults);
-                        for(int i = 0; i < foodoListsJSON.length(); i++){
+                        for (int i = 0; i < foodoListsJSON.length(); i++) {
                             foodoListNames.add(foodoListsJSON.getJSONObject(i).getString("name"));
                             foodoListIDandNames.put(foodoListsJSON.getJSONObject(i).getString("name"), foodoListsJSON.getJSONObject(i).getString("_id"));
                         }
@@ -232,7 +240,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         });
     }
 
-    private void addRestaurantToList(String listID){
+    private void addRestaurantToList(String listID) {
         String url = buildURL("/addRestaurantToList");
         HttpUrl httpUrl = HttpUrl.parse(url);
 
@@ -264,7 +272,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try(ResponseBody responseBody = response.body()){
+                try (ResponseBody responseBody = response.body()) {
                     if (!response.isSuccessful())
                         throw new IOException(String.format("Unexpected code %s", response));
                     else {
@@ -275,7 +283,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         });
     }
 
-    private void searchRestaurantInfoByID(String restaurantID){
+    private void searchRestaurantInfoByID(String restaurantID) {
         String url = buildURL("/searchRestaurantInfoByID");
         HttpUrl httpUrl = HttpUrl.parse(url);
         HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
@@ -294,19 +302,19 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try(ResponseBody responseBody = response.body()){
+                try (ResponseBody responseBody = response.body()) {
                     if (!response.isSuccessful())
                         throw new IOException(String.format("Unexpected code %s", response));
                     else {
                         String responseBodyString = responseBody.string();
                         Log.d(TAG, responseBodyString);
 
-                        runOnUiThread(()->{
+                        runOnUiThread(() -> {
                             try {
                                 JSONObject restaurantObj = new JSONObject(responseBodyString);
-                                if(restaurantObj.has("formatted_phone_number")){
+                                if (restaurantObj.has("formatted_phone_number")) {
                                     restaurantPhoneNumber.setText(restaurantObj.getString("formatted_phone_number"));
-                                }else{
+                                } else {
                                     restaurantPhoneNumber.setText("Phone Number Unavailable");
                                 }
                                 JSONArray openingHours = restaurantObj.getJSONObject("opening_hours").getJSONArray("weekday_text");
@@ -323,12 +331,12 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     }
 
     private void setWeekHours(TextView[] daysOfWeek, JSONArray openingHours) throws JSONException {
-        for(int i = 0; i < daysOfWeek.length; i++){
+        for (int i = 0; i < daysOfWeek.length; i++) {
             daysOfWeek[i].setText(openingHours.getString(i).split(" ", 2)[1]);
         }
     }
 
-    private void addReview(String restaurantID, String name, String text, String rating){
+    private void addReview(String restaurantID, String name, String text, String rating) {
         String url = buildURL("/addReview");
         HttpUrl httpUrl = HttpUrl.parse(url);
 
@@ -358,7 +366,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try(ResponseBody responseBody = response.body()){
+                try (ResponseBody responseBody = response.body()) {
                     if (!response.isSuccessful())
                         throw new IOException(String.format("Unexpected code %s", response));
                     else {
@@ -410,10 +418,10 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                             try {
                                 JSONArray responseBodyJSONArray = new JSONArray(searchResults);
 
-                                for(int i = 0; i < responseBodyJSONArray.length(); i++){
+                                for (int i = 0; i < responseBodyJSONArray.length(); i++) {
                                     JSONObject reviewCardJSON = responseBodyJSONArray.getJSONObject(i);
                                     Log.d(TAG, reviewCardJSON.toString());
-                                    reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"),reviewCardJSON.getString("rating")));
+                                    reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating")));
                                 }
 
                                 ReviewCardAdapter reviewCardAdapter = new ReviewCardAdapter(RestaurantInfoActivity.this, reviewCardArrayList);
@@ -434,7 +442,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         });
     }
 
-    private String buildURL(String path){
+    private String buildURL(String path) {
         return BASE_URL + path;
     }
 }

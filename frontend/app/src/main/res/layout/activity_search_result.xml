@@ -8,19 +8,19 @@
     android:background="@color/app_background">
 
     <TextView
+        android:id="@+id/search_text"
         android:layout_width="342dp"
         android:layout_height="47dp"
         android:background="@drawable/search_bar_rectangle"
-        android:text="Tim Hortons"
         android:gravity="center_vertical"
         android:paddingStart="45dp"
-        android:id="@+id/search_text"
+        android:text="Tim Hortons"
         app:layout_constraintBottom_toTopOf="@+id/search_list"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.378" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/search_list"
@@ -29,9 +29,9 @@
         android:background="@drawable/search_list_rectangle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.841" />
+        app:layout_constraintVertical_bias="0.597" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

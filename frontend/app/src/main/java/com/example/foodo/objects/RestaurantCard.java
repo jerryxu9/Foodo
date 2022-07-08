@@ -3,8 +3,9 @@ package com.example.foodo.objects;
 public class RestaurantCard {
     private String name, address, rating, status, id;
     private double lat, lng;
+    private boolean addButtonEnabled;
 
-    public RestaurantCard(String name, String address, String rating, String status, String id, double lat, double lng){
+    public RestaurantCard(String name, String address, String rating, String status, String id, double lat, double lng, boolean addButtonEnabled){
         this.name = name;
         this.address = address;
         this.rating = rating;
@@ -12,6 +13,7 @@ public class RestaurantCard {
         this.id = id;
         this.lat = lat;
         this.lng = lng;
+        this.addButtonEnabled = addButtonEnabled;
     }
 
     public String getName(){
@@ -40,5 +42,9 @@ public class RestaurantCard {
 
     public double getLng(){
         return lng;
+    }
+
+    public boolean getAddButtonEnabled() {
+        return addButtonEnabled;
     }
 }
