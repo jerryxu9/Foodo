@@ -57,7 +57,7 @@ public class FoodoListCardService {
         restaurantsView.setAdapter(restaurantCardAdapter);
     }
 
-    private void populateRestaurantCardsArray(){
+    private void populateRestaurantCardsArray() {
         String url = BASE_URL + "/getRestaurantIDsByFoodoListId";
         HttpUrl httpUrl = HttpUrl.parse(url);
 
@@ -102,7 +102,7 @@ public class FoodoListCardService {
 
     }
 
-    private void searchRestaurantInfo(String googlePlaceID) throws JSONException {
+    private void searchRestaurantInfo(String googlePlaceID) {
 
         String url = BASE_URL + "/searchRestaurantInfoByID";
         HttpUrl httpUrl = HttpUrl.parse(url);
@@ -132,8 +132,7 @@ public class FoodoListCardService {
                         String businessStatus = restaurantObj.getString("business_status");
                         foodoCardActivity.runOnUiThread(() -> {
                             try {
-                                // Disable the add button because it's already in the Foodolist.
-                                boolean addButtonEnabled = false;
+                                boolean isInFoodoList = true;
                                 RestaurantCard restaurantCard = new RestaurantCard(restaurantObj.getString("name"),
                                         restaurantObj.getString("formatted_address"),
                                         restaurantObj.getString("rating"),
@@ -141,7 +140,7 @@ public class FoodoListCardService {
                                         restaurantObj.getString("place_id"),
                                         restaurantObj.getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
                                         restaurantObj.getJSONObject("geometry").getJSONObject("location").getDouble("lng"),
-                                        addButtonEnabled);
+                                        isInFoodoList);
                                 restaurantCardArrayList.add(restaurantCard);
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -162,11 +161,4 @@ public class FoodoListCardService {
         });
     }
 
-
-//    private final FoodoListCardAdapter foodoListCardAdapter;
-//    private final LinearLayoutManager linearLayoutManager;
-//    private final ArrayList<FoodoListCard> foodoListCardArrayList;
-//    private RecyclerView foodoLists;
-//    private FloatingActionButton createFoodoListButton, refreshButton;
-//    private PopupWindow createFoodoListPopupWindow;
 }
