@@ -53,7 +53,7 @@ public class FoodoListService {
     private final LinearLayoutManager linearLayoutManager;
     private final ArrayList<FoodoListCard> foodoListCardArrayList;
     private RecyclerView foodoLists;
-    private FloatingActionButton createFoodoListButton;
+    private FloatingActionButton createFoodoListButton, refreshButton;
     private PopupWindow createFoodoListPopupWindow;
 
     public FoodoListService(AppCompatActivity activity, OkHttpClient client) {
@@ -68,13 +68,24 @@ public class FoodoListService {
         createFoodoListButton = main_activity.findViewById(R.id.create_foodo_list_button);
         createFoodoListButton.setOnClickListener((View v) -> handleCreateFoodoListAction());
 
+        refreshButton = main_activity.findViewById(R.id.refresh_button);
+        refreshButton.setOnClickListener((View v) -> {
+            refreshFoodoLists();
+        });
+
         foodoLists = main_activity.findViewById(R.id.foodo_lists);
-        initializeFoodoLists();
+        loadFoodoLists();
+
         foodoLists.setLayoutManager(linearLayoutManager);
         foodoLists.setAdapter(foodoListCardAdapter);
     }
 
-    private void initializeFoodoLists() {
+    public void refreshFoodoLists() {
+        foodoListCardAdapter.clearFoodoLists();
+        loadFoodoLists();
+    }
+
+    public void loadFoodoLists() {
         String url = BASE_URL + "/getFoodoLists";
         HttpUrl httpUrl = HttpUrl.parse(url);
 
@@ -98,17 +109,17 @@ public class FoodoListService {
                     else if (responseBody == null) {
                         throw new IOException("null response from /getFoodoLists endpoint");
                     } else {
+                        foodoListCardAdapter.clearFoodoLists();
                         JSONArray foodoListJSONArray = new JSONArray(responseBody.string());
                         for (int i = 0; i < foodoListJSONArray.length(); i++) {
                             JSONObject foodoListJSON = (JSONObject) foodoListJSONArray.get(i);
                             String id = foodoListJSON.getString("_id");
-                            // Render only those FoodoListCards only if they did not already exist
-                            if (!foodoListCardAdapter.checkIfIDExists(id)) {
-                                Log.d(TAG, String.format("item %s", foodoListCardAdapter.getItemId(i)));
-                                Log.d(TAG, String.format("add %s", foodoListJSON.getString("name")));
-//                                foodoListCardArrayList.add(new FoodoListCard(foodoListJSON.getString("name"), id));
-                                foodoListCardAdapter.addFoodoList(new FoodoListCard(foodoListJSON.getString("name"), id));
-                            }
+                            String name = foodoListJSON.getString("name");
+
+                            Log.d(TAG, String.format("Loaded Foodo List '%s' with id: %s", name, id));
+
+                            FoodoListCard card = new FoodoListCard(foodoListJSON.getString("name"), id);
+                            foodoListCardAdapter.addFoodoList(card);
                         }
                     }
                 } catch (Exception e) {
@@ -125,9 +136,8 @@ public class FoodoListService {
     }
 
     private void handleCreateFoodoListAction() {
-        Log.d(TAG, "Pressed add Foodo restaurant button");
         LayoutInflater layoutInflater = (LayoutInflater) main_activity.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.activity_create_foodo_list, null);
+        ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.create_foodo_list_popup, null);
 
         ConstraintLayout createFoodoListConstraintLayout = main_activity.findViewById(R.id.constraint);
 
@@ -156,10 +166,7 @@ public class FoodoListService {
         });
     }
 
-    private void authenticateAccount(GoogleSignInAccount account){
-        //user has never logged in
-        if(account == null){
-
+    private void createFoodoList(ViewGroup viewGroup) throws IOException {
         }else{
 
         }
@@ -175,19 +182,19 @@ public class FoodoListService {
             return;
         }
 
-        EditText foodoListNameInput = container.findViewById(R.id.enter_foodo_list_name_edit_text);
+        EditText foodoListNameInput = viewGroup.findViewById(R.id.enter_foodo_list_name_edit_text);
         String foodoListName = foodoListNameInput.getText().toString();
 
         // Remove trailing whitespace on text input before checking if it's empty
-        if (foodoListName == null || foodoListName.replaceAll("\\s", "") == "") {
+        if (foodoListName == null || foodoListName.trim() == "") {
             Log.d(TAG, "Unable to submit empty foodoListName");
             return;
         }
-        String json = String.format("{\"userID\": \"%s\", \"listName\": \"%s\"}", USERID, foodoListName.replaceAll("\\s", ""));
+        String json = String.format("{\"userID\": \"%s\", \"listName\": \"%s\"}", USERID, foodoListName.trim());
         RequestBody body = RequestBody.create(
                 MediaType.parse("application/json"), json);
 
-        HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("userID", USERID);
+        HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
 
         Request request = new Request.Builder()
                 .url(httpBuilder.build())
@@ -210,7 +217,7 @@ public class FoodoListService {
                     } else {
                         JSONObject createdFoodoList = new JSONObject(responseBody.string());
                         String listName = createdFoodoList.getString("name");
-                        String listID =  createdFoodoList.getString("_id");
+                        String listID = createdFoodoList.getString("_id");
                         main_activity.runOnUiThread(() -> {
                             foodoListCardAdapter.addFoodoList(new FoodoListCard(listName, listID));
                             createFoodoListPopupWindow.dismiss();

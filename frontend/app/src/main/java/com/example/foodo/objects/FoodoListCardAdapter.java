@@ -3,12 +3,16 @@ package com.example.foodo.objects;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.foodo.R;
@@ -24,6 +28,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdapter.Viewholder> {
 
@@ -32,12 +37,14 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
     private final ArrayList<FoodoListCard> foodoListArrayList;
     private final OkHttpClient client;
     private final String USERID = "test@gmail.com";
+    private final Activity mainActivity;
     Context context;
 
     public FoodoListCardAdapter(Context context, ArrayList<FoodoListCard> foodoListArrayList, OkHttpClient client) {
         this.context = context;
         this.foodoListArrayList = foodoListArrayList;
         this.client = client;
+        this.mainActivity = ((Activity) context);
     }
 
     @NonNull
@@ -83,19 +90,17 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
         return false;
     }
 
+    public void clearFoodoLists() {
+        int size = getItemCount();
+        foodoListArrayList.clear();
+        notifyItemRangeRemoved(0, size);
+    }
+
     public void addFoodoList(FoodoListCard card) {
         ((Activity) context).runOnUiThread(() -> {
             foodoListArrayList.add(card);
             notifyItemInserted(foodoListArrayList.size());
         });
-    }
-
-    public ArrayList<FoodoListCard> getFoodoList() {
-        return foodoListArrayList;
-    }
-
-    private void handleOpenFoodoListAction() {
-
     }
 
 
@@ -114,6 +119,14 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
 
             itemView.findViewById(R.id.delete_foodo_list_button).setOnClickListener((View v) -> {
                 handleDeleteFoodoListAction();
+            });
+
+            itemView.findViewById(R.id.delete_foodo_list_button).setOnClickListener((View v) -> {
+                handleDeleteFoodoListAction();
+            });
+
+            itemView.findViewById(R.id.share_foodo_list_button).setOnClickListener((View v) -> {
+                handleShareFoodoListAction();
             });
         }
 
@@ -161,6 +174,79 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
 
         }
 
+        private void shareFoodoList(ViewGroup viewGroup) {
+            String url = BASE_URL + "/addNewUserToList";
+            HttpUrl httpUrl = HttpUrl.parse(url);
+
+            if (httpUrl == null) {
+                Log.d(TAG, String.format("unable to parse server URL: %s", url));
+                return;
+            }
+
+            EditText userEmailInput = viewGroup.findViewById(R.id.enter_user_email_edit_text);
+            String userEmail = userEmailInput.getText().toString();
+
+            // Remove trailing whitespace on text input before checking if it's empty
+            if (userEmail == null || userEmail.trim() == "") {
+                Log.d(TAG, "Unable to submit empty userEmail");
+                return;
+            }
+            String json = String.format("{\"listID\": \"%s\", \"userID\": \"%s\"}", list_id, USERID);
+            RequestBody body = RequestBody.create(
+                    MediaType.parse("application/json"), json);
+
+            HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
+
+            Request request = new Request.Builder()
+                    .url(httpBuilder.build())
+                    .patch(body)
+                    .build();
+
+            client.newCall((request)).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    try (ResponseBody responseBody = response.body()) {
+                        if (!response.isSuccessful())
+                            throw new IOException(String.format("Unexpected code %s", response));
+                        else if (responseBody == null) {
+                            throw new IOException("null response from /addNewUserTList endpoint");
+                        } else {
+                            String n = responseBody.toString();
+                            Log.d(TAG, n);
+                        }
+                    }
+                }
+            });
+
+        }
+
+        private void handleShareFoodoListAction() {
+            LayoutInflater layoutInflater = (LayoutInflater) mainActivity.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.share_foodo_list_popup, null);
+
+            ConstraintLayout createFoodoListConstraintLayout = mainActivity.findViewById(R.id.constraint);
+
+            PopupWindow shareFoodoListPopupWindow = new PopupWindow(container, 800, 800, true);
+            shareFoodoListPopupWindow.showAtLocation(createFoodoListConstraintLayout, Gravity.CENTER, 0, 0);
+            container.findViewById(R.id.share_foodo_list_confirm_button).setOnClickListener((View v) -> {
+                shareFoodoList(container);
+                shareFoodoListPopupWindow.dismiss();
+            });
+
+            container.findViewById(R.id.share_foodo_list_cancel_button).setOnClickListener((View v) -> {
+                Log.d(TAG, "Cancelled sharing Foodo list");
+                shareFoodoListPopupWindow.dismiss();
+            });
+        }
+
+        private void handleOpenFoodoListAction() {
+
+        }
     }
 
 
