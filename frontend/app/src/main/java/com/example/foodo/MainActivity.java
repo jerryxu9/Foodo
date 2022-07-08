@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private final String BASE_URL = "http://10.0.2.2:3000";
     private SearchView restaurantSearch;
     private Button mapButton;
-
+    private FoodoListService foodoListService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         mapButton = findViewById(R.id.map_button);
         mapButton.setOnClickListener((View v) -> handleMapAction());
 
-        FoodoListService foodoListService = new FoodoListService(this, client);
+        foodoListService = new FoodoListService(this, client);
         foodoListService.setup();
     }
 
