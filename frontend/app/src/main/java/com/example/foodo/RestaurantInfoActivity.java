@@ -137,7 +137,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         foodoListNames = new ArrayList<>();
         foodoListIDandNames = new HashMap<>();
 
-        getFoodoLists("Jim@Jim.com");
+        getFoodoLists("test@gmail.com");
 
         submitReviewButton = findViewById(R.id.reviewSendButton);
         addRestaurantToFoodoListButton = findViewById(R.id.add_restaurant_to_list_button);

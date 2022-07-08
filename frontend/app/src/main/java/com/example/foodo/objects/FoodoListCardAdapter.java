@@ -2,6 +2,7 @@ package com.example.foodo.objects;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.foodo.FoodoListActivity;
 import com.example.foodo.R;
 
 import java.io.IOException;
@@ -70,24 +72,6 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
     @Override
     public int getItemCount() {
         return foodoListArrayList.size();
-    }
-
-    /**
-     * Returns whether the given FoodoListCard ID already exists amongst the rendered FoodoListCards
-     *
-     * @param id A FoodoList ID obtained from the backend
-     * @return True if ID exists, false otherwise
-     */
-
-    public boolean checkIfIDExists(String id) {
-        for (int i = 0; i < foodoListArrayList.size(); i++) {
-            if (foodoListArrayList.get(i).getId() == id) {
-                Log.d(TAG, String.format("Id %s already exists at %s", id, foodoListArrayList.get(i).getName()));
-                return true;
-            }
-        }
-        Log.d(TAG, String.format("Id %s is unique", id));
-        return false;
     }
 
     public void clearFoodoLists() {
@@ -187,7 +171,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
             String userEmail = userEmailInput.getText().toString();
 
             // Remove trailing whitespace on text input before checking if it's empty
-            if (userEmail == null || userEmail.trim() == "") {
+            if (userEmail.trim().isEmpty()) {
                 Log.d(TAG, "Unable to submit empty userEmail");
                 return;
             }
@@ -245,6 +229,10 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
         }
 
         private void handleOpenFoodoListAction() {
+            Intent foodoIntent = new Intent(mainActivity, FoodoListActivity.class)
+                    .putExtra("name", name)
+                    .putExtra("listID", list_id);
+            mainActivity.startActivity(foodoIntent);
 
         }
     }
