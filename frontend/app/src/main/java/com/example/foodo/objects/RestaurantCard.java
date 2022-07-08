@@ -1,16 +1,11 @@
 package com.example.foodo.objects;
 
 public class RestaurantCard {
-    private final String name;
-    private final String address;
-    private final String rating;
-    private final String status;
-    private final String id;
-    private final double lat;
-    private final double lng;
-    private final boolean isInFoodoList;
+    private String name, address, rating, status, id;
+    private double lat, lng;
+    private boolean addButtonEnabled;
 
-    public RestaurantCard(String name, String address, String rating, String status, String id, double lat, double lng, boolean isInFoodoList) {
+    public RestaurantCard(String name, String address, String rating, String status, String id, double lat, double lng, boolean addButtonEnabled){
         this.name = name;
         this.address = address;
         this.rating = rating;
@@ -18,26 +13,26 @@ public class RestaurantCard {
         this.id = id;
         this.lat = lat;
         this.lng = lng;
-        this.isInFoodoList = isInFoodoList;
+        this.addButtonEnabled = addButtonEnabled;
     }
 
-    public String getName() {
+    public String getName(){
         return name;
     }
 
-    public String getAddress() {
+    public String getAddress(){
         return address;
     }
 
-    public String getRating() {
+    public String getRating(){
         return rating;
     }
 
-    public String getStatus() {
+    public String getStatus(){
         return status;
     }
 
-    public String getId() {
+    public String getId(){
         return id;
     }
 
@@ -45,11 +40,11 @@ public class RestaurantCard {
         return lat;
     }
 
-    public double getLng() {
+    public double getLng(){
         return lng;
     }
 
-    public boolean getInFoodoList() {
-        return isInFoodoList;
+    public boolean getAddButtonEnabled() {
+        return addButtonEnabled;
     }
 }

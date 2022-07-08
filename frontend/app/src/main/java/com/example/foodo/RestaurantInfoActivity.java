@@ -55,7 +55,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     private EditText reviewTextBox;
     private PopupWindow createAddRestaurantToListPopupWindow;
     private double lng, lat;
-    private boolean isInFoodoList;
+    private boolean addButtonEnabled;
     private ArrayList<String> foodoListNames;
     private HashMap<String, String> foodoListIDandNames;
 
@@ -76,14 +76,15 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             }
         });
 
+
         // Hide add button if info page displayed by clicking on restaurant in Foodo list
-        if (isInFoodoList) {
-            addRestaurantToFoodoListButton.setEnabled(false);
-            addRestaurantToFoodoListButton.setVisibility(View.INVISIBLE);
-        } else {
+        if (addButtonEnabled) {
             addRestaurantToFoodoListButton.setOnClickListener((View view) -> {
                 initializePopUp(view);
             });
+        } else {
+            addRestaurantToFoodoListButton.setEnabled(false);
+            addRestaurantToFoodoListButton.setVisibility(View.INVISIBLE);
         }
 
         setStatusBackground(restaurantStatus);
@@ -94,7 +95,6 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
 
     private void initializePopUp(View view) {
         Log.d(TAG, "Pressed add Foodo restaurant button");
@@ -125,7 +125,6 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             Log.d(TAG, "Cancelled adding restaurant to list");
             createAddRestaurantToListPopupWindow.dismiss();
         });
-
     }
 
     private String[] getFoodoListsPrimitiveArray() {
@@ -167,7 +166,6 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
     private void initializeSpinner() {
         spinner = findViewById(R.id.choose_rating_spinner);
-
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(RestaurantInfoActivity.this,
                 android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.rating_options));
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -182,7 +180,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         restaurantID = getIntent().getStringExtra("restaurantID");
         lat = getIntent().getDoubleExtra("lat", 0);
         lng = getIntent().getDoubleExtra("lng", 0);
-        isInFoodoList = getIntent().getBooleanExtra("isInFoodoList", isInFoodoList);
+        addButtonEnabled = getIntent().getBooleanExtra("addButtonEnabled", addButtonEnabled);
     }
 
     private void setStatusBackground(TextView restaurantStatus) {
