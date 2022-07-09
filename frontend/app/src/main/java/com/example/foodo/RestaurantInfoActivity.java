@@ -394,7 +394,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                     if (!response.isSuccessful())
                         throw new IOException(String.format("Unexpected code %s", response));
                     else {
-                        
+
                         Log.d(TAG, responseBody.string());
                     }
                 }
@@ -471,5 +471,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         return BASE_URL + path;
     }
 
-
+    public void addReviewCard(ReviewCard reviewCard) {
+        reviewCardArrayList.add(reviewCard);
+    }
 }

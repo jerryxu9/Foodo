@@ -4,15 +4,17 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
+//import androidx.work.OneTimeWorkRequest;
+//import androidx.work.WorkManager;
+//import androidx.work.Worker;
+//import androidx.work.WorkerParameters;
 
+import com.example.foodo.RestaurantInfoActivity;
 import com.example.foodo.objects.ReviewCard;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
@@ -30,7 +32,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (dataPayload.size() > 0) {
             Log.d(TAG, "Message data payload: " + dataPayload);
         // TODO: Figure out how to get reviewCardArrayList and append to it
-            reviewCardArrayList.add(new ReviewCard(dataPayload.get("reviewName"),
+            RestaurantInfoActivity restaurantInfoActivity = new RestaurantInfoActivity();
+            restaurantInfoActivity.addReviewCard(new ReviewCard(dataPayload.get("reviewName"),
                     dataPayload.get("reviewText"),
                     dataPayload.get("reviewRating")));
         }
@@ -60,17 +63,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // TODO: Implement this method to send token to your app server.
     }
 
-    public static class MyWorker extends Worker {
-
-        public MyWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
-            super(context, workerParams);
-        }
-
-        @NonNull
-        @Override
-        public Result doWork() {
-            // TODO(developer): add long running task here.
-            return Result.success();
-        }
-    }
+//    public static class MyWorker extends Worker {
+//
+//        public MyWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+//            super(context, workerParams);
+//        }
+//
+//        @NonNull
+//        @Override
+//        public Result doWork() {
+//            // TODO(developer): add long running task here.
+//            return Result.success();
+//        }
+//    }
 }

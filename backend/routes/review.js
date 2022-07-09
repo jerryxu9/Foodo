@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Review = require("../models/Review");
+const { getMessaging } = require("firebase-admin/messaging");
 
 // Get all reviews of a restaurant
 router.get("/getReviews", async (req, res) => {
@@ -22,7 +23,7 @@ router.post("/addReview", async (req, res) => {
     const data = await review.save();
     // Send a message to devices subscribed to the provided topic.
     getMessaging()
-      .send(message)
+      .send({ ...req.body })
       .then((response) => {
         // Response is a message ID string.
         console.log("Successfully sent message:", response);
