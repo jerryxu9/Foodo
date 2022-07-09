@@ -11,6 +11,8 @@ public class RestaurantCard {
         this.address = address;
         this.rating = rating;
         this.status = status;
+        // Make a distinction between the restaurant card ID (as stored in the database)
+        // and the google place_id of the restaurant the RestaurantCard represents
         this.googlePlacesID = googlePlacesID;
         this.cardID = cardID;
         this.lat = lat;
@@ -53,6 +55,5 @@ public class RestaurantCard {
 
     public boolean getInFoodoList() {
         return isInFoodoList;
-
     }
 }

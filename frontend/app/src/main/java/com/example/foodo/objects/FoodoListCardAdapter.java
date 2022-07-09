@@ -147,7 +147,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                     if (!response.isSuccessful()) {
                         Log.d(TAG, String.format("Delete FoodoList %s failed using id %s", name, list_id));
                     } else {
-                        Log.d(TAG, String.format("Foodo list %s was successfully deleted using id %s.", name, list_id));
+                        Log.d(TAG, String.format("Foodo list %s deleted using id %s", name, list_id));
                         ((Activity) context).runOnUiThread(() -> {
                             foodoListArrayList.remove(getLayoutPosition());
                             notifyItemRemoved(getLayoutPosition());
@@ -200,8 +200,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                         else if (responseBody == null) {
                             throw new IOException("null response from /addNewUserTList endpoint");
                         } else {
-                            String n = responseBody.toString();
-                            Log.d(TAG, n);
+                            Log.d(TAG, String.format("Shared FoodoList: %s with %s", list_id, userEmail));
                         }
                     }
                 }

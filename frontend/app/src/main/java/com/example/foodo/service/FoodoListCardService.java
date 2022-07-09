@@ -30,7 +30,6 @@ public class FoodoListCardService {
 
     private final String TAG = "FoodoListCardService";
 
-    private final String USERID = "test@gmail.com";
     private final String BASE_URL = "http://10.0.2.2:3000";
     private final OkHttpClient client = new OkHttpClient();
     private final AppCompatActivity foodoCardActivity;
@@ -88,11 +87,10 @@ public class FoodoListCardService {
                         // For each restaurant, collect its information and render it as a card.
                         for (int i = 0; i < foodoListJSONArray.length(); i++) {
                             JSONObject restaurant = foodoListJSONArray.getJSONObject(i);
-                            Log.d(TAG, restaurant.toString());
+                            Log.d(TAG, String.format("Create restaurantcard %s under Foodo List %s", restaurant.toString(), listID));
                             String placeID = restaurant.getString("place_id");
                             String cardID = restaurant.getString("_id");
                             searchRestaurantInfo(placeID, cardID);
-
                         }
                     }
                 } catch (Exception e) {
@@ -109,7 +107,6 @@ public class FoodoListCardService {
     }
 
     private void searchRestaurantInfo(String googlePlaceID, String cardID) {
-
 
         String url = BASE_URL + "/searchRestaurantInfoByID";
         HttpUrl httpUrl = HttpUrl.parse(url);
@@ -136,7 +133,19 @@ public class FoodoListCardService {
                     } else {
                         String responseBodyString = responseBody.string();
                         JSONObject restaurantObj = new JSONObject(responseBodyString);
+                        Log.d(TAG, restaurantObj.toString());
                         String businessStatus = restaurantObj.getString("business_status");
+                        if (businessStatus.equals("OPERATIONAL")) {
+                            if (restaurantObj.getJSONObject("opening_hours").getBoolean("open_now")) {
+                                businessStatus = "Open";
+                            } else {
+                                businessStatus = "Closed";
+                            }
+                        } else {
+                            businessStatus = restaurantObj.getString("businessStatus");
+                        }
+
+                        String finalBusinessStatus = businessStatus;
                         foodoCardActivity.runOnUiThread(() -> {
                             try {
                                 boolean isInFoodoList = true;
@@ -144,7 +153,7 @@ public class FoodoListCardService {
                                 RestaurantCard restaurantCard = new RestaurantCard(restaurantObj.getString("name"),
                                         restaurantObj.getString("formatted_address"),
                                         restaurantObj.getString("rating"),
-                                        businessStatus,
+                                        finalBusinessStatus,
                                         googlePlaceID,
                                         cardID,
                                         restaurantObj.getJSONObject("geometry").getJSONObject("location").getDouble("lat"),

@@ -118,21 +118,19 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
             deleteRestaurantFromFoodoListButton = itemView.findViewById(R.id.delete_restaurant_from_foodo_list_button);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    v.getContext().startActivity(new Intent(v.getContext(), RestaurantInfoActivity.class)
-                            .putExtra("restaurantName", restaurantName.getText())
-                            .putExtra("restaurantAddress", restaurantAddress.getText())
-                            .putExtra("restaurantRating", restaurantRating.getText())
-                            .putExtra("restaurantStatus", restaurantStatus.getText())
-                            .putExtra("googlePlacesID", googlePlacesID)
-                            .putExtra("lat", lat)
-                            .putExtra("lng", lng)
-                            .putExtra("isInFoodoList", isInFoodoList));
+            itemView.setOnClickListener((View v) -> {
+                        v.getContext().startActivity(new Intent(v.getContext(), RestaurantInfoActivity.class)
+                                .putExtra("restaurantName", restaurantName.getText())
+                                .putExtra("restaurantAddress", restaurantAddress.getText())
+                                .putExtra("restaurantRating", restaurantRating.getText())
+                                .putExtra("restaurantStatus", restaurantStatus.getText())
+                                .putExtra("googlePlacesID", googlePlacesID)
+                                .putExtra("lat", lat)
+                                .putExtra("lng", lng)
+                                .putExtra("isInFoodoList", isInFoodoList));
 
-                }
-            });
+                    }
+            );
 
         }
 
