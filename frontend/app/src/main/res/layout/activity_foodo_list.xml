@@ -22,6 +22,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.009" />
 
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/foodo_list_card_restaurants_list"
         android:layout_width="342dp"

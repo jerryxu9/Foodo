@@ -62,6 +62,7 @@ public class SearchResultActivity extends AppCompatActivity {
                         restaurantResult.getDouble("lat"),
                         restaurantResult.getDouble("lng"),
                         isInFoodoList));
+
             }
         } catch (JSONException e) {
             e.printStackTrace();

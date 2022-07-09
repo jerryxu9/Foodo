@@ -33,11 +33,13 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
     private final Context context;
     private final ArrayList<RestaurantCard> restaurantCardArrayList;
+
     private final String TAG = "RestaurantCardAdapter";
     private final String listID;
     private final String BASE_URL = "http://10.0.2.2:3000";
     private final OkHttpClient client = new OkHttpClient();
     private String cardID;
+
 
     public RestaurantCardAdapter(Context context, ArrayList<RestaurantCard> restaurantCardArrayList, String listID) {
         this.context = context;
@@ -88,6 +90,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         }
 
         holder.setGooglePlacesID(model.getGooglePlacesID());
+
         holder.setLat(model.getLat());
         holder.setLng(model.getLng());
     }
@@ -146,6 +149,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         private double lat, lng;
         private boolean isInFoodoList;
 
+
         public Viewholder(@NonNull View itemView) {
             super(itemView);
             restaurantName = itemView.findViewById(R.id.restaurantName);
@@ -167,10 +171,12 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                             .putExtra("lat", lat)
                             .putExtra("lng", lng)
                             .putExtra("isInFoodoList", isInFoodoList));
+
                 }
             });
 
         }
+
 
         public String getRestaurantName() {
             return (String) restaurantName.getText();
@@ -187,9 +193,9 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         public void setLng(double lng) {
             this.lng = lng;
         }
-
         public void setIsInFoodoList(boolean isInFoodoList) {
             this.isInFoodoList = isInFoodoList;
+
         }
     }
 }
