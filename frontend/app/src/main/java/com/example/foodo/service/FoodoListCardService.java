@@ -41,7 +41,6 @@ public class FoodoListCardService {
         this.foodoCardActivity = foodoCardActivity;
         this.restaurantCardArrayList = new ArrayList<>();
         this.listID = listID;
-        initializeComponents();
     }
 
     public void initializeComponents() {
@@ -58,7 +57,7 @@ public class FoodoListCardService {
 
     private void populateRestaurantCardsArray() {
 
-        String url = BASE_URL + "/getRestaurantIDsByFoodoListId";
+        String url = BASE_URL + "/getRestaurantsByFoodoListID";
         HttpUrl httpUrl = HttpUrl.parse(url);
 
         HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("listID", listID);
@@ -83,7 +82,8 @@ public class FoodoListCardService {
                             Log.d(TAG, String.format("Create Restaurant Card for %s under Foodo List %s", restaurant.toString(), listID));
                             String placeID = restaurant.getString("place_id");
                             String cardID = restaurant.getString("_id");
-                            searchRestaurantInfo(placeID, cardID);
+                            boolean isVisited = restaurant.getBoolean("isVisited");
+                            createRestaurantCards(placeID, cardID, isVisited);
                         }
                     }
                 } catch (Exception e) {
@@ -99,7 +99,7 @@ public class FoodoListCardService {
 
     }
 
-    private void searchRestaurantInfo(String googlePlaceID, String cardID) {
+    private void createRestaurantCards(String googlePlaceID, String cardID, boolean isVisited) {
 
         String url = BASE_URL + "/searchRestaurantInfoByID";
         HttpUrl httpUrl = HttpUrl.parse(url);
@@ -129,7 +129,7 @@ public class FoodoListCardService {
                         String businessStatus = getBusinessStatus(restaurant);
                         foodoCardActivity.runOnUiThread(() -> {
                             try {
-                                restaurantCardArrayList.add(new RestaurantCard(
+                                RestaurantCard card = new RestaurantCard(
                                         restaurant.getString("name"),
                                         restaurant.getString("formatted_address"),
                                         restaurant.getString("rating"),
@@ -138,7 +138,9 @@ public class FoodoListCardService {
                                         cardID,
                                         getLatitude(restaurant),
                                         getLongitude(restaurant),
-                                        true));
+                                        true);
+                                card.setVisited(isVisited);
+                                restaurantCardArrayList.add(card);
                                 restaurantCardAdapter.notifyItemInserted(restaurantCardAdapter.getItemCount());
                             } catch (JSONException e) {
                                 e.printStackTrace();

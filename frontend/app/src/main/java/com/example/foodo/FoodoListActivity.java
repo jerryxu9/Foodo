@@ -11,7 +11,6 @@ public class FoodoListActivity extends AppCompatActivity {
 
     private TextView foodoListCardName;
     private String listID, name;
-    private FoodoListCardService foodoListCardService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +26,8 @@ public class FoodoListActivity extends AppCompatActivity {
         foodoListCardName = findViewById(R.id.foodo_list_card_name);
         foodoListCardName.setText(name);
 
-        foodoListCardService = new FoodoListCardService(this, listID);
+        FoodoListCardService foodoListCardService = new FoodoListCardService(this, listID);
+        foodoListCardService.initializeComponents();
     }
 
     private void getIntentExtras() {
