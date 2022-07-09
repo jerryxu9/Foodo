@@ -75,13 +75,19 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         boolean isInFoodoList = model.getInFoodoList();
         holder.setIsInFoodoList(isInFoodoList);
 
-        // Enable delete button only if RestaurantCard is rendered from Foodo List
+        // Enable delete and check button only if RestaurantCard is rendered from Foodo List
         if (isInFoodoList) {
             holder.deleteRestaurantFromFoodoListButton.setOnClickListener((View v) -> {
                 Log.d(TAG, String.format("Deleted %s", model.getName()));
                 holder.deleteRestaurantFromList();
             });
+            holder.checkFoodoListButton.setOnClickListener((View v) -> {
+                Log.d(TAG, String.format("Checked %s", model.getName()));
+                holder.checkRestaurant();
+            });
         } else {
+            holder.checkFoodoListButton.setEnabled(false);
+            holder.checkFoodoListButton.setVisibility(View.INVISIBLE);
             holder.deleteRestaurantFromFoodoListButton.setEnabled(false);
             holder.deleteRestaurantFromFoodoListButton.setVisibility(View.INVISIBLE);
         }
@@ -103,11 +109,10 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         private final TextView restaurantAddress;
         private final TextView restaurantRating;
         private final TextView restaurantStatus;
-        private final Button deleteRestaurantFromFoodoListButton;
+        private final Button deleteRestaurantFromFoodoListButton, checkFoodoListButton;
         private String googlePlacesID, cardID;
         private double lat, lng;
         private boolean isInFoodoList;
-
 
         public Viewholder(@NonNull View itemView) {
             super(itemView);
@@ -117,6 +122,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
             restaurantStatus = itemView.findViewById(R.id.restaurantStatus);
 
             deleteRestaurantFromFoodoListButton = itemView.findViewById(R.id.delete_restaurant_from_foodo_list_button);
+            checkFoodoListButton = itemView.findViewById(R.id.check_button);
 
             itemView.setOnClickListener((View v) -> {
                         v.getContext().startActivity(new Intent(v.getContext(), RestaurantInfoActivity.class)
@@ -136,7 +142,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         public void deleteRestaurantFromList() {
             String url = BASE_URL + "/deleteRestaurantFromList";
-
             Log.d(TAG, "CArd:" + cardID + " will be deleted" + getRestaurantName());
 
             HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
@@ -151,11 +156,9 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                     .patch(body)
                     .build();
 
-            Log.d(TAG, request + "body: " + json);
-
             client.newCall(request).enqueue(new Callback() {
                 @Override
-                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
                     if (!response.isSuccessful()) {
                         Log.d(TAG, String.format("Delete restaurant %s on foodo list under list id %s failed", getRestaurantName(), listID));
                     } else {
@@ -173,6 +176,53 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
             });
         }
 
+        public void checkRestaurant() {
+            String url = BASE_URL + "/checkRestaurantOnList";
+            Log.d(TAG, String.format("Card: Restaurant Card (id: %s) will be checked %s", cardID, getRestaurantName()));
+
+            HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
+            String json = String.format("{\"listID\": \"%s\", \"restaurantID\": \"%s\", \"isVisited\": true }", listID, cardID);
+
+            RequestBody body = RequestBody.create(
+                    MediaType.parse("application/json"), json);
+
+            Request request = new Request.Builder()
+                    .url(httpBuilder.build())
+                    .patch(body)
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    if (!response.isSuccessful()) {
+                        Log.d(TAG, String.format("Check restaurant %s on foodo list under list id %s failed", getRestaurantName(), listID));
+                    } else {
+                        RestaurantCard card = restaurantCardArrayList.get(getLayoutPosition());
+                        if(card.getInFoodoList()) {
+                            ((Activity) context).runOnUiThread(() -> {
+                                card.setVisited(!card.getVisited());
+                                if(card.getVisited()) {
+                                    checkFoodoListButton.setBackgroundResource(R.drawable.visited_image);
+                                }
+                                else {
+                                    checkFoodoListButton.setBackgroundResource(R.drawable.checkmark_button);
+                                }
+                                notifyItemChanged(getLayoutPosition());
+                            });
+                        }
+                        else {
+                            checkFoodoListButton.setVisibility(View.INVISIBLE);
+                            checkFoodoListButton.setEnabled(false);
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
 
         public String getRestaurantName() {
             return (String) restaurantName.getText();
@@ -192,7 +242,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         public void setIsInFoodoList(boolean isInFoodoList) {
             this.isInFoodoList = isInFoodoList;
-
         }
 
         public void setCardID(String id) {

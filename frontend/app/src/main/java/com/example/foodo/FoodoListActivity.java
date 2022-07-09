@@ -7,8 +7,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.foodo.service.FoodoListCardService;
 
-import org.json.JSONException;
-
 public class FoodoListActivity extends AppCompatActivity {
 
     private TextView foodoListCardName;
@@ -30,8 +28,6 @@ public class FoodoListActivity extends AppCompatActivity {
         foodoListCardName.setText(name);
 
         foodoListCardService = new FoodoListCardService(this, listID);
-        foodoListCardService.setup();
-
     }
 
     private void getIntentExtras() {
