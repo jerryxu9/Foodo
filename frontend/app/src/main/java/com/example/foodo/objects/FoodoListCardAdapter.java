@@ -112,10 +112,6 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                 handleDeleteFoodoListAction();
             });
 
-            itemView.findViewById(R.id.delete_foodo_list_button).setOnClickListener((View v) -> {
-                handleDeleteFoodoListAction();
-            });
-
             itemView.findViewById(R.id.share_foodo_list_button).setOnClickListener((View v) -> {
                 handleShareFoodoListAction();
             });

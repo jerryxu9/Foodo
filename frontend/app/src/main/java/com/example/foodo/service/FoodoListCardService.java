@@ -44,15 +44,17 @@ public class FoodoListCardService {
     private final String listID;
     private RestaurantCardAdapter restaurantCardAdapter;
 
-    private RecyclerView restaurantsView;
-
     public FoodoListCardService(AppCompatActivity foodoCardActivity, String listID) {
         this.foodoCardActivity = foodoCardActivity;
-        restaurantCardArrayList = new ArrayList<>();
+        this.restaurantCardArrayList = new ArrayList<>();
         this.listID = listID;
     }
 
-    public void setup() {
+
+    public void initializeComponents() {
+        RecyclerView restaurantsView = foodoCardActivity.findViewById(R.id.foodo_list_card_restaurants_list);
+        populateRestaurantCardsArray();
+
         restaurantsView = foodoCardActivity.findViewById(R.id.foodo_list_card_restaurants_list);
 
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(foodoCardActivity);
@@ -61,8 +63,8 @@ public class FoodoListCardService {
                 createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
             }
         }
-        restaurantCardAdapter = new RestaurantCardAdapter(foodoCardActivity, restaurantCardArrayList, listID);
 
+        restaurantCardAdapter = new RestaurantCardAdapter(foodoCardActivity, restaurantCardArrayList, listID);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(foodoCardActivity, LinearLayoutManager.VERTICAL, false);
 
         restaurantsView.setLayoutManager(linearLayoutManager);
@@ -70,7 +72,8 @@ public class FoodoListCardService {
     }
 
     private void populateRestaurantCardsArray() {
-        String url = BASE_URL + "/getRestaurantIDsByFoodoListId";
+
+        String url = BASE_URL + "/getRestaurantsByFoodoListID";
         HttpUrl httpUrl = HttpUrl.parse(url);
 
         if (httpUrl == null) {
@@ -81,6 +84,7 @@ public class FoodoListCardService {
         if(userID == null || username == null){
             return;
         }
+
 
         HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("listID", listID);
 
@@ -98,13 +102,14 @@ public class FoodoListCardService {
                         throw new IOException("null response from /getRestaurantIDsByFoodoListId endpoint");
                     } else {
                         JSONArray foodoListJSONArray = new JSONArray(responseBody.string());
-                        // For each restaurant, collect its information and render it as a card.
+                        // For each restaurant, collect its information and render it as a Restaurant Card
                         for (int i = 0; i < foodoListJSONArray.length(); i++) {
                             JSONObject restaurant = foodoListJSONArray.getJSONObject(i);
-                            Log.d(TAG, String.format("Create restaurantcard %s under Foodo List %s", restaurant.toString(), listID));
+                            Log.d(TAG, String.format("Create Restaurant Card for %s under Foodo List %s", restaurant.toString(), listID));
                             String placeID = restaurant.getString("place_id");
                             String cardID = restaurant.getString("_id");
-                            searchRestaurantInfo(placeID, cardID);
+                            boolean isVisited = restaurant.getBoolean("isVisited");
+                            createRestaurantCards(placeID, cardID, isVisited);
                         }
                     }
                 } catch (Exception e) {
@@ -120,7 +125,9 @@ public class FoodoListCardService {
 
     }
 
-    private void searchRestaurantInfo(String googlePlaceID, String cardID) {
+
+    private void createRestaurantCards(String googlePlaceID, String cardID, boolean isVisited) {
+
         if(userID == null || username == null){
             return;
         }
@@ -148,44 +155,31 @@ public class FoodoListCardService {
                     else if (responseBody == null) {
                         throw new IOException("null response from /searchRestaurantInfoByID endpoint");
                     } else {
-                        String responseBodyString = responseBody.string();
-                        JSONObject restaurantObj = new JSONObject(responseBodyString);
-                        Log.d(TAG, restaurantObj.toString());
-                        String businessStatus = restaurantObj.getString("business_status");
-                        if (businessStatus.equals("OPERATIONAL")) {
-                            if (restaurantObj.getJSONObject("opening_hours").getBoolean("open_now")) {
-                                businessStatus = "Open";
-                            } else {
-                                businessStatus = "Closed";
-                            }
-                        } else {
-                            businessStatus = restaurantObj.getString("businessStatus");
-                        }
-
-                        String finalBusinessStatus = businessStatus;
+                        JSONObject restaurant = new JSONObject(responseBody.string());
+                        Log.d(TAG, restaurant.toString());
+                        String businessStatus = getBusinessStatus(restaurant);
                         foodoCardActivity.runOnUiThread(() -> {
                             try {
-                                boolean isInFoodoList = true;
-
-                                RestaurantCard restaurantCard = new RestaurantCard(restaurantObj.getString("name"),
-                                        restaurantObj.getString("formatted_address"),
-                                        restaurantObj.getString("rating"),
-                                        finalBusinessStatus,
+                                RestaurantCard card = new RestaurantCard(
+                                        restaurant.getString("name"),
+                                        restaurant.getString("formatted_address"),
+                                        restaurant.getString("rating"),
+                                        businessStatus,
                                         googlePlaceID,
                                         cardID,
-                                        restaurantObj.getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
-                                        restaurantObj.getJSONObject("geometry").getJSONObject("location").getDouble("lng"),
-                                        isInFoodoList,
+                                        getLatitude(restaurant),
+                                        getLongitude(restaurant),
+                                        true,
                                         username,
                                         userID);
+                                card.setVisited(isVisited);
+                                restaurantCardArrayList.add(card);
+                                restaurantCardAdapter.notifyItemInserted(restaurantCardAdapter.getItemCount());
 
-                                restaurantCardArrayList.add(restaurantCard);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-                            restaurantCardAdapter.notifyItemInserted(restaurantCardAdapter.getItemCount());
                         });
-
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -197,6 +191,26 @@ public class FoodoListCardService {
                 e.printStackTrace();
             }
         });
+    }
+
+    private String getBusinessStatus(JSONObject restaurantObject) throws JSONException {
+        String businessStatus = restaurantObject.getString("business_status");
+        if (businessStatus.equals("OPERATIONAL")) {
+            return restaurantObject.getJSONObject("opening_hours").getBoolean("open_now") ? "Open" : "Closed";
+        }
+        return businessStatus;
+    }
+
+    private Double getLatitude(JSONObject restaurant) throws JSONException {
+        return getRestaurantLocationAttribute(restaurant, "lat");
+    }
+
+    private Double getLongitude(JSONObject restaurant) throws JSONException {
+        return getRestaurantLocationAttribute(restaurant, "lng");
+    }
+
+    private Double getRestaurantLocationAttribute(JSONObject restaurant, String key) throws JSONException {
+        return restaurant.getJSONObject("geometry").getJSONObject("location").getDouble(key);
     }
 
     private void createUser(String idToken, String user, String email){
@@ -261,5 +275,6 @@ public class FoodoListCardService {
     private String buildURL(String path){
         return BASE_URL + path;
     }
+
 
 }

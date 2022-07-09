@@ -5,6 +5,7 @@ public class RestaurantCard {
     private final String name, address, rating, status, googlePlacesID, cardID, username, userID;
     private final double lat, lng;
     private final boolean isInFoodoList;
+    private boolean isVisited;
 
     public RestaurantCard(String name, String address, String rating, String status,
                           String googlePlacesID, String cardID, double lat, double lng,
@@ -20,9 +21,9 @@ public class RestaurantCard {
         this.lat = lat;
         this.lng = lng;
         this.isInFoodoList = isInFoodoList;
+        this.isVisited = false;
         this.username = username;
         this.userID = userID;
-
     }
 
     public String getName() {
@@ -59,6 +60,14 @@ public class RestaurantCard {
 
     public boolean getInFoodoList() {
         return isInFoodoList;
+    }
+
+    public void setVisited(boolean isVisited) {
+        this.isVisited = isVisited;
+    }
+
+    public boolean getVisited() {
+        return this.isVisited;
     }
 
     public String getUsername() {

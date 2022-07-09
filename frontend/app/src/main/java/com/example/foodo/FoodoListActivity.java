@@ -7,13 +7,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.foodo.service.FoodoListCardService;
 
-import org.json.JSONException;
-
 public class FoodoListActivity extends AppCompatActivity {
 
     private TextView foodoListCardName;
     private String listID, name, username, userID;
-    private FoodoListCardService foodoListCardService;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,9 +26,8 @@ public class FoodoListActivity extends AppCompatActivity {
         foodoListCardName = findViewById(R.id.foodo_list_card_name);
         foodoListCardName.setText(name);
 
-        foodoListCardService = new FoodoListCardService(this, listID);
-        foodoListCardService.setup();
-
+        FoodoListCardService foodoListCardService = new FoodoListCardService(this, listID);
+        foodoListCardService.initializeComponents();
     }
 
     private void getIntentExtras() {
