@@ -27,17 +27,18 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAdapter.Viewholder> {
 
     private final Context context;
     private final ArrayList<RestaurantCard> restaurantCardArrayList;
+
     private final String TAG = "RestaurantCardAdapter";
     private final String listID;
     private final String BASE_URL = "http://10.0.2.2:3000";
     private final OkHttpClient client = new OkHttpClient();
     private String cardID;
+
 
     public RestaurantCardAdapter(Context context, ArrayList<RestaurantCard> restaurantCardArrayList, String listID) {
         this.context = context;
@@ -87,6 +88,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         holder.setGooglePlacesID(model.getGooglePlacesID());
         holder.setCardID(model.getCardID());
+
         holder.setLat(model.getLat());
         holder.setLng(model.getLng());
     }
@@ -105,6 +107,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         private String googlePlacesID, cardID;
         private double lat, lng;
         private boolean isInFoodoList;
+
 
         public Viewholder(@NonNull View itemView) {
             super(itemView);
@@ -127,6 +130,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                             .putExtra("lat", lat)
                             .putExtra("lng", lng)
                             .putExtra("isInFoodoList", isInFoodoList));
+
                 }
             });
 
@@ -135,7 +139,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         public void deleteRestaurantFromList() {
             String url = BASE_URL + "/deleteRestaurantFromList";
 
-            Log.d(TAG, "CArd:" +  cardID + " will be deleted" + getRestaurantName());
+            Log.d(TAG, "CArd:" + cardID + " will be deleted" + getRestaurantName());
 
             HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
 
@@ -149,7 +153,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                     .patch(body)
                     .build();
 
-            Log.d(TAG, request.toString() + "body: " + json);
+            Log.d(TAG, request + "body: " + json);
 
             client.newCall(request).enqueue(new Callback() {
                 @Override
@@ -171,6 +175,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
             });
         }
 
+
         public String getRestaurantName() {
             return (String) restaurantName.getText();
         }
@@ -189,6 +194,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         public void setIsInFoodoList(boolean isInFoodoList) {
             this.isInFoodoList = isInFoodoList;
+
         }
 
         public void setCardID(String id) {

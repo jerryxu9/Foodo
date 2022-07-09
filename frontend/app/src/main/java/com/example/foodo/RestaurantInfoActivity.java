@@ -55,7 +55,9 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     private EditText reviewTextBox;
     private PopupWindow createAddRestaurantToListPopupWindow;
     private double lng, lat;
+
     private boolean isInFoodoList;
+
     private ArrayList<String> foodoListNames;
     private HashMap<String, String> foodoListIDandNames;
 
@@ -72,9 +74,11 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                 Log.d(TAG, "Got following review from text box: " + reviewText);
                 Log.d(TAG, "got following rating from spinner: " + spinner.getSelectedItem().toString());
                 addReview(googlePlacesID, "name", reviewText, spinner.getSelectedItem().toString());
+
                 reviewTextBox.getText().clear();
             }
         });
+
 
         // Hide add button if info page displayed by clicking on restaurant in Foodo list
         if (isInFoodoList) {
@@ -94,7 +98,6 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
 
     private void initializePopUp(View view) {
         Log.d(TAG, "Pressed add Foodo restaurant button");
@@ -183,6 +186,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         lat = getIntent().getDoubleExtra("lat", 0);
         lng = getIntent().getDoubleExtra("lng", 0);
         isInFoodoList = getIntent().getBooleanExtra("isInFoodoList", isInFoodoList);
+
     }
 
     private void setStatusBackground(TextView restaurantStatus) {

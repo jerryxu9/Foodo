@@ -1,6 +1,7 @@
 package com.example.foodo.objects;
 
 public class RestaurantCard {
+
     private final String name, address, rating, status, googlePlacesID, cardID;
     private final double lat, lng;
     private final boolean isInFoodoList;
@@ -15,6 +16,7 @@ public class RestaurantCard {
         this.lat = lat;
         this.lng = lng;
         this.isInFoodoList = isInFoodoList;
+
     }
 
     public String getName() {
@@ -51,5 +53,6 @@ public class RestaurantCard {
 
     public boolean getInFoodoList() {
         return isInFoodoList;
+
     }
 }
