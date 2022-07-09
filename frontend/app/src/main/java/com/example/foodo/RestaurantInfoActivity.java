@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +21,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.foodo.objects.ReviewCard;
 import com.example.foodo.objects.ReviewCardAdapter;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -97,6 +103,18 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        FirebaseMessaging.getInstance().subscribeToTopic(restaurantID)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        String msg = "Subscribed";
+                        if (!task.isSuccessful()) {
+                            msg = "Subscribe failed";
+                        }
+                        Log.d(TAG, msg);
+                    }
+                });
     }
 
     private void initializePopUp(View view) {
@@ -376,6 +394,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                     if (!response.isSuccessful())
                         throw new IOException(String.format("Unexpected code %s", response));
                     else {
+                        
                         Log.d(TAG, responseBody.string());
                     }
                 }
@@ -451,4 +470,6 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     private String buildURL(String path) {
         return BASE_URL + path;
     }
+
+
 }

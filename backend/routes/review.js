@@ -20,6 +20,16 @@ router.post("/addReview", async (req, res) => {
     const review = new Review({ ...req.body });
     // Save this review to database
     const data = await review.save();
+    // Send a message to devices subscribed to the provided topic.
+    getMessaging()
+      .send(message)
+      .then((response) => {
+        // Response is a message ID string.
+        console.log("Successfully sent message:", response);
+      })
+      .catch((error) => {
+        console.log("Error sending message:", error);
+      });
     res.json(data);
   } catch (err) {
     res.json(err);
