@@ -253,7 +253,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
         Map<String, String> params = new HashMap<>();
         params.put("listID", listID);
-        params.put("googlePlacesID", googlePlacesID);
+        params.put("restaurantID", googlePlacesID);
         params.put("restaurantName", restaurantName_info.getText().toString());
         params.put("isVisited", "false");
         params.put("lat", Double.toString(lat));

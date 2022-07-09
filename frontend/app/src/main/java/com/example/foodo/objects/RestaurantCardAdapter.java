@@ -97,7 +97,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
 
-        String json = String.format("{\"listID\": \"%s\", \"cardID\": \"%s\"}", listID, cardID);
+        String json = String.format("{\"listID\": \"%s\", \"restaurantID\": \"%s\"}", listID, cardID);
         Log.d(TAG, listID);
         Log.d(TAG, cardID);
         RequestBody body = RequestBody.create(

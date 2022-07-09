@@ -115,7 +115,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
         }
 
         private void handleDeleteFoodoListAction() {
-            Log.d(TAG, "Pressed delete Foodo restaurant button");
+            Log.d(TAG, "Pressed delete Foodo button");
 
             String url = BASE_URL + "/deleteFoodoList";
             HttpUrl httpUrl = HttpUrl.parse(url);

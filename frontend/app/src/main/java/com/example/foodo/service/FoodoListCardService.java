@@ -85,6 +85,7 @@ public class FoodoListCardService {
                         // For each restaurant, collect its information and render it as a card.
                         for (int i = 0; i < foodoListJSONArray.length(); i++) {
                             JSONObject restaurant = foodoListJSONArray.getJSONObject(i);
+                            Log.d(TAG, restaurant.toString());
                             String placeID = restaurant.getString("place_id");
                             String cardID = restaurant.getString("_id");
                             searchRestaurantInfo(placeID, cardID);
