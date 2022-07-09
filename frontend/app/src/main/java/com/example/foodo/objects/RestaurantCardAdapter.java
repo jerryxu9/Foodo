@@ -15,12 +15,10 @@ import com.example.foodo.RestaurantInfoActivity;
 
 import java.util.ArrayList;
 
-import okhttp3.OkHttpClient;
-
 public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAdapter.Viewholder> {
 
-    private Context context;
-    private ArrayList<RestaurantCard> restaurantCardArrayList;
+    private final Context context;
+    private final ArrayList<RestaurantCard> restaurantCardArrayList;
 
     public RestaurantCardAdapter(Context context, ArrayList<RestaurantCard> restaurantCardArrayList) {
         this.context = context;
@@ -41,11 +39,18 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         holder.restaurantAddress.setText("" + model.getAddress());
         holder.restaurantRating.setText(model.getRating() + " stars");
         holder.restaurantStatus.setText(model.getStatus());
-        switch(model.getStatus()){
-            case "Open": holder.restaurantStatus.setBackgroundResource(R.drawable.open_tag); break;
-            case "Closed": holder.restaurantStatus.setBackgroundResource(R.drawable.closed_tag); break;
-            default: holder.restaurantStatus.setBackgroundResource(R.drawable.non_operational_tag); break;
+        switch (model.getStatus()) {
+            case "Open":
+                holder.restaurantStatus.setBackgroundResource(R.drawable.open_tag);
+                break;
+            case "Closed":
+                holder.restaurantStatus.setBackgroundResource(R.drawable.closed_tag);
+                break;
+            default:
+                holder.restaurantStatus.setBackgroundResource(R.drawable.non_operational_tag);
+                break;
         }
+        holder.setAddButtonEnabled(model.getAddButtonEnabled());
         holder.setRestaurantID(model.getId());
         holder.setLat(model.getLat());
         holder.setLng(model.getLng());
@@ -57,9 +62,13 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
     }
 
     public class Viewholder extends RecyclerView.ViewHolder {
-        private TextView restaurantName, restaurantAddress, restaurantRating, restaurantStatus;
+        private final TextView restaurantName;
+        private final TextView restaurantAddress;
+        private final TextView restaurantRating;
+        private final TextView restaurantStatus;
         private String restaurantID;
         private double lat, lng;
+        private boolean addButtonEnabled;
 
         public Viewholder(@NonNull View itemView) {
             super(itemView);
@@ -78,21 +87,26 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                             .putExtra("restaurantStatus", restaurantStatus.getText())
                             .putExtra("restaurantID", restaurantID)
                             .putExtra("lat", lat)
-                            .putExtra("lng", lng));
+                            .putExtra("lng", lng)
+                            .putExtra("addButtonEnabled", addButtonEnabled));
                 }
             });
         }
 
-        public void setRestaurantID(String id){
+        public void setRestaurantID(String id) {
             this.restaurantID = id;
         }
 
-        public void setLat(double lat){
+        public void setLat(double lat) {
             this.lat = lat;
         }
 
-        public void setLng(double lng){
+        public void setLng(double lng) {
             this.lng = lng;
+        }
+
+        public void setAddButtonEnabled(boolean addButtonEnabled) {
+            this.addButtonEnabled = addButtonEnabled;
         }
     }
 }

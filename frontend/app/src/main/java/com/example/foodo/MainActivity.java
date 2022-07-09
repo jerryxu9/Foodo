@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         mapButton = findViewById(R.id.map_button);
         mapButton.setOnClickListener((View v) -> handleMapAction());
 
-        foodoListService = new FoodoListService(this, client);
+        foodoListService = new FoodoListService(this);
         foodoListService.setup();
     }
 

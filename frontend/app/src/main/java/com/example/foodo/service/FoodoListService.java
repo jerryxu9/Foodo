@@ -47,18 +47,17 @@ public class FoodoListService {
 
     private final String USERID = "test@gmail.com";
     private final String BASE_URL = "http://10.0.2.2:3000";
-    private final OkHttpClient client;
     private final AppCompatActivity main_activity;
     private final FoodoListCardAdapter foodoListCardAdapter;
     private final LinearLayoutManager linearLayoutManager;
     private final ArrayList<FoodoListCard> foodoListCardArrayList;
     private RecyclerView foodoLists;
+    private final OkHttpClient client = new OkHttpClient();
     private FloatingActionButton createFoodoListButton, refreshButton;
     private PopupWindow createFoodoListPopupWindow;
 
-    public FoodoListService(AppCompatActivity activity, OkHttpClient client) {
+    public FoodoListService(AppCompatActivity activity) {
         this.main_activity = activity;
-        this.client = client;
         foodoListCardArrayList = new ArrayList<>();
         foodoListCardAdapter = new FoodoListCardAdapter(main_activity, foodoListCardArrayList, client);
         linearLayoutManager = new LinearLayoutManager(main_activity, LinearLayoutManager.VERTICAL, false);
@@ -186,7 +185,7 @@ public class FoodoListService {
         String foodoListName = foodoListNameInput.getText().toString();
 
         // Remove trailing whitespace on text input before checking if it's empty
-        if (foodoListName == null || foodoListName.trim() == "") {
+        if (foodoListName.trim().isEmpty()) {
             Log.d(TAG, "Unable to submit empty foodoListName");
             return;
         }
