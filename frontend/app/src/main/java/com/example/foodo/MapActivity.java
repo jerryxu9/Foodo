@@ -42,7 +42,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         markers = new ArrayList<>();
-        getFoodoLists("test@fmail.com");
+        if(getIntent().hasExtra("userID")){
+            String userID = getIntent().getStringExtra("userID");
+            Log.d(TAG, userID + getIntent().getStringExtra("username"));
+            getFoodoLists(userID);
+        }
 
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -71,7 +75,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         for(RestaurantMarkerInfo info : markers){
             mMap.addMarker(new MarkerOptions().position(info.getLatLng()).title(info.getName()));
         }
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(49, 123)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(49.3, -123), 10));
     }
 
     //Will complete in a separate PR

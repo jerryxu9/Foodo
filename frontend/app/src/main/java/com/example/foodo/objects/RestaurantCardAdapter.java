@@ -39,7 +39,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
     private final OkHttpClient client = new OkHttpClient();
     private String cardID;
 
-
     public RestaurantCardAdapter(Context context, ArrayList<RestaurantCard> restaurantCardArrayList, String listID) {
         this.context = context;
         this.restaurantCardArrayList = restaurantCardArrayList;
@@ -74,6 +73,8 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         boolean isInFoodoList = model.getInFoodoList();
         holder.setIsInFoodoList(isInFoodoList);
+        holder.setUsername(model.getUsername());
+        holder.setUserID(model.getUserID());
 
         // Enable delete button only if RestaurantCard is rendered from Foodo List
         if (isInFoodoList) {
@@ -104,7 +105,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         private final TextView restaurantRating;
         private final TextView restaurantStatus;
         private final Button deleteRestaurantFromFoodoListButton;
-        private String googlePlacesID, cardID;
+        private String googlePlacesID, cardID, username, userID;
         private double lat, lng;
         private boolean isInFoodoList;
 
@@ -127,11 +128,11 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                                 .putExtra("googlePlacesID", googlePlacesID)
                                 .putExtra("lat", lat)
                                 .putExtra("lng", lng)
-                                .putExtra("isInFoodoList", isInFoodoList));
-
+                                .putExtra("isInFoodoList", isInFoodoList)
+                                .putExtra("username", username)
+                                .putExtra("userID", userID));
                     }
             );
-
         }
 
         public void deleteRestaurantFromList() {
@@ -197,6 +198,14 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         public void setCardID(String id) {
             this.cardID = id;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public void setUserID(String userID) {
+            this.userID = userID;
         }
     }
 }
