@@ -52,21 +52,25 @@ public class SearchResultActivity extends AppCompatActivity {
                 } else {
                     businessStatus = restaurantResult.getString("businessStatus");
                 }
-                boolean addButtonEnabled = true;
+                boolean isInFoodoList = false;
+                // pass in a dummy_id for the cardID since these restaurantCards aren't being created as part of a Foodo list.
                 restaurantCardArrayList.add(new RestaurantCard(restaurantResult.getString("name"),
                         restaurantResult.getString("address"),
                         restaurantResult.getString("GoogleRating"),
                         businessStatus,
                         restaurantResult.getString("id"),
+                        "dummy_id",
                         restaurantResult.getDouble("lat"),
                         restaurantResult.getDouble("lng"),
-                        addButtonEnabled));
+                        isInFoodoList));
+
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        RestaurantCardAdapter restaurantCardAdapter = new RestaurantCardAdapter(this, restaurantCardArrayList);
+        // pass in a dummy id for the listID since these restaurantCards aren't being created as part of a Foodo list.
+        RestaurantCardAdapter restaurantCardAdapter = new RestaurantCardAdapter(this, restaurantCardArrayList, "dummy_id");
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
 
         searchResults.setLayoutManager(linearLayoutManager);

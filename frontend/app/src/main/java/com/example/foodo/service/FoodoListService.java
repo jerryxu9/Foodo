@@ -145,7 +145,7 @@ public class FoodoListService {
 
         container.findViewById(R.id.create_foodo_list_confirm_button).setOnClickListener((View v) -> {
             try {
-                authenticateAccount(GoogleSignIn.getLastSignedInAccount(main_activity));
+//                authenticateAccount(GoogleSignIn.getLastSignedInAccount(main_activity));
                 createFoodoList(container);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -165,12 +165,6 @@ public class FoodoListService {
         });
     }
 
-    private void createFoodoList(ViewGroup viewGroup) throws IOException {
-        }else{
-
-        }
-
-    }
 
     private void createFoodoList(ViewGroup container) throws IOException {
         String url = BASE_URL + "/createFoodoList";
@@ -181,7 +175,7 @@ public class FoodoListService {
             return;
         }
 
-        EditText foodoListNameInput = viewGroup.findViewById(R.id.enter_foodo_list_name_edit_text);
+        EditText foodoListNameInput = container.findViewById(R.id.enter_foodo_list_name_edit_text);
         String foodoListName = foodoListNameInput.getText().toString();
 
         // Remove trailing whitespace on text input before checking if it's empty

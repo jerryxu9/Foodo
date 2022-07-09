@@ -1,50 +1,59 @@
 package com.example.foodo.objects;
 
 public class RestaurantCard {
-    private String name, address, rating, status, id;
-    private double lat, lng;
-    private boolean addButtonEnabled;
 
-    public RestaurantCard(String name, String address, String rating, String status, String id, double lat, double lng, boolean addButtonEnabled){
+    private final String name, address, rating, status, googlePlacesID, cardID;
+    private final double lat, lng;
+    private final boolean isInFoodoList;
+
+    public RestaurantCard(String name, String address, String rating, String status, String googlePlacesID, String cardID, double lat, double lng, boolean isInFoodoList) {
         this.name = name;
         this.address = address;
         this.rating = rating;
         this.status = status;
-        this.id = id;
+        // Make a distinction between the restaurant card ID (as stored in the database)
+        // and the google place_id of the restaurant the RestaurantCard represents
+        this.googlePlacesID = googlePlacesID;
+        this.cardID = cardID;
         this.lat = lat;
         this.lng = lng;
-        this.addButtonEnabled = addButtonEnabled;
+        this.isInFoodoList = isInFoodoList;
+
     }
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 
-    public String getAddress(){
+    public String getAddress() {
         return address;
     }
 
-    public String getRating(){
+    public String getRating() {
         return rating;
     }
 
-    public String getStatus(){
+    public String getStatus() {
         return status;
     }
 
-    public String getId(){
-        return id;
+    public String getGooglePlacesID() {
+        return googlePlacesID;
+    }
+
+    public String getCardID() {
+        return cardID;
     }
 
     public double getLat() {
         return lat;
     }
 
-    public double getLng(){
+    public double getLng() {
         return lng;
     }
 
-    public boolean getAddButtonEnabled() {
-        return addButtonEnabled;
+    public boolean getInFoodoList() {
+        return isInFoodoList;
     }
 }

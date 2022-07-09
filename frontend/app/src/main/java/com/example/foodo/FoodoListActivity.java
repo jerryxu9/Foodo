@@ -11,8 +11,6 @@ import org.json.JSONException;
 
 public class FoodoListActivity extends AppCompatActivity {
 
-
-    private final String TAG = "FoodoListActivity";
     private TextView foodoListCardName;
     private String listID, name;
     private FoodoListCardService foodoListCardService;

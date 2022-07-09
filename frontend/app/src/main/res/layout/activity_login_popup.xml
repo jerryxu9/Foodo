@@ -5,7 +5,7 @@
     android:layout_width="800px"
     android:layout_height="800px"
     android:layout_gravity="center"
-    android:background="@drawable/create_foodo_list_popup_background"
+    android:background="@drawable/create_foodo_list_popup_button_background"
     tools:context=".FoodoListActivity">
 
     <TextView
@@ -38,7 +38,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/foodo_list_creation_cancel"
+        android:background="@drawable/cancel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.18"
@@ -49,7 +49,7 @@
         android:id="@+id/login_confirm_button"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:background="@drawable/foodo_list_creation_confirm"
+        android:background="@drawable/confirm"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.815"
