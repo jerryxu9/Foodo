@@ -232,7 +232,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             return;
         }
         String userID = getIntent().getStringExtra("userID");
-
+        Log.d(TAG, userID);
         httpBuilder.addQueryParameter("userID", userID);
 
         Request request = new Request.Builder()
