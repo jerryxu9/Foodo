@@ -53,6 +53,7 @@ public class SearchResultActivity extends AppCompatActivity {
                     businessStatus = restaurantResult.getString("businessStatus");
                 }
                 boolean isInFoodoList = false;
+                // pass in a dummy_id for the cardID since these restaurantCards aren't being created as part of a Foodo list.
                 restaurantCardArrayList.add(new RestaurantCard(restaurantResult.getString("name"),
                         restaurantResult.getString("address"),
                         restaurantResult.getString("GoogleRating"),
@@ -68,7 +69,8 @@ public class SearchResultActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        RestaurantCardAdapter restaurantCardAdapter = new RestaurantCardAdapter(this, restaurantCardArrayList, "dummyID");
+        // pass in a dummy id for the listID since these restaurantCards aren't being created as part of a Foodo list.
+        RestaurantCardAdapter restaurantCardAdapter = new RestaurantCardAdapter(this, restaurantCardArrayList, "dummy_id");
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
 
         searchResults.setLayoutManager(linearLayoutManager);
