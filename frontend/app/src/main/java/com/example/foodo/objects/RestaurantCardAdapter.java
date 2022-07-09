@@ -37,6 +37,8 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
     private final String listID;
     private final String BASE_URL = "http://10.0.2.2:3000";
     private final OkHttpClient client = new OkHttpClient();
+    private String cardID;
+
 
     public RestaurantCardAdapter(Context context, ArrayList<RestaurantCard> restaurantCardArrayList, String listID) {
         this.context = context;
@@ -72,6 +74,8 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         boolean isInFoodoList = model.getInFoodoList();
         holder.setIsInFoodoList(isInFoodoList);
+        holder.setUsername(model.getUsername());
+        holder.setUserID(model.getUserID());
 
         // Enable delete and check button only if RestaurantCard is rendered from Foodo List
         if (isInFoodoList) {
@@ -119,8 +123,9 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         private final TextView restaurantAddress;
         private final TextView restaurantRating;
         private final TextView restaurantStatus;
-        private final Button deleteRestaurantFromFoodoListButton, checkFoodoListButton;
-        private String googlePlacesID, cardID;
+        private final Button deleteRestaurantFromFoodoListButton;
+        private String googlePlacesID, cardID, username, userID;
+
         private double lat, lng;
         private boolean isInFoodoList, isVisited;
 
@@ -134,18 +139,20 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
             checkFoodoListButton = itemView.findViewById(R.id.check_button);
 
             itemView.setOnClickListener((View v) -> {
-                            v.getContext().startActivity(new Intent(v.getContext(), RestaurantInfoActivity.class)
-                                    .putExtra("restaurantName", restaurantName.getText())
-                                    .putExtra("restaurantAddress", restaurantAddress.getText())
-                                    .putExtra("restaurantRating", restaurantRating.getText())
-                                    .putExtra("restaurantStatus", restaurantStatus.getText())
-                                    .putExtra("googlePlacesID", googlePlacesID)
-                                    .putExtra("lat", lat)
-                                    .putExtra("lng", lng)
-                                    .putExtra("isInFoodoList", isInFoodoList));
-                        }
-                );
 
+                        v.getContext().startActivity(new Intent(v.getContext(), RestaurantInfoActivity.class)
+                                .putExtra("restaurantName", restaurantName.getText())
+                                .putExtra("restaurantAddress", restaurantAddress.getText())
+                                .putExtra("restaurantRating", restaurantRating.getText())
+                                .putExtra("restaurantStatus", restaurantStatus.getText())
+                                .putExtra("googlePlacesID", googlePlacesID)
+                                .putExtra("lat", lat)
+                                .putExtra("lng", lng)
+                                .putExtra("isInFoodoList", isInFoodoList)
+                                .putExtra("username", username)
+                                .putExtra("userID", userID));
+                    }
+            );
         }
 
         public void deleteRestaurantFromList() {
@@ -261,6 +268,14 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         public void setVisited(boolean visited) {
             this.isVisited = visited;
+        }
+        
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public void setUserID(String userID) {
+            this.userID = userID;
         }
     }
 }

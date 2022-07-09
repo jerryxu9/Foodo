@@ -17,11 +17,13 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.foodo.MainActivity;
 import com.example.foodo.R;
 import com.example.foodo.objects.FoodoListCard;
 import com.example.foodo.objects.FoodoListCardAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
@@ -30,6 +32,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -45,7 +49,8 @@ public class FoodoListService {
 
     private final String TAG = "FoodoListService";
 
-    private final String USERID = "test@gmail.com";
+    private String userID, username;
+    private MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private final String BASE_URL = "http://10.0.2.2:3000";
     private final AppCompatActivity main_activity;
     private final FoodoListCardAdapter foodoListCardAdapter;
@@ -54,7 +59,7 @@ public class FoodoListService {
     private RecyclerView foodoLists;
     private final OkHttpClient client = new OkHttpClient();
     private FloatingActionButton createFoodoListButton, refreshButton;
-    private PopupWindow createFoodoListPopupWindow;
+    private PopupWindow createFoodoListPopupWindow, loginDecisionPopupWindow;
 
     public FoodoListService(AppCompatActivity activity) {
         this.main_activity = activity;
@@ -65,19 +70,46 @@ public class FoodoListService {
 
     public void setup() {
         createFoodoListButton = main_activity.findViewById(R.id.create_foodo_list_button);
-        createFoodoListButton.setOnClickListener((View v) -> handleCreateFoodoListAction());
+        createFoodoListButton.setOnClickListener((View v) -> {
+            GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
+            if(account != null){
+                Log.d(TAG, "User is logged in, allowing them to create FoodoList");
+                if(userID == null){
+                    Log.d(TAG, "need to fetch user ID before creating foodo list foodoList");
+                    createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
+                }
+                handleCreateFoodoListAction();
+            }else{
+                handleNonLoggedInUser();
+            }
+        });
 
         refreshButton = main_activity.findViewById(R.id.refresh_button);
         refreshButton.setOnClickListener((View v) -> {
-            refreshFoodoLists();
+            GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
+            if(account != null){
+                if(userID == null){
+                    createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
+                }
+                refreshFoodoLists();
+            }
         });
 
         foodoLists = main_activity.findViewById(R.id.foodo_lists);
-        loadFoodoLists();
+
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
+        if(account != null && userID == null){
+            //no other way to get the token, just go through createUser endpoint
+            //and get the id from the existing entry in the database
+
+            //Have to duplicate this method from MainActivity too :( DRY who
+            createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
+        }
 
         foodoLists.setLayoutManager(linearLayoutManager);
         foodoLists.setAdapter(foodoListCardAdapter);
     }
+
 
     public void refreshFoodoLists() {
         foodoListCardAdapter.clearFoodoLists();
@@ -93,7 +125,13 @@ public class FoodoListService {
             return;
         }
 
-        HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("userID", USERID);
+        //not logged in, no foodo lists to render
+        if(userID == null){
+            Log.d(TAG, "no user ID");
+            return;
+        }
+
+        HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("userID", userID);
 
         Request request = new Request.Builder()
                 .url(httpBuilder.build())
@@ -117,7 +155,7 @@ public class FoodoListService {
 
                             Log.d(TAG, String.format("Loaded Foodo List '%s' with id: %s", name, id));
 
-                            FoodoListCard card = new FoodoListCard(foodoListJSON.getString("name"), id);
+                            FoodoListCard card = new FoodoListCard(foodoListJSON.getString("name"), id, username, userID);
                             foodoListCardAdapter.addFoodoList(card);
                         }
                     }
@@ -131,7 +169,22 @@ public class FoodoListService {
                 e.printStackTrace();
             }
         });
+    }
 
+    private void handleNonLoggedInUser(){
+        Log.d(TAG, "User is not logged in");
+        LayoutInflater layoutInflater = (LayoutInflater) main_activity.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.activity_login_popup, null);
+
+        ConstraintLayout loginDecisionConstraintLayout = main_activity.findViewById(R.id.constraint);
+
+        loginDecisionPopupWindow = new PopupWindow(container, 800, 800, true);
+        loginDecisionPopupWindow.showAtLocation(loginDecisionConstraintLayout, Gravity.CENTER, 0, 0);
+
+        container.findViewById(R.id.login_cancel_button).setOnClickListener((View v) -> {
+            Log.d(TAG, "Exit pop up");
+            loginDecisionPopupWindow.dismiss();
+        });
     }
 
     private void handleCreateFoodoListAction() {
@@ -145,7 +198,6 @@ public class FoodoListService {
 
         container.findViewById(R.id.create_foodo_list_confirm_button).setOnClickListener((View v) -> {
             try {
-//                authenticateAccount(GoogleSignIn.getLastSignedInAccount(main_activity));
                 createFoodoList(container);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -165,13 +217,16 @@ public class FoodoListService {
         });
     }
 
-
     private void createFoodoList(ViewGroup container) throws IOException {
         String url = BASE_URL + "/createFoodoList";
         HttpUrl httpUrl = HttpUrl.parse(url);
 
         if (httpUrl == null) {
             Log.d(TAG, String.format("unable to parse server URL: %s", url));
+            return;
+        }
+
+        if(userID == null || username == null){
             return;
         }
 
@@ -183,7 +238,7 @@ public class FoodoListService {
             Log.d(TAG, "Unable to submit empty foodoListName");
             return;
         }
-        String json = String.format("{\"userID\": \"%s\", \"listName\": \"%s\"}", USERID, foodoListName.trim());
+        String json = String.format("{\"userID\": \"%s\", \"listName\": \"%s\"}", userID, foodoListName.trim());
         RequestBody body = RequestBody.create(
                 MediaType.parse("application/json"), json);
 
@@ -212,7 +267,7 @@ public class FoodoListService {
                         String listName = createdFoodoList.getString("name");
                         String listID = createdFoodoList.getString("_id");
                         main_activity.runOnUiThread(() -> {
-                            foodoListCardAdapter.addFoodoList(new FoodoListCard(listName, listID));
+                            foodoListCardAdapter.addFoodoList(new FoodoListCard(listName, listID, username, userID));
                             createFoodoListPopupWindow.dismiss();
                         });
                         Log.d(TAG, String.format("Foodo list %s was successfully created. Result: %s", foodoListName, listName));
@@ -223,8 +278,68 @@ public class FoodoListService {
 
             }
         });
-
     }
 
+    private void createUser(String idToken, String user, String email){
+        String url = buildURL("/createUser");
+        HttpUrl httpUrl = HttpUrl.parse(url);
+
+        if (httpUrl == null) {
+            Log.d(TAG, String.format("unable to parse server URL: %s", url));
+            return;
+        }
+        Log.d(TAG, user);
+
+        Map<String, String> params = new HashMap<>();
+        params.put("id", idToken);
+        params.put("name", user);
+        params.put("email", email);
+
+        JSONObject paramsJSON = new JSONObject(params);
+        RequestBody body = RequestBody.create(paramsJSON.toString(), JSON);
+        Request request = new Request.Builder()
+                .url(httpUrl)
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                String responseBodyString;
+                try(ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful()) {
+                        Log.d(TAG, responseBody.string());
+                    } else {
+                        responseBodyString = responseBody.string();
+                        JSONObject resJSON = new JSONObject(responseBodyString);
+                        //seems that an invalid token doesn't respond with an error?
+                        if(!resJSON.has("error")){
+                            //valid session, snatch that id and username
+                            Log.d(TAG, responseBodyString);
+                            JSONObject responseBodyJSON = new JSONObject(responseBodyString);
+
+                            Log.d(TAG, responseBodyJSON.getString("_id"));
+                            Log.d(TAG, responseBodyJSON.getString("name"));
+
+                            userID = responseBodyJSON.getString("_id");
+                            username = responseBodyJSON.getString("name");
+
+                            loadFoodoLists();
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+    private String buildURL(String path){
+        return BASE_URL + path;
+    }
 }
 
