@@ -81,7 +81,6 @@ public class FoodoListCardService {
                         throw new IOException("null response from /getRestaurantIDsByFoodoListId endpoint");
                     } else {
                         JSONArray foodoListJSONArray = new JSONArray(responseBody.string());
-                        Log.d(TAG, foodoListJSONArray.toString());
                         // For each restaurant, collect its information and render it as a card.
                         for (int i = 0; i < foodoListJSONArray.length(); i++) {
                             JSONObject restaurant = foodoListJSONArray.getJSONObject(i);

@@ -71,8 +71,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                 break;
         }
 
-        cardID = model.getCardID();
-
         boolean isInFoodoList = model.getInFoodoList();
         holder.setIsInFoodoList(isInFoodoList);
 
@@ -80,7 +78,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         if (isInFoodoList) {
             holder.deleteRestaurantFromFoodoListButton.setOnClickListener((View v) -> {
                 Log.d(TAG, String.format("Deleted %s", model.getName()));
-                deleteRestaurantFromList(holder);
+                holder.deleteRestaurantFromList();
             });
         } else {
             holder.deleteRestaurantFromFoodoListButton.setEnabled(false);
@@ -88,47 +86,9 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         }
 
         holder.setGooglePlacesID(model.getGooglePlacesID());
+        holder.setCardID(model.getCardID());
         holder.setLat(model.getLat());
         holder.setLng(model.getLng());
-    }
-
-    private void deleteRestaurantFromList(Viewholder holder) {
-        String url = BASE_URL + "/deleteRestaurantFromList";
-
-        HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
-
-        String json = String.format("{\"listID\": \"%s\", \"restaurantID\": \"%s\"}", listID, cardID);
-        Log.d(TAG, listID);
-        Log.d(TAG, cardID);
-        RequestBody body = RequestBody.create(
-                MediaType.parse("application/json"), json);
-
-        Request request = new Request.Builder()
-                .url(httpBuilder.build())
-                .patch(body)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    Log.d(TAG, String.format("Delete restaurant %s on foodo list under list id %s failed", holder.getRestaurantName(), listID));
-                } else {
-                    ResponseBody responseBody = response.body();
-                    Log.d(TAG, responseBody.string());
-                    Log.d(TAG, String.format("Delete restaurant %s on foodo list under list id %s succeeded", holder.getRestaurantName(), listID));
-                    ((Activity) context).runOnUiThread(() -> {
-                        restaurantCardArrayList.remove(holder.getLayoutPosition());
-                        notifyItemRemoved(holder.getLayoutPosition());
-                    });
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
-            }
-        });
     }
 
     @Override
@@ -142,7 +102,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         private final TextView restaurantRating;
         private final TextView restaurantStatus;
         private final Button deleteRestaurantFromFoodoListButton;
-        private String googlePlacesID;
+        private String googlePlacesID, cardID;
         private double lat, lng;
         private boolean isInFoodoList;
 
@@ -172,6 +132,45 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         }
 
+        public void deleteRestaurantFromList() {
+            String url = BASE_URL + "/deleteRestaurantFromList";
+
+            Log.d(TAG, "CArd:" +  cardID + " will be deleted" + getRestaurantName());
+
+            HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
+
+            String json = String.format("{\"listID\": \"%s\", \"restaurantID\": \"%s\"}", listID, cardID);
+
+            RequestBody body = RequestBody.create(
+                    MediaType.parse("application/json"), json);
+
+            Request request = new Request.Builder()
+                    .url(httpBuilder.build())
+                    .patch(body)
+                    .build();
+
+            Log.d(TAG, request.toString() + "body: " + json);
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    if (!response.isSuccessful()) {
+                        Log.d(TAG, String.format("Delete restaurant %s on foodo list under list id %s failed", getRestaurantName(), listID));
+                    } else {
+                        ((Activity) context).runOnUiThread(() -> {
+                            restaurantCardArrayList.remove(getLayoutPosition());
+                            notifyItemRemoved(getLayoutPosition());
+                        });
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
         public String getRestaurantName() {
             return (String) restaurantName.getText();
         }
@@ -190,6 +189,10 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         public void setIsInFoodoList(boolean isInFoodoList) {
             this.isInFoodoList = isInFoodoList;
+        }
+
+        public void setCardID(String id) {
+            this.cardID = id;
         }
     }
 }
