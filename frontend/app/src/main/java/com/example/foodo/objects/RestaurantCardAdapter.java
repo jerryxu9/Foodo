@@ -123,7 +123,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         private final TextView restaurantAddress;
         private final TextView restaurantRating;
         private final TextView restaurantStatus;
-        private final Button deleteRestaurantFromFoodoListButton;
+        private final Button deleteRestaurantFromFoodoListButton, checkFoodoListButton;
         private String googlePlacesID, cardID, username, userID;
 
         private double lat, lng;

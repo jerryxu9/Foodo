@@ -256,7 +256,6 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                     } else {
                         searchResults = responseBody.string();
                         Log.d(TAG, String.format("response from /getFoodoLists: %s", searchResults));
-
                         JSONArray foodoListsJSON = new JSONArray(searchResults);
                         for (int i = 0; i < foodoListsJSON.length(); i++) {
                             Log.d(TAG, foodoListsJSON.getJSONObject(i).getString("name") + " " + i);
@@ -339,7 +338,6 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                     else {
                         String responseBodyString = responseBody.string();
                         Log.d(TAG, responseBodyString);
-
                         runOnUiThread(() -> {
                             try {
                                 JSONObject restaurantObj = new JSONObject(responseBodyString);
@@ -381,7 +379,6 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             return;
         }
         String username = getIntent().getStringExtra("username");
-        Log.d(TAG, username);
 
         Map<String, String> params = new HashMap<>();
         params.put("google_place_id", googlePlacesID);

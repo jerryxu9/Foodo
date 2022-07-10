@@ -327,6 +327,7 @@ public class FoodoListService {
                             Log.d(TAG, responseBodyJSON.getString("name"));
 
                             userID = responseBodyJSON.getString("_id");
+                            Log.d(TAG, "userID: " +  userID);
                             username = responseBodyJSON.getString("name");
 
                             loadFoodoLists();
