@@ -17,7 +17,13 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.foodo.FoodoListActivity;
+import com.example.foodo.MapActivity;
 import com.example.foodo.R;
+import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,11 +40,10 @@ import okhttp3.ResponseBody;
 
 public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdapter.Viewholder> {
 
-    private final String BASE_URL = "http://10.0.2.2:3000";
+    private final String BASE_URL = "http://20.51.215.223:3000";
     private final String TAG = "FoodoListCardAdapter";
     private final ArrayList<FoodoListCard> foodoListArrayList;
     private final OkHttpClient client;
-    private final String USERID = "test@gmail.com";
     private final Activity mainActivity;
     Context context;
 
@@ -62,6 +67,8 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
         holder.name = model.getName();
         holder.list_id = model.getId();
         holder.foodoListName.setText(holder.name);
+        holder.username = model.getUsername();
+        holder.userID = model.getUserID();
     }
 
     /**
@@ -90,7 +97,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
 
     public class Viewholder extends RecyclerView.ViewHolder {
         private final TextView foodoListName;
-        String list_id, name;
+        String list_id, name, username, userID;
 
         public Viewholder(@NonNull View itemView) {
             super(itemView);
@@ -99,10 +106,6 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
             itemView.setOnClickListener((View v) -> {
                 Log.d(TAG, String.format("%s item on Foodo Lists selected", foodoListName.getText()));
                 handleOpenFoodoListAction();
-            });
-
-            itemView.findViewById(R.id.delete_foodo_list_button).setOnClickListener((View v) -> {
-                handleDeleteFoodoListAction();
             });
 
             itemView.findViewById(R.id.delete_foodo_list_button).setOnClickListener((View v) -> {
@@ -129,7 +132,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
             RequestBody body = RequestBody.create(
                     MediaType.parse("application/json"), json);
 
-            HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("userID", USERID);
+            HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("userID", userID);
 
             Request request = new Request.Builder()
                     .url(httpBuilder.build())
@@ -158,7 +161,17 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
 
         }
 
-        private void shareFoodoList(ViewGroup viewGroup) {
+        private void startShareFoodoList(ViewGroup viewGroup){
+            EditText userEmailInput = viewGroup.findViewById(R.id.enter_user_email_edit_text);
+            String userEmail = userEmailInput.getText().toString();
+            if (userEmail.trim().isEmpty()) {
+                Log.d(TAG, "Unable to submit empty userEmail");
+                return;
+            }
+            getUserByEmail(userEmail);
+        }
+
+        private void shareFoodoList(String id) {
             String url = BASE_URL + "/addNewUserToList";
             HttpUrl httpUrl = HttpUrl.parse(url);
 
@@ -167,15 +180,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                 return;
             }
 
-            EditText userEmailInput = viewGroup.findViewById(R.id.enter_user_email_edit_text);
-            String userEmail = userEmailInput.getText().toString();
-
-            // Remove trailing whitespace on text input before checking if it's empty
-            if (userEmail.trim().isEmpty()) {
-                Log.d(TAG, "Unable to submit empty userEmail");
-                return;
-            }
-            String json = String.format("{\"listID\": \"%s\", \"userID\": \"%s\"}", list_id, USERID);
+            String json = String.format("{\"listID\": \"%s\", \"userID\": \"%s\"}", list_id, id);
             RequestBody body = RequestBody.create(
                     MediaType.parse("application/json"), json);
 
@@ -200,8 +205,46 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                         else if (responseBody == null) {
                             throw new IOException("null response from /addNewUserTList endpoint");
                         } else {
-                            Log.d(TAG, String.format("Shared FoodoList: %s with %s", list_id, userEmail));
+                            Log.d(TAG, responseBody.string());
+                            Log.d(TAG, String.format("Shared FoodoList: %s with %s", list_id, id));
                         }
+                    }
+                }
+            });
+        }
+
+        private void getUserByEmail(String email){
+            String url = BASE_URL + "/getUserByEmail";
+            HttpUrl httpUrl = HttpUrl.parse(url);
+            HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
+            httpBuilder.addQueryParameter("email", email);
+
+            Request request = new Request.Builder()
+                    .url(httpBuilder.build())
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    String searchResults;
+                    try (ResponseBody responseBody = response.body()) {
+                        if (!response.isSuccessful())
+                            throw new IOException(String.format("Unexpected code %s", response));
+                        else if (responseBody == null) {
+                            throw new IOException("null response from /getUserByEmail endpoint");
+                        } else {
+                            searchResults = responseBody.string();
+                            Log.d(TAG, String.format("response from /getuserbyemail: %s", searchResults));
+                            JSONArray user = new JSONArray(searchResults);
+                            shareFoodoList(user.getJSONObject(0).getString("_id"));
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 }
             });
@@ -216,7 +259,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
             PopupWindow shareFoodoListPopupWindow = new PopupWindow(container, 800, 800, true);
             shareFoodoListPopupWindow.showAtLocation(createFoodoListConstraintLayout, Gravity.CENTER, 0, 0);
             container.findViewById(R.id.share_foodo_list_confirm_button).setOnClickListener((View v) -> {
-                shareFoodoList(container);
+                startShareFoodoList(container);
                 shareFoodoListPopupWindow.dismiss();
             });
 
@@ -229,13 +272,12 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
         private void handleOpenFoodoListAction() {
             Intent foodoIntent = new Intent(mainActivity, FoodoListActivity.class)
                     .putExtra("name", name)
-                    .putExtra("listID", list_id);
+                    .putExtra("listID", list_id)
+                    .putExtra("username", username)
+                    .putExtra("userID", userID);
             mainActivity.startActivity(foodoIntent);
-
         }
     }
-
-
 }
 
 

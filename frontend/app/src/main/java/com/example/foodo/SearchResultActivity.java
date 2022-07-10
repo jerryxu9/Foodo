@@ -62,7 +62,9 @@ public class SearchResultActivity extends AppCompatActivity {
                         "dummy_id",
                         restaurantResult.getDouble("lat"),
                         restaurantResult.getDouble("lng"),
-                        isInFoodoList));
+                        isInFoodoList,
+                        getIntent().hasExtra("username") ? getIntent().getStringExtra("username") : "",
+                        getIntent().hasExtra("userID") ? getIntent().getStringExtra("userID") : ""));
 
             }
         } catch (JSONException e) {
