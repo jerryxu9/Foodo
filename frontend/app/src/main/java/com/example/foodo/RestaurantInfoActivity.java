@@ -104,7 +104,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        FirebaseMessaging.getInstance().subscribeToTopic(restaurantID)
+        FirebaseMessaging.getInstance().subscribeToTopic(googlePlacesID)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
