@@ -35,10 +35,8 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
     private final String TAG = "RestaurantCardAdapter";
     private final String listID;
-    private final String BASE_URL = "http://10.0.2.2:3000";
+    private final String BASE_URL = "http://20.51.215.223:3000";
     private final OkHttpClient client = new OkHttpClient();
-    private String cardID;
-
 
     public RestaurantCardAdapter(Context context, ArrayList<RestaurantCard> restaurantCardArrayList, String listID) {
         this.context = context;
@@ -84,7 +82,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                 holder.deleteRestaurantFromList();
             });
             ((Activity) context).runOnUiThread(() -> {
-                Log.d(TAG, "visited?" + String.valueOf(model.getVisited()));
                 if(model.getVisited()) {
                     holder.checkFoodoListButton.setBackgroundResource(R.drawable.visited_image);
                 }
