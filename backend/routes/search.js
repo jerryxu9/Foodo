@@ -8,11 +8,12 @@ router.get("/searchRestaurantsByQuery", async (req, res) => {
   try {
     // Note: text_search returns max of 20 results unless passing in next_page_token to a subsequent request
     let text_search_string =
-      "https://maps.googleapis.com/maps/api/place/textsearch/json?query=" +
-      req.query.query +
-      "&type=restaurant" + // setting type to restaurant to only return restaurants
-      "&radius=3000" + // limitting max radius to 3km to limit the results returned
-      "&key=" +
+    "https://maps.googleapis.com/maps/api/place/textsearch/json?query=" +
+     req.query.query +
+     "&type=restaurant" + // setting type to restaurant to only return restaurants
+     "&radius=3000" + // limitting max radius to 3km to limit the results returned
+     "&location=" + req.query.lat +
+     "%2C" + req.query.lng +
       process.env.GOOGLE_PLACES_API_KEY;
 
     const response = await axios.get(text_search_string);
