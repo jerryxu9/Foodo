@@ -1,8 +1,13 @@
 package com.example.foodo;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,12 +15,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.foodo.service.FoodoListService;
@@ -47,6 +54,7 @@ import okhttp3.ResponseBody;
 public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 1;
+    private LocationManager locationManager;
     private MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private final String TAG = "MainActivity";
     private final OkHttpClient client = new OkHttpClient();
@@ -58,6 +66,15 @@ public class MainActivity extends AppCompatActivity {
     private Intent mapsIntent, searchResultIntent;
     private Button loginButton;
     private TextView loginText;
+    private Double lat, lng;
+
+    private final LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(@NonNull Location location) {
+            lat = location.getLatitude();
+            lng = location.getLongitude();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,7 +159,16 @@ public class MainActivity extends AppCompatActivity {
         hideLoginPrompts();
     }
 
+    @SuppressLint("MissingPermission")
     private void searchRestaurant(String query) {
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            Log.d(TAG, "Permission was not granted, requesting permissions now");
+            ActivityCompat.requestPermissions(this, new String[]  {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},1);
+            return;
+        }
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, locationListener);
+
         String url = BASE_URL + "/searchRestaurantsByQuery";
         HttpUrl httpUrl = HttpUrl.parse(url);
 
@@ -151,7 +177,15 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("query", query);
+        if(lat == null || lng == null){
+            Toast.makeText(this, "Unable to get location, please try again", Toast.LENGTH_LONG);
+            return;
+        }
+
+        HttpUrl.Builder httpBuilder = httpUrl.newBuilder()
+                .addQueryParameter("query", query)
+                .addQueryParameter("lat", String.valueOf(lat))
+                .addQueryParameter("lng", String.valueOf(lng));
 
         Request request = new Request.Builder()
                 .url(httpBuilder.build())
@@ -287,6 +321,4 @@ public class MainActivity extends AppCompatActivity {
 //            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
 //        }
 //    }
-
-=======
 }
