@@ -51,7 +51,7 @@ public class FoodoListService {
 
     private String userID, username;
     private MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    private final String BASE_URL = "http://10.0.2.2:3000";
+    private final String BASE_URL = "http://20.51.215.223:3000";
     private final AppCompatActivity main_activity;
     private final FoodoListCardAdapter foodoListCardAdapter;
     private final LinearLayoutManager linearLayoutManager;

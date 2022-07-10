@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private final String TAG = "MainActivity";
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = "http://10.0.2.2:3000";
+    private final String BASE_URL = "http://20.51.215.223:3000";
     private SearchView restaurantSearch;
     private Button mapButton;
     private GoogleSignInClient mGoogleSignInClient;
