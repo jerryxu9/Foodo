@@ -14,7 +14,7 @@ router.get("/searchRestaurantsByQuery", async (req, res) => {
      "&radius=3000" + // limitting max radius to 3km to limit the results returned
      "&location=" + req.query.lat +
      "%2C" + req.query.lng +
-      process.env.GOOGLE_PLACES_API_KEY;
+     "&key" + process.env.GOOGLE_PLACES_API_KEY;
 
     const response = await axios.get(text_search_string);
 
