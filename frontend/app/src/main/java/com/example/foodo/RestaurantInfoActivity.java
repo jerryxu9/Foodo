@@ -1,5 +1,6 @@
 package com.example.foodo;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -53,14 +54,15 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private TextView restaurantName_info, restaurantAddress_info, restaurantRating_info, restaurantPhoneNumber, restaurantStatus,
             mondayHours, tuesdayHours, wednesdayHours, thursdayHours, fridayHours, saturdayHours, sundayHours;
-    private RecyclerView reviewList;
+    private static RecyclerView reviewList;
     private Spinner spinner, addResToListSpinner;
-    private ArrayList<ReviewCard> reviewCardArrayList;
+    private static ArrayList<ReviewCard> reviewCardArrayList;
     private String googlePlacesID;
     private Button submitReviewButton, addRestaurantToFoodoListButton;
     private EditText reviewTextBox;
     private PopupWindow createAddRestaurantToListPopupWindow;
     private double lng, lat;
+    private static Context context;
 
     private boolean isInFoodoList;
 
@@ -70,6 +72,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        RestaurantInfoActivity.context = getApplicationContext();
         setContentView(R.layout.activity_restaurant_info);
         initializeComponents();
         getIntentExtras();
@@ -103,6 +106,8 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        Log.d(TAG, googlePlacesID);
 
         FirebaseMessaging.getInstance().subscribeToTopic(googlePlacesID)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -471,7 +476,12 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         return BASE_URL + path;
     }
 
-    public void addReviewCard(ReviewCard reviewCard) {
+    public static void addReviewCard(ReviewCard reviewCard) {
+        Log.d("restaurantInfoActivity", reviewCard.getReviewText());
+        Log.d("restaurantInfoActivity", "Before: " + String.valueOf(reviewCardArrayList.size()));
         reviewCardArrayList.add(reviewCard);
+        ReviewCardAdapter reviewCardAdapter = new ReviewCardAdapter(context, reviewCardArrayList);
+        reviewList.setAdapter(reviewCardAdapter);
+        Log.d("restaurantInfoActivity", "After: " + String.valueOf(reviewCardArrayList.size()));
     }
 }

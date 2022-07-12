@@ -1,4 +1,4 @@
-package com.google.firebase.example.messaging.service;
+package com.example.foodo;
 
 import android.content.Context;
 import android.util.Log;
@@ -31,11 +31,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Map<String, String> dataPayload = remoteMessage.getData();
         if (dataPayload.size() > 0) {
             Log.d(TAG, "Message data payload: " + dataPayload);
-        // TODO: Figure out how to get reviewCardArrayList and append to it
-            RestaurantInfoActivity restaurantInfoActivity = new RestaurantInfoActivity();
-            restaurantInfoActivity.addReviewCard(new ReviewCard(dataPayload.get("reviewName"),
-                    dataPayload.get("reviewText"),
-                    dataPayload.get("reviewRating")));
+            Log.d(TAG, "Review text" + dataPayload.get("review"));
+            RestaurantInfoActivity.addReviewCard(new ReviewCard(dataPayload.get("user_name"),
+                    dataPayload.get("review"),
+                    dataPayload.get("rating")));
+            Log.d(TAG, "Done");
         }
     }
 
