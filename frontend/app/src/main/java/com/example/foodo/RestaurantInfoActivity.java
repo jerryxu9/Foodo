@@ -28,6 +28,8 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,7 +52,7 @@ import okhttp3.ResponseBody;
 public class RestaurantInfoActivity extends AppCompatActivity {
 
     private final OkHttpClient client = new OkHttpClient();
-    private final String TAG = "restaurantInfoActivity", BASE_URL = "http://10.0.2.2:3000";
+    private final String TAG = "restaurantInfoActivity", BASE_URL = "http://20.51.215.223:3000";
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private TextView restaurantName_info, restaurantAddress_info, restaurantRating_info, restaurantPhoneNumber, restaurantStatus,
             mondayHours, tuesdayHours, wednesdayHours, thursdayHours, fridayHours, saturdayHours, sundayHours;
@@ -60,7 +62,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     private String googlePlacesID;
     private Button submitReviewButton, addRestaurantToFoodoListButton;
     private EditText reviewTextBox;
-    private PopupWindow createAddRestaurantToListPopupWindow;
+    private PopupWindow createAddRestaurantToListPopupWindow, userNotLoggedInPopupWindow;
     private double lng, lat;
     private static Context context;
 
@@ -78,16 +80,19 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         getIntentExtras();
 
         submitReviewButton.setOnClickListener((View v) -> {
-            String reviewText = reviewTextBox.getText().toString();
-            if (!reviewText.trim().isEmpty()) {
-                Log.d(TAG, "Got following review from text box: " + reviewText);
-                Log.d(TAG, "got following rating from spinner: " + spinner.getSelectedItem().toString());
-                addReview(googlePlacesID, "name", reviewText, spinner.getSelectedItem().toString());
-
+            if(GoogleSignIn.getLastSignedInAccount(RestaurantInfoActivity.this) == null){
                 reviewTextBox.getText().clear();
+                handleNonLoggedInUser(v);
+            }else {
+                String reviewText = reviewTextBox.getText().toString();
+                if (!reviewText.trim().isEmpty()) {
+                    Log.d(TAG, "Got following review from text box: " + reviewText);
+                    Log.d(TAG, "got following rating from spinner: " + spinner.getSelectedItem().toString());
+                    addReview(reviewText, spinner.getSelectedItem().toString());
+                    reviewTextBox.getText().clear();
+                }
             }
         });
-
 
         // Hide add button if info page displayed by clicking on restaurant in Foodo list
         if (isInFoodoList) {
@@ -95,7 +100,11 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             addRestaurantToFoodoListButton.setVisibility(View.INVISIBLE);
         } else {
             addRestaurantToFoodoListButton.setOnClickListener((View view) -> {
-                initializePopUp(view);
+                if(GoogleSignIn.getLastSignedInAccount(RestaurantInfoActivity.this) == null){
+                    handleNonLoggedInUser(view);
+                }else {
+                    initializePopUp(view);
+                }
             });
         }
 
@@ -122,6 +131,20 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                 });
     }
 
+    private void handleNonLoggedInUser(View view){
+        Log.d(TAG, "User is not logged in, login now!!! >:(");
+        LayoutInflater layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.activity_login_popup, null);
+
+        userNotLoggedInPopupWindow = new PopupWindow(container, 800, 800, true);
+        userNotLoggedInPopupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+
+        container.findViewById(R.id.login_cancel_button).setOnClickListener((View v) -> {
+            Log.d(TAG, "Exit pop up");
+            userNotLoggedInPopupWindow.dismiss();
+        });
+    }
+
     private void initializePopUp(View view) {
         Log.d(TAG, "Pressed add Foodo restaurant button");
         LayoutInflater layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -129,12 +152,10 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
         addResToListSpinner = container.findViewById(R.id.choose_foodolist_spinner);
 
-        String[] foodoListNames = getFoodoListsPrimitiveArray();
-
-        Log.d(TAG, foodoListNames.toString());
+        String[] foodoListNamesPrim = getFoodoListsPrimitiveArray();
 
         ArrayAdapter<String> addResToListSpinnerAdapter = new ArrayAdapter<>(RestaurantInfoActivity.this,
-                android.R.layout.simple_list_item_1, foodoListNames);
+                android.R.layout.simple_list_item_1, foodoListNamesPrim);
         addResToListSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         addResToListSpinner.setAdapter(addResToListSpinnerAdapter);
 
@@ -151,7 +172,6 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             Log.d(TAG, "Cancelled adding restaurant to list");
             createAddRestaurantToListPopupWindow.dismiss();
         });
-
     }
 
     private String[] getFoodoListsPrimitiveArray() {
@@ -168,7 +188,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         foodoListNames = new ArrayList<>();
         foodoListIDandNames = new HashMap<>();
 
-        getFoodoLists("test@gmail.com");
+        getFoodoLists();
 
         submitReviewButton = findViewById(R.id.reviewSendButton);
         addRestaurantToFoodoListButton = findViewById(R.id.add_restaurant_to_list_button);
@@ -209,7 +229,6 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         lat = getIntent().getDoubleExtra("lat", 0);
         lng = getIntent().getDoubleExtra("lng", 0);
         isInFoodoList = getIntent().getBooleanExtra("isInFoodoList", isInFoodoList);
-
     }
 
     private void setStatusBackground(TextView restaurantStatus) {
@@ -226,10 +245,17 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         }
     }
 
-    private void getFoodoLists(String userID) {
+    private void getFoodoLists() {
         String url = buildURL("/getFoodoLists");
         HttpUrl httpUrl = HttpUrl.parse(url);
         HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
+
+        if(!getIntent().hasExtra("userID")){
+            Log.d(TAG, "Error: Intent does not have the user ID");
+            return;
+        }
+        String userID = getIntent().getStringExtra("userID");
+
         httpBuilder.addQueryParameter("userID", userID);
 
         Request request = new Request.Builder()
@@ -253,14 +279,12 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                     } else {
                         searchResults = responseBody.string();
                         Log.d(TAG, String.format("response from /getFoodoLists: %s", searchResults));
-
                         JSONArray foodoListsJSON = new JSONArray(searchResults);
                         for (int i = 0; i < foodoListsJSON.length(); i++) {
+                            Log.d(TAG, foodoListsJSON.getJSONObject(i).getString("name") + " " + i);
                             foodoListNames.add(foodoListsJSON.getJSONObject(i).getString("name"));
                             foodoListIDandNames.put(foodoListsJSON.getJSONObject(i).getString("name"), foodoListsJSON.getJSONObject(i).getString("_id"));
                         }
-
-                        Log.d(TAG, foodoListNames.toString());
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -337,7 +361,6 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                     else {
                         String responseBodyString = responseBody.string();
                         Log.d(TAG, responseBodyString);
-
                         runOnUiThread(() -> {
                             try {
                                 JSONObject restaurantObj = new JSONObject(responseBodyString);
@@ -365,7 +388,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         }
     }
 
-    private void addReview(String restaurantID, String name, String text, String rating) {
+    private void addReview(String text, String rating) {
         String url = buildURL("/addReview");
         HttpUrl httpUrl = HttpUrl.parse(url);
 
@@ -374,9 +397,15 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             return;
         }
 
+        if(!getIntent().hasExtra("username")){
+            Log.d(TAG, "Error: intent does not have username");
+            return;
+        }
+        String username = getIntent().getStringExtra("username");
+
         Map<String, String> params = new HashMap<>();
-        params.put("google_place_id", restaurantID);
-        params.put("user_name", name);
+        params.put("google_place_id", googlePlacesID);
+        params.put("user_name", username);
         params.put("review", text);
         params.put("rating", rating);
 
@@ -408,7 +437,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     }
 
     private void getReviews(String restaurantID) {
-        Log.d(TAG, String.format("searching for restaurant with ID: %s", restaurantID));
+        Log.d(TAG, String.format("searching for reviews from restaurant with ID: %s", restaurantID));
 
         String url = buildURL("/getReviews");
         HttpUrl httpUrl = HttpUrl.parse(url);

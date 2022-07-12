@@ -36,7 +36,7 @@ router.get("/getFoodoLists", async (req, res) => {
 });
 
 // Get all the restaurants under a Foodo list given its ID
-router.get("/getRestaurantIDsByFoodoListID", async (req, res) => {
+router.get("/getRestaurantsByFoodoListID", async (req, res) => {
   try {
     const list = await FoodoListModel.findById(req.query.listID);
     const restaurants = list.restaurants;

@@ -22,4 +22,5 @@
     <string name="share_foodo_list_hint">Enter user email</string>
     <string name="share_foodo_list_submit_button">Share Foodo List</string>
     <string name="delete_foodo_restaurant_button">Delete Restaurant</string>
+    <string name="server_client_id">415243569715-ft0h81psvpkm3ufbc9h5qlkomrd1k8bp.apps.googleusercontent.com</string>
 </resources>
