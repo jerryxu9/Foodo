@@ -13,7 +13,7 @@ describe("/searchRestaurantsByQuery", () => {
     expect(response.header["content-type"]).toBe(
       "application/json; charset=utf-8"
     );
-    expect(response.body).toEqual(QUERY_1_RESP);
+
     expect(response.body.length).toEqual(20);
     expect(response.statusCode).toBe(200);
   });
