@@ -8,7 +8,7 @@ describe("/searchRestaurantInfoByID", () => {
       id: "ChIJTYjW9soKhlQRwO6-7IRKVq0",
     });
 
-    expect(response.body).toEqual(ID_1_RESP);
+    expect(response.body.name).toEqual(ID_1_RESP.name);
     expect(response.statusCode).toBe(200);
   });
 });
