@@ -19,8 +19,8 @@ jobs:
       run:
         working-directory: 'backend'
 
-    strategy:
-        node-version: [16.x]
+    with:
+        node-version: 16
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
