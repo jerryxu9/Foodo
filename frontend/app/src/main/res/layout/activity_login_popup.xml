@@ -12,7 +12,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:background="@drawable/warning"
-        app:layout_constraintBottom_toTopOf="@+id/textView2"
+        app:layout_constraintBottom_toTopOf="@+id/login_warning_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,7 +20,7 @@
         app:layout_constraintVertical_bias="0.642" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/login_warning_text"
         android:layout_width="262dp"
         android:layout_height="wrap_content"
         android:gravity="center"
