@@ -17,13 +17,10 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.foodo.FoodoListActivity;
-import com.example.foodo.MapActivity;
 import com.example.foodo.R;
-import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -161,7 +158,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
 
         }
 
-        private void startShareFoodoList(ViewGroup viewGroup){
+        private void startShareFoodoList(ViewGroup viewGroup) {
             EditText userEmailInput = viewGroup.findViewById(R.id.enter_user_email_edit_text);
             String userEmail = userEmailInput.getText().toString();
             if (userEmail.trim().isEmpty()) {
@@ -213,7 +210,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
             });
         }
 
-        private void getUserByEmail(String email){
+        private void getUserByEmail(String email) {
             String url = BASE_URL + "/getUserByEmail";
             HttpUrl httpUrl = HttpUrl.parse(url);
             HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
