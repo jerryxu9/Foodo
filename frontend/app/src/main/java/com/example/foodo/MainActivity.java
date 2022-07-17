@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,10 +16,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -54,11 +50,11 @@ import okhttp3.ResponseBody;
 public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 1;
-    private LocationManager locationManager;
-    private MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private final String TAG = "MainActivity";
     private final OkHttpClient client = new OkHttpClient();
     private final String BASE_URL = "http://20.51.215.223:3000";
+    private LocationManager locationManager;
+    private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private SearchView restaurantSearch;
     private Button mapButton;
     private GoogleSignInClient mGoogleSignInClient;
@@ -97,9 +93,9 @@ public class MainActivity extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
 
-        if(account != null){
+        if (account != null) {
             handleSuccessfulSignIn(account);
-        }else{
+        } else {
             loginButton.setVisibility(View.VISIBLE);
             loginText.setVisibility(View.VISIBLE);
             loginButton.setOnClickListener((View v) -> signIn());
@@ -138,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void hideLoginPrompts(){
+    private void hideLoginPrompts() {
         loginButton.setVisibility(View.INVISIBLE);
         loginText.setVisibility(View.INVISIBLE);
     }
@@ -152,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void handleSuccessfulSignIn(GoogleSignInAccount account){
+    private void handleSuccessfulSignIn(GoogleSignInAccount account) {
         String username = account.getDisplayName();
         Log.d(TAG, account.getIdToken() + " and " + username);
         createUser(account.getIdToken(), username, account.getEmail());
@@ -161,9 +157,9 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressLint("MissingPermission")
     private void searchRestaurant(String query) {
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Permission was not granted, requesting permissions now");
-            ActivityCompat.requestPermissions(this, new String[]  {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},1);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             return;
         }
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -177,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if(lat == null || lng == null){
+        if (lat == null || lng == null) {
             Toast.makeText(this, "Unable to get location, please try again", Toast.LENGTH_LONG);
             return;
         }
@@ -227,7 +223,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    private void createUser(String idToken, String username, String email){
+
+    private void createUser(String idToken, String username, String email) {
         String url = buildURL("/createUser");
         HttpUrl httpUrl = HttpUrl.parse(url);
 
@@ -258,17 +255,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 String responseBodyString;
-                try(ResponseBody responseBody = response.body()) {
+                try (ResponseBody responseBody = response.body()) {
                     if (!response.isSuccessful()) {
                         signIn();
                     } else {
                         responseBodyString = responseBody.string();
                         JSONObject resJSON = new JSONObject(responseBodyString);
 
-                        if(resJSON.has("error")){
+                        if (resJSON.has("error")) {
                             //validation failed, perhaps the token has expired, login again
                             signIn();
-                        }else{
+                        } else {
                             Log.d(TAG, responseBodyString);
                             JSONObject responseBodyJSON = new JSONObject(responseBodyString);
 
@@ -290,10 +287,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private String buildURL(String path){
+    private String buildURL(String path) {
         return BASE_URL + path;
     }
-  
+
 //    // Declare the launcher at the top of your Activity/Fragment:
 //    private final ActivityResultLauncher<String> requestPermissionLauncher =
 //            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
