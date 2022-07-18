@@ -87,11 +87,7 @@ public class FoodoListService {
                 if (userID == null) {
                     createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
                 }
-                try {
-                    refreshFoodoLists();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                refreshFoodoLists();
             }
         });
 
@@ -111,21 +107,20 @@ public class FoodoListService {
     }
 
 
-    public void refreshFoodoLists() throws Exception {
+    public void refreshFoodoLists() {
         foodoListCardAdapter.clearFoodoLists();
         loadFoodoLists();
     }
 
-    public void loadFoodoLists() throws Exception {
-
-        Map<String, String> queryParameters = new HashMap<>();
-        Callback cb = new Callback() {
+    public void loadFoodoLists() {
+        Callback loadFoodoListCallback = new Callback() {
             @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                String result = OKHttpService.getResponseBody(response);
-                foodoListCardAdapter.clearFoodoLists();
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
                 try {
+                    String result = OKHttpService.getResponseBody(response);
+                    foodoListCardAdapter.clearFoodoLists();
                     JSONArray foodoListJSONArray = new JSONArray(result);
+
                     for (int i = 0; i < foodoListJSONArray.length(); i++) {
                         JSONObject foodoListJSON = (JSONObject) foodoListJSONArray.get(i);
                         String id = foodoListJSON.getString("_id");
@@ -136,7 +131,7 @@ public class FoodoListService {
                         FoodoListCard card = new FoodoListCard(foodoListJSON.getString("name"), id, username, userID);
                         foodoListCardAdapter.addFoodoList(card);
                     }
-                } catch (JSONException e) {
+                } catch (JSONException | IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -146,9 +141,9 @@ public class FoodoListService {
                 e.printStackTrace();
             }
         };
-
+        Map<String, String> queryParameters = new HashMap<>();
         queryParameters.put("userID", userID);
-        OKHttpService.getRequest("getFoodoLists", cb, queryParameters);
+        OKHttpService.getRequest("getFoodoLists", loadFoodoListCallback, queryParameters);
 
     }
 
