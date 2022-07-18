@@ -148,7 +148,7 @@ public class FoodoListService {
         };
 
         queryParameters.put("userID", userID);
-        OKHttpService.getRequest("/getFoodoLists", cb, queryParameters);
+        OKHttpService.getRequest("getFoodoLists", cb, queryParameters);
 
     }
 
