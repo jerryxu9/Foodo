@@ -51,8 +51,8 @@ public class FoodoListService {
     private final LinearLayoutManager linearLayoutManager;
     private final ArrayList<FoodoListCard> foodoListCardArrayList;
     private final OkHttpClient client = new OkHttpClient();
-    private String userID, username;
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private String userID, username;
     private RecyclerView foodoLists;
     private FloatingActionButton createFoodoListButton, refreshButton;
     private PopupWindow createFoodoListPopupWindow, loginDecisionPopupWindow;
@@ -113,49 +113,25 @@ public class FoodoListService {
     }
 
     public void loadFoodoLists() {
-        String url = BASE_URL + "/getFoodoLists";
-        HttpUrl httpUrl = HttpUrl.parse(url);
-
-        if (httpUrl == null) {
-            Log.d(TAG, String.format("unable to parse server URL: %s", url));
-            return;
-        }
-
-        //not logged in, no foodo lists to render
-        if (userID == null) {
-            Log.d(TAG, "no user ID");
-            return;
-        }
-
-        HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("userID", userID);
-
-        Request request = new Request.Builder()
-                .url(httpBuilder.build())
-                .build();
-
-        client.newCall((request)).enqueue(new Callback() {
+        Callback loadFoodoListCallback = new Callback() {
             @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful())
-                        throw new IOException(String.format("Unexpected code %s", response));
-                    else if (responseBody == null) {
-                        throw new IOException("null response from /getFoodoLists endpoint");
-                    } else {
-                        foodoListCardAdapter.clearFoodoLists();
-                        JSONArray foodoListJSONArray = new JSONArray(responseBody.string());
-                        for (int i = 0; i < foodoListJSONArray.length(); i++) {
-                            JSONObject foodoListJSON = (JSONObject) foodoListJSONArray.get(i);
-                            String id = foodoListJSON.getString("_id");
-                            String name = foodoListJSON.getString("name");
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                try {
+                    String result = OKHttpService.getResponseBody(response);
+                    foodoListCardAdapter.clearFoodoLists();
+                    JSONArray foodoListJSONArray = new JSONArray(result);
 
-                            Log.d(TAG, String.format("Loaded Foodo List '%s' with id: %s", name, id));
+                    for (int i = 0; i < foodoListJSONArray.length(); i++) {
+                        JSONObject foodoListJSON = (JSONObject) foodoListJSONArray.get(i);
+                        String id = foodoListJSON.getString("_id");
+                        String name = foodoListJSON.getString("name");
 
-                            FoodoListCard card = new FoodoListCard(foodoListJSON.getString("name"), id, username, userID);
-                            foodoListCardAdapter.addFoodoList(card);
-                        }
+                        Log.d(TAG, String.format("Loaded Foodo List '%s' with id: %s", name, id));
+
+                        FoodoListCard card = new FoodoListCard(foodoListJSON.getString("name"), id, username, userID);
+                        foodoListCardAdapter.addFoodoList(card);
                     }
-                } catch (Exception e) {
+                } catch (JSONException | IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -164,7 +140,11 @@ public class FoodoListService {
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
             }
-        });
+        };
+        Map<String, String> queryParameters = new HashMap<>();
+        queryParameters.put("userID", userID);
+        OKHttpService.getRequest("getFoodoLists", loadFoodoListCallback, queryParameters);
+
     }
 
     private void handleNonLoggedInUser() {
@@ -330,6 +310,8 @@ public class FoodoListService {
                         }
                     }
                 } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
