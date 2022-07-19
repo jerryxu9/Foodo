@@ -48,21 +48,36 @@ import okhttp3.ResponseBody;
 public class RestaurantInfoActivity extends AppCompatActivity {
 
     private final OkHttpClient client = new OkHttpClient();
-    private final String TAG = "restaurantInfoActivity", BASE_URL = "http://20.51.215.223:3000";
+    private final String TAG = "restaurantInfoActivity";
+    private final String BASE_URL = "http://20.51.215.223:3000";
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    private TextView restaurantName_info, restaurantAddress_info, restaurantRating_info, restaurantPhoneNumber, restaurantStatus,
-            mondayHours, tuesdayHours, wednesdayHours, thursdayHours, fridayHours, saturdayHours, sundayHours;
+
+    private TextView restaurantName_info;
+    private TextView restaurantAddress_info;
+    private TextView restaurantRating_info;
+    private TextView restaurantPhoneNumber;
+    private TextView restaurantStatus;
+    private TextView mondayHours;
+    private TextView tuesdayHours;
+    private TextView wednesdayHours;
+    private TextView thursdayHours;
+    private TextView fridayHours;
+    private TextView saturdayHours;
+    private TextView sundayHours;
+
     private RecyclerView reviewList;
-    private Spinner spinner, addResToListSpinner;
+    private Spinner spinner;
+    private Spinner addResToListSpinner;
     private ArrayList<ReviewCard> reviewCardArrayList;
     private String googlePlacesID;
-    private Button submitReviewButton, addRestaurantToFoodoListButton;
+    private Button submitReviewButton;
+    private Button addRestaurantToFoodoListButton;
     private EditText reviewTextBox;
-    private PopupWindow createAddRestaurantToListPopupWindow, userNotLoggedInPopupWindow;
-    private double lng, lat;
-
+    private PopupWindow createAddRestaurantToListPopupWindow;
+    private PopupWindow userNotLoggedInPopupWindow;
+    private double lng;
+    private double lat;
     private boolean isInFoodoList;
-
     private ArrayList<String> foodoListNames;
     private HashMap<String, String> foodoListIDandNames;
 

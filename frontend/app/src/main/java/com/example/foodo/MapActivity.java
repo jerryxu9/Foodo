@@ -30,11 +30,11 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
+//    private GoogleMap mMap;
+//    private ActivityMapsBinding binding;
 
-    private GoogleMap mMap;
-    private ActivityMapsBinding binding;
-
-    private final String BASE_URL = "http://20.51.215.223:3000", TAG = "MapActivity";
+    private final String BASE_URL = "http://20.51.215.223:3000";
+    private final String TAG = "MapActivity";
     private final OkHttpClient client = new OkHttpClient();
     private ArrayList<RestaurantMarkerInfo> markers;
 
@@ -48,7 +48,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             getFoodoLists(userID);
         }
 
-        binding = ActivityMapsBinding.inflate(getLayoutInflater());
+        ActivityMapsBinding binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -70,7 +70,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     public void onMapReady(GoogleMap googleMap) {
         //call foodoList API here to get all the foodolists of the user and then get the lat/lng of each restaurant in each list
 
-        mMap = googleMap;
+        GoogleMap mMap = googleMap;
 
         for(RestaurantMarkerInfo info : markers){
             mMap.addMarker(new MarkerOptions().position(info.getLatLng()).title(info.getName()));
@@ -107,20 +107,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                         searchResults = responseBody.string();
                         Log.d(TAG, String.format("response from /getFoodoLists: %s", searchResults));
 
-                        JSONArray foodoListsJSON = new JSONArray(searchResults);
-                        for(int i = 0; i < foodoListsJSON.length(); i++) {
-                            JSONObject foodoListInfo = foodoListsJSON.getJSONObject(i);
-                            JSONArray restaurants = foodoListInfo.getJSONArray("restaurants");
-                            Log.d(TAG, restaurants.toString());
-
-                            for (int j = 0; j < restaurants.length(); j++) {
-                                JSONObject restaurantInfo = restaurants.getJSONObject(j);
-                                markers.add(new RestaurantMarkerInfo(
-                                        new LatLng(restaurantInfo.getDouble("lat"),
-                                                restaurantInfo.getDouble("lng")),
-                                        restaurantInfo.getString("name")));
-                            }
-                        }
+                        getMapPins(new JSONArray(searchResults));
                         Log.d(TAG, markers.toString());
                     }
                 } catch (JSONException e) {
@@ -128,6 +115,23 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                 }
             }
         });
+    }
+
+    private void getMapPins(JSONArray foodoListsJSON) throws JSONException {
+        for(int i = 0; i < foodoListsJSON.length(); i++) {
+            JSONObject foodoListInfo = foodoListsJSON.getJSONObject(i);
+            JSONArray restaurants = foodoListInfo.getJSONArray("restaurants");
+            Log.d(TAG, restaurants.toString());
+
+            for (int j = 0; j < restaurants.length(); j++) {
+                JSONObject restaurantInfo = restaurants.getJSONObject(j);
+                markers.add(new RestaurantMarkerInfo(
+                        new LatLng(restaurantInfo.getDouble("lat"),
+                                restaurantInfo.getDouble("lng")),
+                        restaurantInfo.getString("name")));
+            }
+        }
+
     }
 
     private String buildURL(String path){

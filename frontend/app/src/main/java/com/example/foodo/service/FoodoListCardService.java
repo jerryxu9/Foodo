@@ -50,7 +50,6 @@ public class FoodoListCardService {
         this.listID = listID;
     }
 
-
     public void initializeComponents() {
         RecyclerView restaurantsView = foodoCardActivity.findViewById(R.id.foodo_list_card_restaurants_list);
         populateRestaurantCardsArray();
@@ -72,7 +71,6 @@ public class FoodoListCardService {
     }
 
     private void populateRestaurantCardsArray() {
-
         String url = BASE_URL + "/getRestaurantsByFoodoListID";
         HttpUrl httpUrl = HttpUrl.parse(url);
 
@@ -84,7 +82,6 @@ public class FoodoListCardService {
         if(userID == null || username == null){
             return;
         }
-
 
         HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("listID", listID);
 
