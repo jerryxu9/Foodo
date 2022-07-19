@@ -48,7 +48,9 @@ import okhttp3.ResponseBody;
 public class RestaurantInfoActivity extends AppCompatActivity {
 
     private final OkHttpClient client = new OkHttpClient();
-    private final String TAG = "restaurantInfoActivity", BASE_URL = "http://20.51.215.223:3000";
+    private final String TAG = "restaurantInfoActivity";
+    private final String BASE_URL = "http://10.0.2.2:3000";
+    /*private final String BASE_URL = "http://20.51.215.223:3000";*/
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private TextView restaurantName_info, restaurantAddress_info, restaurantRating_info, restaurantPhoneNumber, restaurantStatus,
             mondayHours, tuesdayHours, wednesdayHours, thursdayHours, fridayHours, saturdayHours, sundayHours;

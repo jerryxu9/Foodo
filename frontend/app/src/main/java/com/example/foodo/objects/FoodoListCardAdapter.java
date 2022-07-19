@@ -37,7 +37,8 @@ import okhttp3.ResponseBody;
 
 public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdapter.Viewholder> {
 
-    private final String BASE_URL = "http://20.51.215.223:3000";
+   /* private final String BASE_URL = "http://20.51.215.223:3000";*/
+    private final String BASE_URL = "http://10.0.2.2:3000";
     private final String TAG = "FoodoListCardAdapter";
     private final ArrayList<FoodoListCard> foodoListArrayList;
     private final OkHttpClient client;

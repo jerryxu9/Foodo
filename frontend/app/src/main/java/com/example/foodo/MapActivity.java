@@ -1,18 +1,19 @@
 package com.example.foodo;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
-
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+
+import com.example.foodo.databinding.ActivityMapsBinding;
+import com.example.foodo.service.OKHttpService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.example.foodo.databinding.ActivityMapsBinding;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,29 +21,29 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    private final String BASE_URL = "http://10.0.2.2:3000";
+    /*private final String BASE_URL = "http://20.51.215.223:3000";*/
+    private final String TAG = "MapActivity";
+    private final OkHttpClient client = new OkHttpClient();
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
-
-    private final String BASE_URL = "http://20.51.215.223:3000", TAG = "MapActivity";
-    private final OkHttpClient client = new OkHttpClient();
     private ArrayList<RestaurantMarkerInfo> markers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         markers = new ArrayList<>();
-        if(getIntent().hasExtra("userID")){
+        if (getIntent().hasExtra("userID")) {
             String userID = getIntent().getStringExtra("userID");
             Log.d(TAG, userID + getIntent().getStringExtra("username"));
             getFoodoLists(userID);
@@ -72,24 +73,18 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
         mMap = googleMap;
 
-        for(RestaurantMarkerInfo info : markers){
+        for (RestaurantMarkerInfo info : markers) {
             mMap.addMarker(new MarkerOptions().position(info.getLatLng()).title(info.getName()));
         }
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(49.3, -123), 10));
     }
 
-    //Will complete in a separate PR
-    private void getFoodoLists(String userID){
-        String url = buildURL("/getFoodoLists");
-        HttpUrl httpUrl = HttpUrl.parse(url);
-        HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
-        httpBuilder.addQueryParameter("userID", userID);
+    private void getFoodoLists(String userID) {
 
-        Request request = new Request.Builder()
-                .url(httpBuilder.build())
-                .build();
+        HashMap<String, String> queryParameters = new HashMap<>();
+        queryParameters.put("userID", userID);
 
-        client.newCall(request).enqueue(new Callback() {
+        Callback getFoodoListsCallback = new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -97,57 +92,51 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                String searchResults;
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful())
-                        throw new IOException(String.format("Unexpected code %s", response));
-                    else if (responseBody == null) {
-                        throw new IOException("null response from /searchRestaurantsByQuery endpoint");
-                    } else {
-                        searchResults = responseBody.string();
-                        Log.d(TAG, String.format("response from /getFoodoLists: %s", searchResults));
+                String searchResults = OKHttpService.getResponseBody(response);
+                Log.d(TAG, String.format("response from /getFoodoLists: %s", searchResults));
+                try {
+                    JSONArray foodoListsJSON = new JSONArray(searchResults);
+                    for (int i = 0; i < foodoListsJSON.length(); i++) {
+                        JSONObject foodoListInfo = foodoListsJSON.getJSONObject(i);
+                        JSONArray restaurants = foodoListInfo.getJSONArray("restaurants");
+                        Log.d(TAG, restaurants.toString());
 
-                        JSONArray foodoListsJSON = new JSONArray(searchResults);
-                        for(int i = 0; i < foodoListsJSON.length(); i++) {
-                            JSONObject foodoListInfo = foodoListsJSON.getJSONObject(i);
-                            JSONArray restaurants = foodoListInfo.getJSONArray("restaurants");
-                            Log.d(TAG, restaurants.toString());
-
-                            for (int j = 0; j < restaurants.length(); j++) {
-                                JSONObject restaurantInfo = restaurants.getJSONObject(j);
-                                markers.add(new RestaurantMarkerInfo(
-                                        new LatLng(restaurantInfo.getDouble("lat"),
-                                                restaurantInfo.getDouble("lng")),
-                                        restaurantInfo.getString("name")));
-                            }
+                        for (int j = 0; j < restaurants.length(); j++) {
+                            JSONObject restaurantInfo = restaurants.getJSONObject(j);
+                            markers.add(new RestaurantMarkerInfo(
+                                    new LatLng(restaurantInfo.getDouble("lat"),
+                                            restaurantInfo.getDouble("lng")),
+                                    restaurantInfo.getString("name")));
                         }
-                        Log.d(TAG, markers.toString());
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                Log.d(TAG, markers.toString());
             }
-        });
+        };
+        OKHttpService.getRequest("getFoodoLists", getFoodoListsCallback, queryParameters);
+
     }
 
-    private String buildURL(String path){
+    private String buildURL(String path) {
         return BASE_URL + path;
     }
 
-    public class RestaurantMarkerInfo{
-        private LatLng coordinates;
-        private String name;
+    public class RestaurantMarkerInfo {
+        private final LatLng coordinates;
+        private final String name;
 
-        public RestaurantMarkerInfo(LatLng coordinates, String name){
+        public RestaurantMarkerInfo(LatLng coordinates, String name) {
             this.coordinates = coordinates;
             this.name = name;
         }
 
-        public LatLng getLatLng(){
+        public LatLng getLatLng() {
             return coordinates;
         }
 
-        public String getName(){
+        public String getName() {
             return name;
         }
     }
