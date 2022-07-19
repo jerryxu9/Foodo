@@ -73,7 +73,7 @@ public class FoodoListCardService {
 
     private void populateRestaurantCardsArray() {
 
-        String url = BASE_URL + "/getRestaurantIDsByFoodoListID";
+        String url = BASE_URL + "/getRestaurantsByFoodoListID";
         HttpUrl httpUrl = HttpUrl.parse(url);
 
         if (httpUrl == null) {
@@ -99,7 +99,7 @@ public class FoodoListCardService {
                     if (!response.isSuccessful())
                         throw new IOException(String.format("Unexpected code %s", response));
                     else if (responseBody == null) {
-                        throw new IOException("null response from /getRestaurantIDsByFoodoListId endpoint");
+                        throw new IOException("null response from /getRestaurantByFoodoListId endpoint");
                     } else {
                         JSONArray foodoListJSONArray = new JSONArray(responseBody.string());
                         // For each restaurant, collect its information and render it as a Restaurant Card

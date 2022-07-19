@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.foodo.objects.ReviewCard;
 import com.example.foodo.objects.ReviewCardAdapter;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -79,10 +80,10 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         getIntentExtras();
 
         submitReviewButton.setOnClickListener((View v) -> {
-            if(GoogleSignIn.getLastSignedInAccount(RestaurantInfoActivity.this) == null){
+            if (GoogleSignIn.getLastSignedInAccount(RestaurantInfoActivity.this) == null) {
                 reviewTextBox.getText().clear();
                 handleNonLoggedInUser(v);
-            }else {
+            } else {
                 String reviewText = reviewTextBox.getText().toString();
                 if (!reviewText.trim().isEmpty()) {
                     Log.d(TAG, "Got following review from text box: " + reviewText);
@@ -99,9 +100,9 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             addRestaurantToFoodoListButton.setVisibility(View.INVISIBLE);
         } else {
             addRestaurantToFoodoListButton.setOnClickListener((View view) -> {
-                if(GoogleSignIn.getLastSignedInAccount(RestaurantInfoActivity.this) == null){
+                if (GoogleSignIn.getLastSignedInAccount(RestaurantInfoActivity.this) == null) {
                     handleNonLoggedInUser(view);
-                }else {
+                } else {
                     initializePopUp(view);
                 }
             });
@@ -130,7 +131,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                 });
     }
 
-    private void handleNonLoggedInUser(View view){
+    private void handleNonLoggedInUser(View view) {
         Log.d(TAG, "User is not logged in, login now!!! >:(");
         LayoutInflater layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.activity_login_popup, null);
@@ -249,7 +250,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         HttpUrl httpUrl = HttpUrl.parse(url);
         HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
 
-        if(!getIntent().hasExtra("userID")){
+        if (!getIntent().hasExtra("userID")) {
             Log.d(TAG, "Error: Intent does not have the user ID");
             return;
         }
@@ -396,7 +397,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             return;
         }
 
-        if(!getIntent().hasExtra("username")){
+        if (!getIntent().hasExtra("username")) {
             Log.d(TAG, "Error: intent does not have username");
             return;
         }

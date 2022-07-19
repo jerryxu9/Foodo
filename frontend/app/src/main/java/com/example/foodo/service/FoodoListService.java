@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.PopupWindow;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,13 +16,11 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.foodo.MainActivity;
 import com.example.foodo.R;
 import com.example.foodo.objects.FoodoListCard;
 import com.example.foodo.objects.FoodoListCardAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
@@ -49,15 +46,15 @@ public class FoodoListService {
 
     private final String TAG = "FoodoListService";
 
-    private String userID, username;
-    private MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    private final String BASE_URL = "http://10.0.2.2:3000";
+    private final String BASE_URL = "http://20.51.215.223:3000";
     private final AppCompatActivity main_activity;
     private final FoodoListCardAdapter foodoListCardAdapter;
     private final LinearLayoutManager linearLayoutManager;
     private final ArrayList<FoodoListCard> foodoListCardArrayList;
-    private RecyclerView foodoLists;
     private final OkHttpClient client = new OkHttpClient();
+    private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private String userID, username;
+    private RecyclerView foodoLists;
     private FloatingActionButton createFoodoListButton, refreshButton;
     private PopupWindow createFoodoListPopupWindow, loginDecisionPopupWindow;
 
@@ -72,14 +69,14 @@ public class FoodoListService {
         createFoodoListButton = main_activity.findViewById(R.id.create_foodo_list_button);
         createFoodoListButton.setOnClickListener((View v) -> {
             GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
-            if(account != null){
+            if (account != null) {
                 Log.d(TAG, "User is logged in, allowing them to create FoodoList");
-                if(userID == null){
+                if (userID == null) {
                     Log.d(TAG, "need to fetch user ID before creating foodo list foodoList");
                     createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
                 }
                 handleCreateFoodoListAction();
-            }else{
+            } else {
                 handleNonLoggedInUser();
             }
         });
@@ -87,8 +84,8 @@ public class FoodoListService {
         refreshButton = main_activity.findViewById(R.id.refresh_button);
         refreshButton.setOnClickListener((View v) -> {
             GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
-            if(account != null){
-                if(userID == null){
+            if (account != null) {
+                if (userID == null) {
                     createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
                 }
                 refreshFoodoLists();
@@ -98,7 +95,7 @@ public class FoodoListService {
         foodoLists = main_activity.findViewById(R.id.foodo_lists);
 
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
-        if(account != null && userID == null){
+        if (account != null && userID == null) {
             //no other way to get the token, just go through createUser endpoint
             //and get the id from the existing entry in the database
 
@@ -117,49 +114,25 @@ public class FoodoListService {
     }
 
     public void loadFoodoLists() {
-        String url = BASE_URL + "/getFoodoLists";
-        HttpUrl httpUrl = HttpUrl.parse(url);
-
-        if (httpUrl == null) {
-            Log.d(TAG, String.format("unable to parse server URL: %s", url));
-            return;
-        }
-
-        //not logged in, no foodo lists to render
-        if(userID == null){
-            Log.d(TAG, "no user ID");
-            return;
-        }
-
-        HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("userID", userID);
-
-        Request request = new Request.Builder()
-                .url(httpBuilder.build())
-                .build();
-
-        client.newCall((request)).enqueue(new Callback() {
+        Callback loadFoodoListCallback = new Callback() {
             @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful())
-                        throw new IOException(String.format("Unexpected code %s", response));
-                    else if (responseBody == null) {
-                        throw new IOException("null response from /getFoodoLists endpoint");
-                    } else {
-                        foodoListCardAdapter.clearFoodoLists();
-                        JSONArray foodoListJSONArray = new JSONArray(responseBody.string());
-                        for (int i = 0; i < foodoListJSONArray.length(); i++) {
-                            JSONObject foodoListJSON = (JSONObject) foodoListJSONArray.get(i);
-                            String id = foodoListJSON.getString("_id");
-                            String name = foodoListJSON.getString("name");
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                try {
+                    String result = OKHttpService.getResponseBody(response);
+                    foodoListCardAdapter.clearFoodoLists();
+                    JSONArray foodoListJSONArray = new JSONArray(result);
 
-                            Log.d(TAG, String.format("Loaded Foodo List '%s' with id: %s", name, id));
+                    for (int i = 0; i < foodoListJSONArray.length(); i++) {
+                        JSONObject foodoListJSON = (JSONObject) foodoListJSONArray.get(i);
+                        String id = foodoListJSON.getString("_id");
+                        String name = foodoListJSON.getString("name");
 
-                            FoodoListCard card = new FoodoListCard(foodoListJSON.getString("name"), id, username, userID);
-                            foodoListCardAdapter.addFoodoList(card);
-                        }
+                        Log.d(TAG, String.format("Loaded Foodo List '%s' with id: %s", name, id));
+
+                        FoodoListCard card = new FoodoListCard(foodoListJSON.getString("name"), id, username, userID);
+                        foodoListCardAdapter.addFoodoList(card);
                     }
-                } catch (Exception e) {
+                } catch (JSONException | IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -168,10 +141,14 @@ public class FoodoListService {
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
             }
-        });
+        };
+        Map<String, String> queryParameters = new HashMap<>();
+        queryParameters.put("userID", userID);
+        OKHttpService.getRequest("getFoodoLists", loadFoodoListCallback, queryParameters);
+
     }
 
-    private void handleNonLoggedInUser(){
+    private void handleNonLoggedInUser() {
         Log.d(TAG, "User is not logged in");
         LayoutInflater layoutInflater = (LayoutInflater) main_activity.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.activity_login_popup, null);
@@ -226,7 +203,7 @@ public class FoodoListService {
             return;
         }
 
-        if(userID == null || username == null){
+        if (userID == null || username == null) {
             return;
         }
 
@@ -280,7 +257,7 @@ public class FoodoListService {
         });
     }
 
-    private void createUser(String idToken, String user, String email){
+    private void createUser(String idToken, String user, String email) {
         String url = buildURL("/createUser");
         HttpUrl httpUrl = HttpUrl.parse(url);
 
@@ -311,14 +288,14 @@ public class FoodoListService {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 String responseBodyString;
-                try(ResponseBody responseBody = response.body()) {
+                try (ResponseBody responseBody = response.body()) {
                     if (!response.isSuccessful()) {
                         Log.d(TAG, responseBody.string());
                     } else {
                         responseBodyString = responseBody.string();
                         JSONObject resJSON = new JSONObject(responseBodyString);
                         //seems that an invalid token doesn't respond with an error?
-                        if(!resJSON.has("error")){
+                        if (!resJSON.has("error")) {
                             //valid session, snatch that id and username
                             Log.d(TAG, responseBodyString);
                             JSONObject responseBodyJSON = new JSONObject(responseBodyString);
@@ -327,7 +304,7 @@ public class FoodoListService {
                             Log.d(TAG, responseBodyJSON.getString("name"));
 
                             userID = responseBodyJSON.getString("_id");
-                            Log.d(TAG, "userID: " +  userID);
+                            Log.d(TAG, "userID: " + userID);
                             username = responseBodyJSON.getString("name");
 
                             loadFoodoLists();
@@ -335,11 +312,14 @@ public class FoodoListService {
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });
     }
-    private String buildURL(String path){
+
+    private String buildURL(String path) {
         return BASE_URL + path;
     }
 }

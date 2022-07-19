@@ -53,23 +53,4 @@ router.delete("/deleteReview", async (req, res) => {
   }
 });
 
-// Subscribe to snapshots to the review collection
-// Takes GooglePlaceID to subscribe to as query
-router.get("/subSnap", async (req, res) => {
-  try {
-    Review.watch().on("change", (data) => {
-      if (data.fullDocument.google_place_id === req.query.google_place_id) {
-        res.writeHead(200, {
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          "Access-Control-Allow-Origin": "*",
-        });
-        res.write({ review: data.fullDocument, change: data.operationType });
-      }
-    });
-  } catch (error) {
-    res.json(error);
-  }
-});
-
 module.exports = router;
