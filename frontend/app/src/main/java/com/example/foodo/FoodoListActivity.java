@@ -9,7 +9,8 @@ import com.example.foodo.service.FoodoListCardService;
 
 public class FoodoListActivity extends AppCompatActivity {
 
-    private String listID, name;
+    private String listID;
+    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
