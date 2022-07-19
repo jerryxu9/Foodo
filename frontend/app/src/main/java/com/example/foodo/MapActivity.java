@@ -34,7 +34,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
 
-    private final String BASE_URL = "http://20.51.215.223:3000", TAG = "MapActivity";
+    private final String BASE_URL = "http://10.0.2.2:3000", TAG = "MapActivity";
     private final OkHttpClient client = new OkHttpClient();
     private ArrayList<RestaurantMarkerInfo> markers;
 

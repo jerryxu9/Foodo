@@ -19,7 +19,6 @@ router.get("/getReviews", async (req, res) => {
 // Post a new review
 router.post("/addReview", async (req, res) => {
   try {
-    console.log("Here");
     const review = new Review({ ...req.body });
     // Save this review to database
     const data = await review.save();

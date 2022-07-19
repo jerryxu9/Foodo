@@ -1,6 +1,9 @@
 package com.example.foodo;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -13,7 +16,6 @@ import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,8 +27,6 @@ import com.example.foodo.objects.ReviewCardAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.google.firebase.messaging.RemoteMessage;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 
@@ -52,7 +52,7 @@ import okhttp3.ResponseBody;
 public class RestaurantInfoActivity extends AppCompatActivity {
 
     private final OkHttpClient client = new OkHttpClient();
-    private final String TAG = "restaurantInfoActivity", BASE_URL = "http://20.51.215.223:3000";
+    private final String TAG = "restaurantInfoActivity", BASE_URL = "http://10.0.2.2:3000";
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private TextView restaurantName_info, restaurantAddress_info, restaurantRating_info, restaurantPhoneNumber, restaurantStatus,
             mondayHours, tuesdayHours, wednesdayHours, thursdayHours, fridayHours, saturdayHours, sundayHours;
@@ -64,7 +64,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     private EditText reviewTextBox;
     private PopupWindow createAddRestaurantToListPopupWindow, userNotLoggedInPopupWindow;
     private double lng, lat;
-    private static Context context;
+    private ReviewCardAdapter reviewCardAdapter;
 
     private boolean isInFoodoList;
 
@@ -74,7 +74,6 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        RestaurantInfoActivity.context = getApplicationContext();
         setContentView(R.layout.activity_restaurant_info);
         initializeComponents();
         getIntentExtras();
@@ -483,7 +482,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                                     reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating")));
                                 }
 
-                                ReviewCardAdapter reviewCardAdapter = new ReviewCardAdapter(RestaurantInfoActivity.this, reviewCardArrayList);
+                                reviewCardAdapter = new ReviewCardAdapter(RestaurantInfoActivity.this, reviewCardArrayList);
                                 LinearLayoutManager linearLayoutManager = new LinearLayoutManager(RestaurantInfoActivity.this, LinearLayoutManager.VERTICAL, false);
 
                                 reviewList.setLayoutManager(linearLayoutManager);
@@ -505,12 +504,33 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         return BASE_URL + path;
     }
 
-    public static void addReviewCard(ReviewCard reviewCard) {
-        Log.d("restaurantInfoActivity", reviewCard.getReviewText());
-        Log.d("restaurantInfoActivity", "Before: " + String.valueOf(reviewCardArrayList.size()));
-        reviewCardArrayList.add(reviewCard);
-        ReviewCardAdapter reviewCardAdapter = new ReviewCardAdapter(context, reviewCardArrayList);
-        reviewList.setAdapter(reviewCardAdapter);
-        Log.d("restaurantInfoActivity", "After: " + String.valueOf(reviewCardArrayList.size()));
+    public BroadcastReceiver myReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ArrayList<String> action = intent.getStringArrayListExtra("action");
+            changeUi(action);
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(myReceiver, new IntentFilter("FBR-IMAGE"));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(myReceiver);
+    }
+
+    private void changeUi(ArrayList<String> action) {
+        ReviewCard reviewCard = new ReviewCard(action.get(2),
+                action.get(1),
+                action.get(0));
+        runOnUiThread(() -> {
+            reviewCardArrayList.add(reviewCard);
+            reviewCardAdapter.notifyItemInserted(reviewCardArrayList.size());
+        });
     }
 }
