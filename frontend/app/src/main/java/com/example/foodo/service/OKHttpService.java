@@ -1,13 +1,11 @@
 package com.example.foodo.service;
 
-import android.content.Intent;
 import android.util.Log;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.HashMap;
 import java.util.Map;
 
 import okhttp3.Callback;
