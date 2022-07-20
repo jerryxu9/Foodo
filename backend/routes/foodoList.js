@@ -6,21 +6,16 @@ const User = require("../models/User");
 
 // Create a new FoodoList
 router.post("/createFoodoList", async (req, res) => {
-  try {
-    const user = await User.findById(req.body.userID);
-    if (!user) {
-      res.json({ error: "User not found!" });
-    } else {
-      const newList = new FoodoListModel({
-        name: req.body.listName,
-        users: [req.body.userID],
-      });
-      const response = await newList.save();
-      res.json(response);
-    }
-  } catch (err) {
-    console.log(err);
-    res.json(err);
+  const user = await User.findById(req.body.userID);
+  if (!user) {
+    res.json({ error: "User not found!" });
+  } else {
+    const newList = new FoodoListModel({
+      name: req.body.listName,
+      users: [req.body.userID],
+    });
+    const response = await newList.save();
+    res.json(response);
   }
 });
 
@@ -67,10 +62,12 @@ router.patch("/addRestaurantToList", async (req, res) => {
       lng: req.body.lng,
     });
 
+    const pushItem = { restaurants: newRestaurant };
+
     const updatedList = await FoodoListModel.findByIdAndUpdate(
       req.body.listID,
       {
-        $push: { restaurants: newRestaurant },
+        $push: pushItem,
       },
       {
         returnDocument: "after",
@@ -86,13 +83,13 @@ router.patch("/addRestaurantToList", async (req, res) => {
 // Delete a restaurant from a Foodo list
 router.patch("/deleteRestaurantFromList", async (req, res) => {
   try {
+    const pullItem = { _id: req.body.restaurantID };
+
     const updatedList = await FoodoListModel.findByIdAndUpdate(
       req.body.listID,
       {
         $pull: {
-          restaurants: {
-            _id: req.body.restaurantID,
-          },
+          restaurants: pullItem,
         },
       },
       {
@@ -112,9 +109,11 @@ router.patch("/addNewUserToList", async (req, res) => {
     if (!user) {
       res.json({ error: "User not found!" });
     } else {
+      const pushItem = { users: req.body.userID };
+
       const updatedList = await FoodoListModel.findByIdAndUpdate(
         req.body.listID,
-        { $push: { users: req.body.userID } }, // note that M4 uses the name 'ID'
+        { $push: pushItem },
         {
           returnDocument: "after",
         }
@@ -130,15 +129,15 @@ router.patch("/addNewUserToList", async (req, res) => {
 // Set the "isValid" field of a Foodo Restaurant as isVisited
 router.patch("/checkRestaurantOnList", async (req, res) => {
   try {
+    const setItem = { "restaurants.$.isVisited": req.body.isVisited };
+
     const updatedList = await FoodoListModel.findOneAndUpdate(
       {
         _id: req.body.listID,
         restaurants: { $elemMatch: { _id: req.body.restaurantID } },
       },
       {
-        $set: {
-          "restaurants.$.isVisited": req.body.isVisited,
-        },
+        $set: setItem,
       },
       {
         returnDocument: "after",
