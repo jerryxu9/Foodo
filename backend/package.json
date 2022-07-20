@@ -22,7 +22,6 @@
     "nodemon": "^2.0.18"
   },
   "devDependencies": {
-    "eslint": "^8.18.0",
     "jest": "^28.1.2",
     "supertest": "^6.2.4"
   }
