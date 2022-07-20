@@ -30,12 +30,11 @@ import okhttp3.Response;
 
 public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAdapter.Viewholder> {
 
+    private static final String BASE_URL = "http://20.51.215.223:3000";
     private final Context context;
     private final ArrayList<RestaurantCard> restaurantCardArrayList;
-
     private final String TAG = "RestaurantCardAdapter";
     private final String listID;
-    private final String BASE_URL = "http://20.51.215.223:3000";
     private final OkHttpClient client = new OkHttpClient();
 
     public RestaurantCardAdapter(Context context, ArrayList<RestaurantCard> restaurantCardArrayList, String listID) {
@@ -82,10 +81,9 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                 holder.deleteRestaurantFromList();
             });
             ((Activity) context).runOnUiThread(() -> {
-                if(model.getVisited()) {
+                if (model.getVisited()) {
                     holder.checkFoodoListButton.setBackgroundResource(R.drawable.visited_image);
-                }
-                else {
+                } else {
                     holder.checkFoodoListButton.setBackgroundResource(R.drawable.checkmark_button);
                 }
             });
@@ -213,19 +211,17 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                     if (!response.isSuccessful()) {
                         Log.d(TAG, String.format("Check restaurant %s on foodo list under list id %s failed", getRestaurantName(), listID));
                     } else {
-                        if(card.getInFoodoList()) {
+                        if (card.getInFoodoList()) {
                             ((Activity) context).runOnUiThread(() -> {
                                 Log.d(TAG, String.valueOf(card.getVisited()));
-                                if(card.getVisited()) {
+                                if (card.getVisited()) {
                                     checkFoodoListButton.setBackgroundResource(R.drawable.visited_image);
-                                }
-                                else {
+                                } else {
                                     checkFoodoListButton.setBackgroundResource(R.drawable.checkmark_button);
                                 }
                                 notifyItemChanged(getLayoutPosition());
                             });
-                        }
-                        else {
+                        } else {
                             checkFoodoListButton.setVisibility(View.INVISIBLE);
                             checkFoodoListButton.setEnabled(false);
                         }
@@ -266,7 +262,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         public void setVisited(boolean visited) {
             this.isVisited = visited;
         }
-        
+
         public void setUsername(String username) {
             this.username = username;
         }

@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 1;
     private final String TAG = "MainActivity";
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = "http://20.51.215.223:3000";
+    private static final String BASE_URL = "http://20.51.215.223:3000";
 //    private LocationManager locationManager;
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 //    private SearchView restaurantSearch;

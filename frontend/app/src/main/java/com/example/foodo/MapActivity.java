@@ -33,7 +33,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 //    private GoogleMap mMap;
 //    private ActivityMapsBinding binding;
 
-    private final String BASE_URL = "http://20.51.215.223:3000";
+    private static final String BASE_URL = "http://20.51.215.223:3000";
     private final String TAG = "MapActivity";
     private final OkHttpClient client = new OkHttpClient();
     private ArrayList<RestaurantMarkerInfo> markers;
@@ -92,29 +92,17 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 String searchResults = OKHttpService.getResponseBody(response);
-                Log.d(TAG, String.format("response from /getFoodoLists: %s", searchResults));
                 try {
-                    JSONArray foodoListsJSON = new JSONArray(searchResults);
-                    for (int i = 0; i < foodoListsJSON.length(); i++) {
-                        JSONObject foodoListInfo = foodoListsJSON.getJSONObject(i);
-                        JSONArray restaurants = foodoListInfo.getJSONArray("restaurants");
-                        Log.d(TAG, restaurants.toString());
-
-                        for (int j = 0; j < restaurants.length(); j++) {
-                            JSONObject restaurantInfo = restaurants.getJSONObject(j);
-                            markers.add(new RestaurantMarkerInfo(
-                                    new LatLng(restaurantInfo.getDouble("lat"),
-                                            restaurantInfo.getDouble("lng")),
-                                    restaurantInfo.getString("name")));
-                        }
-                    }
+                    Log.d(TAG, String.format("response from /getFoodoLists: %s", searchResults));
+                    getMapPins(new JSONArray(searchResults));
+                    Log.d(TAG, markers.toString());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.d(TAG, markers.toString());
             }
         };
         OKHttpService.getRequest("getFoodoLists", getFoodoListsCallback, queryParameters);
+    }
 
     private void getMapPins(JSONArray foodoListsJSON) throws JSONException {
         for(int i = 0; i < foodoListsJSON.length(); i++) {

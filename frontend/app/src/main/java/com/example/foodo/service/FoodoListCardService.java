@@ -34,8 +34,8 @@ import okhttp3.ResponseBody;
 
 public class FoodoListCardService {
 
+    private static final String BASE_URL = "http://20.51.215.223:3000";
     private final String TAG = "FoodoListCardService";
-    private final String BASE_URL = "http://20.51.215.223:3000";
     private final OkHttpClient client = new OkHttpClient();
     private final AppCompatActivity foodoCardActivity;
     private final ArrayList<RestaurantCard> restaurantCardArrayList;
@@ -82,6 +82,7 @@ public class FoodoListCardService {
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
             }
+
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 try {
@@ -128,17 +129,17 @@ public class FoodoListCardService {
                         RestaurantCard card = null;
                         try {
                             card = new RestaurantCard(
-                                        restaurant.getString("name"),
-                                        restaurant.getString("formatted_address"),
-                                        restaurant.getString("rating"),
-                                        businessStatus,
-                                        googlePlaceID,
-                                        cardID,
-                                        getLatitude(restaurant),
-                                        getLongitude(restaurant),
-                                        true,
-                                        username,
-                                        userID);
+                                    restaurant.getString("name"),
+                                    restaurant.getString("formatted_address"),
+                                    restaurant.getString("rating"),
+                                    businessStatus,
+                                    googlePlaceID,
+                                    cardID,
+                                    getLatitude(restaurant),
+                                    getLongitude(restaurant),
+                                    true,
+                                    username,
+                                    userID);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

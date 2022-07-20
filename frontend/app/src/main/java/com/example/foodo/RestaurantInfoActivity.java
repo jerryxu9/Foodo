@@ -48,9 +48,9 @@ import okhttp3.ResponseBody;
 
 public class RestaurantInfoActivity extends AppCompatActivity {
 
+    private static final String BASE_URL = "http://20.51.215.223:3000";
     private final OkHttpClient client = new OkHttpClient();
     private final String TAG = "restaurantInfoActivity";
-    private final String BASE_URL = "http://20.51.215.223:3000";
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     private TextView restaurantName_info;
@@ -254,6 +254,15 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     }
 
     private void getFoodoLists() {
+        if (!getIntent().hasExtra("userID")) {
+            Log.d(TAG, "Error: Intent does not have the user ID");
+            return;
+        }
+        String userID = getIntent().getStringExtra("userID");
+
+        HashMap<String, String> queryParameters = new HashMap<>();
+        queryParameters.put("userID", userID);
+
         Callback getFoodoListCallback = new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -275,55 +284,8 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             }
         };
 
-        if (!getIntent().hasExtra("userID")) {
-            Log.d(TAG, "Error: Intent does not have the user ID");
-            return;
-        }
-        String userID = getIntent().getStringExtra("userID");
-
-        HashMap<String, String> queryParameters = new HashMap<>();
-        queryParameters.put("userID", userID);
-
         OKHttpService.getRequest("getFoodoLists", getFoodoListCallback, queryParameters);
-/*        String url = buildURL("/getFoodoLists");
-        HttpUrl httpUrl = HttpUrl.parse(url);
-        HttpUrl.Builder httpBuilder = httpUrl.newBuilder();*/
 
-/*        httpBuilder.addQueryParameter("userID", userID);
-
-        Request request = new Request.Builder()
-                .url(httpBuilder.build())
-                .build();*/
-
-        /*client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                String searchResults;
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful())
-                        throw new IOException(String.format("Unexpected code %s", response));
-                    else if (responseBody == null) {
-                        throw new IOException("null response from /getFoodoLists endpoint");
-                    } else {
-                        searchResults = responseBody.string();
-                        Log.d(TAG, String.format("response from /getFoodoLists: %s", searchResults));
-                        JSONArray foodoListsJSON = new JSONArray(searchResults);
-                        for (int i = 0; i < foodoListsJSON.length(); i++) {
-                            Log.d(TAG, foodoListsJSON.getJSONObject(i).getString("name") + " " + i);
-                            foodoListNames.add(foodoListsJSON.getJSONObject(i).getString("name"));
-                            foodoListIDandNames.put(foodoListsJSON.getJSONObject(i).getString("name"), foodoListsJSON.getJSONObject(i).getString("_id"));
-                        }
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });*/
     }
 
     private void addRestaurantToList(String listID) {
