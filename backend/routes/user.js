@@ -7,7 +7,7 @@ const client = new OAuth2Client(
 );
 
 async function verify(token) {
-  client
+  return client
     .verifyIdToken({
       idToken: token,
       audience:
@@ -18,36 +18,29 @@ async function verify(token) {
       const userid = payload["sub"];
       return userid;
     })
-    .catch((err) => {
-      console.log(err);
-    });
 }
 
 router.post("/createUser", async (req, res) => {
-  try {
-    const userID = await verify(req.body.id);
+  verify(req.body.id).then(async (userID)=>{
+    console.log(userID)
+    const existingUser = await User.findById(userID);
 
-    if (!userID) {
-      res.json({ error: "token invalid" }).status(400);
+    if (!existingUser) {
+      const user = new User({
+        _id: userID,
+        name: req.body.name,
+        email: req.body.email,
+      });
+
+      const data = await user.save();
+      res.json(data);
     } else {
-      const existingUser = await User.findById(userID);
-
-      if (!existingUser) {
-        const user = new User({
-          _id: userID,
-          name: req.body.name,
-          email: req.body.email,
-        });
-
-        const data = await user.save();
-        res.json(data);
-      } else {
-        res.json(existingUser);
-      }
+      res.json(existingUser);
     }
-  } catch (error) {
-    res.json(error);
-  }
+  }).catch((err)=>{
+    console.log(err)
+    res.json({error: "validation error"})
+  })
 });
 
 router.get("/getUser", async (req, res) => {
