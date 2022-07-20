@@ -21,7 +21,7 @@ import okhttp3.ResponseBody;
 
 public class OKHttpService {
 
-    private static final String BASE_URL = "http://10.0.2.2:3000";//"http://20.51.215.223:3000";
+    private static final String BASE_URL = "http://20.51.215.223:3000";
     private static final String TAG = "OKHttpService";
     private static MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final OkHttpClient client = new OkHttpClient();
