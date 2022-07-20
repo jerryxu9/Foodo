@@ -6,7 +6,7 @@ async function main() {
     await mongoose.connect("mongodb://localhost:27017/cpen321");
     console.log("Successfully connected to the CPEN 321 database");
 
-    const server = app.listen(3000, (req, res) => {
+    app.listen(3000, (req, res) => {
       console.log("Server successfully running at port 3000");
     });
   } catch (err) {

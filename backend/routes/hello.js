@@ -6,12 +6,8 @@ const Hello = require("../models/Hello");
 
 // Get all hello messages
 router.get("/", async (req, res) => {
-  try {
-    const hellos = await Hello.find();
-    res.json(hellos);
-  } catch (err) {
-    res.json(err);
-  }
+  const hellos = await Hello.find();
+  res.json(hellos);
 });
 
 // Post a new hello message
@@ -52,9 +48,11 @@ router.delete("/", async (req, res) => {
 // Update the message part of a hello message
 router.patch("/", async (req, res) => {
   try {
+    const setItem = { message: req.body.message };
+
     const updatedHello = await Hello.findOneAndUpdate(
       { title: req.body.title },
-      { $set: { message: req.body.message } }
+      { $set: setItem }
     );
     res.json(updatedHello);
   } catch (err) {
