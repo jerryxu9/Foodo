@@ -48,7 +48,7 @@ import okhttp3.ResponseBody;
 
 public class RestaurantInfoActivity extends AppCompatActivity {
 
-    private static final String BASE_URL = "http://20.51.215.223:3000";
+    private static final String BASE_URL = BuildConfig.BASE_URL;
     private final OkHttpClient client = new OkHttpClient();
     private final String TAG = "restaurantInfoActivity";
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");

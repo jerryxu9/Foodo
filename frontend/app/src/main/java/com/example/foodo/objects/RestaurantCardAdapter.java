@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.foodo.BuildConfig;
 import com.example.foodo.R;
 import com.example.foodo.RestaurantInfoActivity;
 
@@ -30,7 +31,7 @@ import okhttp3.Response;
 
 public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAdapter.Viewholder> {
 
-    private static final String BASE_URL = "http://20.51.215.223:3000";
+    private static final String BASE_URL = BuildConfig.BASE_URL;
     private final Context context;
     private final ArrayList<RestaurantCard> restaurantCardArrayList;
     private final String TAG = "RestaurantCardAdapter";

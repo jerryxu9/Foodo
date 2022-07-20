@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.foodo.BuildConfig;
 import com.example.foodo.R;
 import com.example.foodo.objects.RestaurantCard;
 import com.example.foodo.objects.RestaurantCardAdapter;
@@ -34,7 +35,7 @@ import okhttp3.ResponseBody;
 
 public class FoodoListCardService {
 
-    private static final String BASE_URL = "http://20.51.215.223:3000";
+    private static final String BASE_URL = BuildConfig.BASE_URL;
     private final String TAG = "FoodoListCardService";
     private final OkHttpClient client = new OkHttpClient();
     private final AppCompatActivity foodoCardActivity;
