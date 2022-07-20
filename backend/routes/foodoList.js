@@ -17,8 +17,6 @@ router.post("/createFoodoList", async (req, res) => {
     const response = await newList.save();
     res.json(response);
   }
-  console.log(err);
-  res.json(err);
 });
 
 // Get all the Foodo lists of a user
