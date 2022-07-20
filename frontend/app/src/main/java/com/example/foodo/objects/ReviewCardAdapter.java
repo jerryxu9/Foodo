@@ -14,10 +14,10 @@ import com.example.foodo.R;
 import java.util.ArrayList;
 
 public class ReviewCardAdapter extends RecyclerView.Adapter<ReviewCardAdapter.Viewholder> {
-    private Context context;
-    private ArrayList<ReviewCard> reviewCardArrayList;
+    private final Context context;
+    private final ArrayList<ReviewCard> reviewCardArrayList;
 
-    public ReviewCardAdapter(Context context, ArrayList<ReviewCard> reviewCardArrayList){
+    public ReviewCardAdapter(Context context, ArrayList<ReviewCard> reviewCardArrayList) {
         this.context = context;
         this.reviewCardArrayList = reviewCardArrayList;
     }
@@ -42,8 +42,10 @@ public class ReviewCardAdapter extends RecyclerView.Adapter<ReviewCardAdapter.Vi
         return reviewCardArrayList.size();
     }
 
-    public class Viewholder extends RecyclerView.ViewHolder{
-        private TextView reviewName, reviewRating, reviewText;
+    public class Viewholder extends RecyclerView.ViewHolder {
+        private final TextView reviewName;
+        private final TextView reviewRating;
+        private final TextView reviewText;
 
         public Viewholder(@NonNull View itemView) {
             super(itemView);
