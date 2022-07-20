@@ -19,12 +19,12 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "String", "SERVER_URL", '"http://10.0.2.2:3000"'
+            buildConfigField "String", "BASE_URL", '"http://10.0.2.2:3000"'
         }
 
         release {
             minifyEnabled false
-            buildConfigField "String", "SERVER_URL", '"http://20.51.215.223:3000"'
+            buildConfigField "String", "BASE_URL", '"http://20.51.215.223:3000"'
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
