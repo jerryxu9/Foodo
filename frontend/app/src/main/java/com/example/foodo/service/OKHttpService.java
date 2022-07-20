@@ -2,7 +2,6 @@ package com.example.foodo.service;
 
 import android.util.Log;
 
-import org.json.JSONException;
 import com.example.foodo.BuildConfig;
 
 import org.json.JSONObject;
@@ -24,8 +23,8 @@ public class OKHttpService {
 
     private static final String BASE_URL = BuildConfig.BASE_URL;
     private static final String TAG = "OKHttpService";
-    private static MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final OkHttpClient client = new OkHttpClient();
+    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     /***
      *
@@ -136,13 +135,13 @@ public class OKHttpService {
     }
 
     /**
-     *  A function to modularize the setup needed for a DELETE Request made using the OKHttp library
+     * A function to modularize the setup needed for a DELETE Request made using the OKHttp library
      *
-     * @param endpoint A String containing the endpoint to make an HTTP Request to.
-     *                 Format is "endpoint" rather than "/endpoint"
-     * @param callbackMethod A Callback that runs once the server responds to the HTTP DELETE Request
-     * @param bodyParams A HashMap with Strings as both keys and values.
-     *                   This hashmap will get parsed into a JSON object to use as the body of the request
+     * @param endpoint        A String containing the endpoint to make an HTTP Request to.
+     *                        Format is "endpoint" rather than "/endpoint"
+     * @param callbackMethod  A Callback that runs once the server responds to the HTTP DELETE Request
+     * @param bodyParams      A HashMap with Strings as both keys and values.
+     *                        This hashmap will get parsed into a JSON object to use as the body of the request
      * @param queryParameters A HashMap with Strings as both keys and values.
      *                        This hashmap maps DELETE Request query parameter names to their values
      */
@@ -165,8 +164,7 @@ public class OKHttpService {
                     .build();
 
             client.newCall(request).enqueue(callbackMethod);
-        }
-        catch (MalformedURLException exception) {
+        } catch (MalformedURLException exception) {
             exception.printStackTrace();
         }
     }
