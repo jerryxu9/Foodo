@@ -1,23 +1,29 @@
 package com.example.foodo.service;
 
+import android.content.Intent;
 import android.util.Log;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.HashMap;
 import java.util.Map;
 
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class OKHttpService {
 
-    private static final String BASE_URL = "http://20.51.215.223:3000";
+    private static final String BASE_URL = "http://10.0.2.2:3000";//"http://20.51.215.223:3000";
     private static final String TAG = "OKHttpService";
-
+    private static MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final OkHttpClient client = new OkHttpClient();
 
     /***
@@ -73,6 +79,58 @@ public class OKHttpService {
             client.newCall(request).enqueue(callbackMethod);
         }
         catch(MalformedURLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    /***
+     * A function to modularize the setup needed for a GET Request made using the OKHttp library
+     *
+     *
+     * @param endpoint A String containing the endpoint to make an HTTP Request to.
+     *                 Format is "endpoint" rather than "/endpoint"
+     * @param callbackMethod A Callback that runs once the server responds to the HTTP POST Request
+     * @param bodyParams A HashMap with Strings as both keys and values.
+     *                   This hashmap will get parsed into a JSON object to use as the body of the request
+     */
+    public static void postRequest(String endpoint, Callback callbackMethod, Map<String, String> bodyParams){
+        try{
+            HttpUrl httpUrl = parseURL(endpoint);
+
+            JSONObject paramsJSON = new JSONObject(bodyParams);
+            RequestBody body = RequestBody.create(paramsJSON.toString(), JSON);
+            Request request = new Request.Builder()
+                    .url(httpUrl)
+                    .post(body)
+                    .build();
+            client.newCall(request).enqueue(callbackMethod);
+        }catch(MalformedURLException exception){
+            exception.printStackTrace();
+        }
+    }
+
+    /***
+     * A function to modularize the setup needed for a GET Request made using the OKHttp library
+     *
+     *
+     * @param endpoint A String containing the endpoint to make an HTTP Request to.
+     *                 Format is "endpoint" rather than "/endpoint"
+     * @param callbackMethod A Callback that runs once the server responds to the HTTP PATCH Request
+     * @param bodyParams A HashMap with Strings as both keys and values.
+     *                   This hashmap will get parsed into a JSON object to use as the body of the request
+     */
+    public static void patchRequest(String endpoint, Callback callbackMethod, Map<String, String> bodyParams){
+        try{
+            HttpUrl httpUrl = parseURL(endpoint);
+
+            JSONObject paramsJSON = new JSONObject(bodyParams);
+            RequestBody body = RequestBody.create(paramsJSON.toString(), JSON);
+            Request request = new Request.Builder()
+                    .url(httpUrl)
+                    .patch(body)
+                    .build();
+            client.newCall(request).enqueue(callbackMethod);
+        }catch(MalformedURLException exception){
             exception.printStackTrace();
         }
     }
