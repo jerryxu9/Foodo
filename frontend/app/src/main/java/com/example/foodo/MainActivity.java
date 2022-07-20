@@ -53,17 +53,18 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 1;
     private final String TAG = "MainActivity";
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = "http://20.51.215.223:3000/";
+    private final String BASE_URL = "http://20.51.215.223:3000";
+//    private LocationManager locationManager;
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    private LocationManager locationManager;
-    private SearchView restaurantSearch;
-    private Button mapButton;
+//    private SearchView restaurantSearch;
+//    private Button mapButton;
     private GoogleSignInClient mGoogleSignInClient;
-    private FoodoListService foodoListService;
+//    private FoodoListService foodoListService;
     private Intent mapsIntent, searchResultIntent;
     private Button loginButton;
     private TextView loginText;
-    private Double lat, lng;
+    private Double lat;
+    private Double lng;
 
     private final LocationListener locationListener = new LocationListener() {
         @Override
@@ -77,14 +78,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        foodoListService = new FoodoListService(this);
+        FoodoListService foodoListService = new FoodoListService(this);
         mapsIntent = new Intent(MainActivity.this, MapActivity.class);
         searchResultIntent = new Intent(MainActivity.this, SearchResultActivity.class);
         loginButton = findViewById(R.id.login_button);
         loginText = findViewById(R.id.login_text);
 
-        // Configure sign-in to request the user's ID, email address, and basic
-// profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.server_client_id))
                 .requestEmail()
@@ -102,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
             loginButton.setOnClickListener((View v) -> signIn());
         }
 
-        restaurantSearch = findViewById(R.id.restaurant_search);
+        SearchView restaurantSearch = findViewById(R.id.restaurant_search);
         restaurantSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -116,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mapButton = findViewById(R.id.map_button);
+        Button mapButton = findViewById(R.id.map_button);
         mapButton.setOnClickListener((View v) -> startActivity(mapsIntent));
         foodoListService.setup();
     }
@@ -163,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             return;
         }
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, locationListener);
 
         if (lat == null || lng == null) {
