@@ -16,6 +16,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.foodo.BuildConfig;
 import com.example.foodo.R;
 import com.example.foodo.objects.FoodoListCard;
 import com.example.foodo.objects.FoodoListCardAdapter;
@@ -44,8 +45,8 @@ import okhttp3.ResponseBody;
 
 public class FoodoListService {
 
+    private static String BASE_URL = BuildConfig.BASE_URL;
     private final String TAG = "FoodoListService";
-    private final String BASE_URL = "http://20.51.215.223:3000";
     private final AppCompatActivity main_activity;
     private final FoodoListCardAdapter foodoListCardAdapter;
     private final LinearLayoutManager linearLayoutManager;
