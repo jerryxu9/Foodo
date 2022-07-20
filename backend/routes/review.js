@@ -13,30 +13,27 @@ router.get("/getReviews", async (req, res) => {
 
 // Post a new review
 router.post("/addReview", async (req, res) => {
-  try {
-    const review = new Review({
-      google_place_id: req.body.google_place_id,
-      user_name: req.body.user_name,
-      review: req.body.review,
-      rating: req.body.rating,
+  const review = new Review({
+    google_place_id: req.body.google_place_id,
+    user_name: req.body.user_name,
+    review: req.body.review,
+    rating: req.body.rating,
+  });
+
+  // Save this review to database
+  const data = await review.save();
+  // Send a message to devices subscribed to the provided topic.
+  getMessaging()
+    .send(review)
+    .then((response) => {
+      // Response is a message ID string.
+      console.log("Successfully sent message:", response);
+    })
+    .catch((error) => {
+      console.log("Error sending message:", error);
     });
 
-    // Save this review to database
-    const data = await review.save();
-    // Send a message to devices subscribed to the provided topic.
-    getMessaging()
-      .send(review)
-      .then((response) => {
-        // Response is a message ID string.
-        console.log("Successfully sent message:", response);
-      })
-      .catch((error) => {
-        console.log("Error sending message:", error);
-      });
-    res.json(data);
-  } catch (err) {
-    res.json(err);
-  }
+  res.json(data);
 });
 
 // Delete a review
