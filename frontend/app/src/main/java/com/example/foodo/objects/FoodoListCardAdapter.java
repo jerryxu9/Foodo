@@ -97,7 +97,10 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
 
     public class Viewholder extends RecyclerView.ViewHolder {
         private final TextView foodoListName;
-        String list_id, name, username, userID;
+        String list_id;
+        String name;
+        String username;
+        String userID;
 
         public Viewholder(@NonNull View itemView) {
             super(itemView);

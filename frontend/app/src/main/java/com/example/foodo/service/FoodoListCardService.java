@@ -50,7 +50,6 @@ public class FoodoListCardService {
         this.listID = listID;
     }
 
-
     public void initializeComponents() {
         populateRestaurantCardsArray();
 
@@ -83,7 +82,6 @@ public class FoodoListCardService {
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
             }
-
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 try {
