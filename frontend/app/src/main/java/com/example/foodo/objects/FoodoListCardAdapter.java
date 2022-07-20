@@ -18,12 +18,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.foodo.FoodoListActivity;
 import com.example.foodo.R;
+import com.example.foodo.service.OKHttpService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -37,7 +39,8 @@ import okhttp3.ResponseBody;
 
 public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdapter.Viewholder> {
 
-    private final String BASE_URL = "http://20.51.215.223:3000";
+    /* private static final String BASE_URL = "http://20.51.215.223:3000";*/
+    private static final String BASE_URL = "http://10.0.2.2:3000";
     private final String TAG = "FoodoListCardAdapter";
     private final ArrayList<FoodoListCard> foodoListArrayList;
     private final OkHttpClient client;
@@ -120,26 +123,13 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
         private void handleDeleteFoodoListAction() {
             Log.d(TAG, "Pressed delete Foodo button");
 
-            String url = BASE_URL + "/deleteFoodoList";
-            HttpUrl httpUrl = HttpUrl.parse(url);
+            HashMap<String , String> bodyParameters = new HashMap<>();
+            bodyParameters.put("listID", list_id);
 
-            if (httpUrl == null) {
-                Log.d(TAG, String.format("unable to parse server URL: %s", url));
-                return;
-            }
+            HashMap<String , String> queryParameters = new HashMap<>();
+            queryParameters.put("userID", userID);
 
-            String json = String.format("{\"listID\": \"%s\"}", list_id);
-            RequestBody body = RequestBody.create(
-                    MediaType.parse("application/json"), json);
-
-            HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("userID", userID);
-
-            Request request = new Request.Builder()
-                    .url(httpBuilder.build())
-                    .delete(body)
-                    .build();
-
-            client.newCall((request)).enqueue(new Callback() {
+            Callback deleteFoodoListCallback = new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
@@ -157,7 +147,9 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                         });
                     }
                 }
-            });
+            };
+
+            OKHttpService.deleteRequest("deleteFoodoList", deleteFoodoListCallback, bodyParameters, queryParameters);
 
         }
 
