@@ -31,8 +31,7 @@ import okhttp3.ResponseBody;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private final String BASE_URL = "http://10.0.2.2:3000";
-    /*private final String BASE_URL = "http://20.51.215.223:3000";*/
+    private final String BASE_URL = "http://20.51.215.223:3000";
     private final String TAG = "MapActivity";
     private final OkHttpClient client = new OkHttpClient();
     private GoogleMap mMap;
@@ -117,10 +116,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         };
         OKHttpService.getRequest("getFoodoLists", getFoodoListsCallback, queryParameters);
 
-    }
-
-    private String buildURL(String path) {
-        return BASE_URL + path;
     }
 
     public class RestaurantMarkerInfo {

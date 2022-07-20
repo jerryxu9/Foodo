@@ -35,8 +35,7 @@ import okhttp3.ResponseBody;
 public class FoodoListCardService {
 
     private final String TAG = "FoodoListCardService";
-    private final String BASE_URL = "http://10.0.2.2:3000";
-    /*private final String BASE_URL = "http://20.51.215.223:3000";*/
+    private final String BASE_URL = "http://20.51.215.223:3000";
     private final OkHttpClient client = new OkHttpClient();
     private final AppCompatActivity foodoCardActivity;
     private final ArrayList<RestaurantCard> restaurantCardArrayList;
@@ -53,10 +52,9 @@ public class FoodoListCardService {
 
 
     public void initializeComponents() {
-        RecyclerView restaurantsView = foodoCardActivity.findViewById(R.id.foodo_list_card_restaurants_list);
         populateRestaurantCardsArray();
 
-        restaurantsView = foodoCardActivity.findViewById(R.id.foodo_list_card_restaurants_list);
+        RecyclerView restaurantsView = foodoCardActivity.findViewById(R.id.foodo_list_card_restaurants_list);
 
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(foodoCardActivity);
         if (account != null) {

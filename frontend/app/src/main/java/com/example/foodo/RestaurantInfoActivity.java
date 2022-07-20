@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.foodo.objects.ReviewCard;
 import com.example.foodo.objects.ReviewCardAdapter;
+import com.example.foodo.service.OKHttpService;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -49,8 +50,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
     private final OkHttpClient client = new OkHttpClient();
     private final String TAG = "restaurantInfoActivity";
-    private final String BASE_URL = "http://10.0.2.2:3000";
-    /*private final String BASE_URL = "http://20.51.215.223:3000";*/
+    private final String BASE_URL = "http://20.51.215.223:3000";
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private TextView restaurantName_info, restaurantAddress_info, restaurantRating_info, restaurantPhoneNumber, restaurantStatus,
             mondayHours, tuesdayHours, wednesdayHours, thursdayHours, fridayHours, saturdayHours, sundayHours;
@@ -240,9 +240,26 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     }
 
     private void getFoodoLists() {
-        String url = buildURL("/getFoodoLists");
-        HttpUrl httpUrl = HttpUrl.parse(url);
-        HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
+        Callback getFoodoListCallback = new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try {
+                    JSONArray foodoListsJSON = new JSONArray(OKHttpService.getResponseBody(response));
+                    for (int i = 0; i < foodoListsJSON.length(); i++) {
+                        Log.d(TAG, foodoListsJSON.getJSONObject(i).getString("name") + " " + i);
+                        foodoListNames.add(foodoListsJSON.getJSONObject(i).getString("name"));
+                        foodoListIDandNames.put(foodoListsJSON.getJSONObject(i).getString("name"), foodoListsJSON.getJSONObject(i).getString("_id"));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
 
         if (!getIntent().hasExtra("userID")) {
             Log.d(TAG, "Error: Intent does not have the user ID");
@@ -250,13 +267,21 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         }
         String userID = getIntent().getStringExtra("userID");
 
-        httpBuilder.addQueryParameter("userID", userID);
+        HashMap<String, String> queryParameters = new HashMap<>();
+        queryParameters.put("userID", userID);
+
+        OKHttpService.getRequest("getFoodoLists", getFoodoListCallback, queryParameters);
+/*        String url = buildURL("/getFoodoLists");
+        HttpUrl httpUrl = HttpUrl.parse(url);
+        HttpUrl.Builder httpBuilder = httpUrl.newBuilder();*/
+
+/*        httpBuilder.addQueryParameter("userID", userID);
 
         Request request = new Request.Builder()
                 .url(httpBuilder.build())
-                .build();
+                .build();*/
 
-        client.newCall(request).enqueue(new Callback() {
+        /*client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -284,7 +309,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-        });
+        });*/
     }
 
     private void addRestaurantToList(String listID) {

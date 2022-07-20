@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -22,6 +23,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.foodo.service.FoodoListService;
+import com.example.foodo.service.OKHttpService;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -52,11 +54,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 1;
     private final String TAG = "MainActivity";
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = "http://10.0.2.2:3000";
-    /*private final String BASE_URL = "http://20.51.215.223:3000";*/
-
-    private LocationManager locationManager;
+    private final String BASE_URL = "http://20.51.215.223:3000/";
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private LocationManager locationManager;
     private SearchView restaurantSearch;
     private Button mapButton;
     private GoogleSignInClient mGoogleSignInClient;
@@ -167,29 +167,17 @@ public class MainActivity extends AppCompatActivity {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, locationListener);
 
-        String url = BASE_URL + "/searchRestaurantsByQuery";
-        HttpUrl httpUrl = HttpUrl.parse(url);
-
-        if (httpUrl == null) {
-            Log.d(TAG, String.format("unable to parse server URL: %s", url));
-            return;
-        }
-
         if (lat == null || lng == null) {
             Toast.makeText(this, "Unable to get location, please try again", Toast.LENGTH_LONG);
             return;
         }
 
-        HttpUrl.Builder httpBuilder = httpUrl.newBuilder()
-                .addQueryParameter("query", query)
-                .addQueryParameter("lat", String.valueOf(lat))
-                .addQueryParameter("lng", String.valueOf(lng));
+        HashMap<String, String> queryParameters = new HashMap<>();
+        queryParameters.put("query", query);
+        queryParameters.put("lat", String.valueOf(lat));
+        queryParameters.put("lng", String.valueOf(lng));
 
-        Request request = new Request.Builder()
-                .url(httpBuilder.build())
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
+        Callback searchRestaurantCallback = new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -197,33 +185,22 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                String searchResults;
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful())
-                        throw new IOException(String.format("Unexpected code %s", response));
-                    else if (responseBody == null) {
-                        throw new IOException("null response from /searchRestaurantsByQuery endpoint");
-                    } else {
-                        searchResults = responseBody.string();
-                        Log.d(TAG, String.format("response from /searchRestaurantsByQuery: %s", searchResults));
-                        runOnUiThread(() -> {
-                            try {
-                                JSONArray restaurantResultsArray = new JSONArray(searchResults);
-                                Log.d(TAG, restaurantResultsArray.toString());
-                                searchResultIntent.putExtra("restaurantResultsArray", restaurantResultsArray.toString());
-                                searchResultIntent.putExtra("query", query);
-                                startActivity(searchResultIntent);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        });
-
-                    }
-                } catch (Exception e) {
+                String searchResults = OKHttpService.getResponseBody(response);
+                try {
+                    JSONArray restaurantResultsArray = new JSONArray(searchResults);
+                    Log.d(TAG, String.format("response from /searchRestaurantsByQuery: %s", searchResults));
+                    runOnUiThread(() -> {
+                        searchResultIntent.putExtra("restaurantResultsArray", restaurantResultsArray.toString());
+                        searchResultIntent.putExtra("query", query);
+                        startActivity(searchResultIntent);
+                    });
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-        });
+        };
+
+        OKHttpService.getRequest("searchRestaurantsByQuery", searchRestaurantCallback, queryParameters);
     }
 
     private void createUser(String idToken, String username, String email) {
