@@ -82,7 +82,7 @@ public class OKHttpService {
     }
 
     /***
-     * A function to modularize the setup needed for a GET Request made using the OKHttp library
+     * A function to modularize the setup needed for a POST Request made using the OKHttp library
      *
      *
      * @param endpoint A String containing the endpoint to make an HTTP Request to.
