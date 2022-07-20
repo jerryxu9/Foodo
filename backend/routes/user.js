@@ -38,6 +38,7 @@ router.post("/createUser", async (req, res) => {
       res.json(existingUser);
     }
   }).catch((err)=>{
+    console.log(err)
     res.json({error: "validation error"})
   })
 });
