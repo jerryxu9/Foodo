@@ -3,6 +3,8 @@ package com.example.foodo.service;
 import android.util.Log;
 
 import org.json.JSONException;
+import com.example.foodo.BuildConfig;
+
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -20,11 +22,10 @@ import okhttp3.ResponseBody;
 
 public class OKHttpService {
 
-   /* private static final String BASE_URL = "http://20.51.215.223:3000";*/
-    private static final String BASE_URL = "http://10.0.2.2:3000";
+    private static final String BASE_URL = BuildConfig.BASE_URL;
     private static final String TAG = "OKHttpService";
+    private static MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final OkHttpClient client = new OkHttpClient();
-    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     /***
      *

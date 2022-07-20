@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.foodo.BuildConfig;
 import com.example.foodo.FoodoListActivity;
 import com.example.foodo.R;
 import com.example.foodo.service.OKHttpService;
@@ -39,8 +40,7 @@ import okhttp3.ResponseBody;
 
 public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdapter.Viewholder> {
 
-    /* private static final String BASE_URL = "http://20.51.215.223:3000";*/
-    private static final String BASE_URL = "http://10.0.2.2:3000";
+    private static final String BASE_URL = BuildConfig.BASE_URL;
     private final String TAG = "FoodoListCardAdapter";
     private final ArrayList<FoodoListCard> foodoListArrayList;
     private final OkHttpClient client;
@@ -206,16 +206,11 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
         }
 
         private void getUserByEmail(String email) {
-            String url = BASE_URL + "/getUserByEmail";
-            HttpUrl httpUrl = HttpUrl.parse(url);
-            HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
-            httpBuilder.addQueryParameter("email", email);
 
-            Request request = new Request.Builder()
-                    .url(httpBuilder.build())
-                    .build();
+            HashMap<String, String> queryParameters = new HashMap<>();
+            queryParameters.put("email", email);
 
-            client.newCall(request).enqueue(new Callback() {
+            Callback getUserByEmailCallback = new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
@@ -223,23 +218,23 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
 
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                    String searchResults;
-                    try (ResponseBody responseBody = response.body()) {
-                        if (!response.isSuccessful())
-                            throw new IOException(String.format("Unexpected code %s", response));
-                        else if (responseBody == null) {
-                            throw new IOException("null response from /getUserByEmail endpoint");
-                        } else {
-                            searchResults = responseBody.string();
-                            Log.d(TAG, String.format("response from /getuserbyemail: %s", searchResults));
-                            JSONArray user = new JSONArray(searchResults);
-                            shareFoodoList(user.getJSONObject(0).getString("_id"));
-                        }
+                    try {
+                        //
+                        String userFromEmail = OKHttpService.getResponseBody(response);
+                        JSONArray user = new JSONArray(userFromEmail);
+                        // TODO: Why isn't this just shareFoodoList and you pass in an email?
+                        // Currently you get the ID back from the server and then share it from the frontend. Seems a little wasteful.
+                        Log.d(TAG, String.format("response from /getUserByEmail: %s", userFromEmail));
+                        shareFoodoList(user.getJSONObject(0).getString("_id"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
                 }
-            });
+            };
+
+            OKHttpService.getRequest("getUserByEmail", getUserByEmailCallback, queryParameters);
+
         }
 
         private void handleShareFoodoListAction() {
