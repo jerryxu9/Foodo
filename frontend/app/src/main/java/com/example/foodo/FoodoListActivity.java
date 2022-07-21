@@ -9,9 +9,8 @@ import com.example.foodo.service.FoodoListCardService;
 
 public class FoodoListActivity extends AppCompatActivity {
 
-    private TextView foodoListCardName;
-    private String listID, name, username, userID;
-
+    private String listID;
+    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +22,7 @@ public class FoodoListActivity extends AppCompatActivity {
     }
 
     private void initializeComponents() {
-        foodoListCardName = findViewById(R.id.foodo_list_card_name);
+        TextView foodoListCardName = findViewById(R.id.foodo_list_card_name);
         foodoListCardName.setText(name);
 
         FoodoListCardService foodoListCardService = new FoodoListCardService(this, listID);
@@ -33,8 +32,6 @@ public class FoodoListActivity extends AppCompatActivity {
     private void getIntentExtras() {
         name = getIntent().getStringExtra("name");
         listID = getIntent().getStringExtra("listID");
-        username = getIntent().getStringExtra("username");
-        userID = getIntent().getStringExtra("userID");
     }
 
 }

@@ -18,36 +18,28 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.foodo.FoodoListActivity;
 import com.example.foodo.R;
+import com.example.foodo.service.OKHttpService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdapter.Viewholder> {
-
-    private final String BASE_URL = "http://20.51.215.223:3000";
     private final String TAG = "FoodoListCardAdapter";
     private final ArrayList<FoodoListCard> foodoListArrayList;
-    private final OkHttpClient client;
     private final Activity mainActivity;
     Context context;
 
-    public FoodoListCardAdapter(Context context, ArrayList<FoodoListCard> foodoListArrayList, OkHttpClient client) {
+    public FoodoListCardAdapter(Context context, ArrayList<FoodoListCard> foodoListArrayList) {
         this.context = context;
         this.foodoListArrayList = foodoListArrayList;
-        this.client = client;
         this.mainActivity = ((Activity) context);
     }
 
@@ -94,7 +86,10 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
 
     public class Viewholder extends RecyclerView.ViewHolder {
         private final TextView foodoListName;
-        String list_id, name, username, userID;
+        String list_id;
+        String name;
+        String username;
+        String userID;
 
         public Viewholder(@NonNull View itemView) {
             super(itemView);
@@ -117,26 +112,13 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
         private void handleDeleteFoodoListAction() {
             Log.d(TAG, "Pressed delete Foodo button");
 
-            String url = BASE_URL + "/deleteFoodoList";
-            HttpUrl httpUrl = HttpUrl.parse(url);
+            HashMap<String , String> bodyParameters = new HashMap<>();
+            bodyParameters.put("listID", list_id);
 
-            if (httpUrl == null) {
-                Log.d(TAG, String.format("unable to parse server URL: %s", url));
-                return;
-            }
+            HashMap<String , String> queryParameters = new HashMap<>();
+            queryParameters.put("userID", userID);
 
-            String json = String.format("{\"listID\": \"%s\"}", list_id);
-            RequestBody body = RequestBody.create(
-                    MediaType.parse("application/json"), json);
-
-            HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("userID", userID);
-
-            Request request = new Request.Builder()
-                    .url(httpBuilder.build())
-                    .delete(body)
-                    .build();
-
-            client.newCall((request)).enqueue(new Callback() {
+            Callback deleteFoodoListCallback = new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
@@ -154,7 +136,9 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                         });
                     }
                 }
-            });
+            };
+
+            OKHttpService.deleteRequest("deleteFoodoList", deleteFoodoListCallback, bodyParameters, queryParameters);
 
         }
 
@@ -169,26 +153,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
         }
 
         private void shareFoodoList(String id) {
-            String url = BASE_URL + "/addNewUserToList";
-            HttpUrl httpUrl = HttpUrl.parse(url);
-
-            if (httpUrl == null) {
-                Log.d(TAG, String.format("unable to parse server URL: %s", url));
-                return;
-            }
-
-            String json = String.format("{\"listID\": \"%s\", \"userID\": \"%s\"}", list_id, id);
-            RequestBody body = RequestBody.create(
-                    MediaType.parse("application/json"), json);
-
-            HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
-
-            Request request = new Request.Builder()
-                    .url(httpBuilder.build())
-                    .patch(body)
-                    .build();
-
-            client.newCall((request)).enqueue(new Callback() {
+            Callback callback = new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
@@ -196,31 +161,25 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
 
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                    try (ResponseBody responseBody = response.body()) {
-                        if (!response.isSuccessful())
-                            throw new IOException(String.format("Unexpected code %s", response));
-                        else if (responseBody == null) {
-                            throw new IOException("null response from /addNewUserTList endpoint");
-                        } else {
-                            Log.d(TAG, responseBody.string());
-                            Log.d(TAG, String.format("Shared FoodoList: %s with %s", list_id, id));
-                        }
-                    }
+                    String result = OKHttpService.getResponseBody(response);
+                    Log.d(TAG, result);
+                    Log.d(TAG, String.format("Shared FoodoList: %s with %s", list_id, id));
                 }
-            });
+            };
+
+            HashMap<String, String> params = new HashMap<>();
+            params.put("listID", list_id);
+            params.put("userID", id);
+
+            OKHttpService.patchRequest("addNewUserToList", callback, params);
         }
 
         private void getUserByEmail(String email) {
-            String url = BASE_URL + "/getUserByEmail";
-            HttpUrl httpUrl = HttpUrl.parse(url);
-            HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
-            httpBuilder.addQueryParameter("email", email);
 
-            Request request = new Request.Builder()
-                    .url(httpBuilder.build())
-                    .build();
+            HashMap<String, String> queryParameters = new HashMap<>();
+            queryParameters.put("email", email);
 
-            client.newCall(request).enqueue(new Callback() {
+            Callback getUserByEmailCallback = new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
@@ -228,23 +187,22 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
 
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                    String searchResults;
-                    try (ResponseBody responseBody = response.body()) {
-                        if (!response.isSuccessful())
-                            throw new IOException(String.format("Unexpected code %s", response));
-                        else if (responseBody == null) {
-                            throw new IOException("null response from /getUserByEmail endpoint");
-                        } else {
-                            searchResults = responseBody.string();
-                            Log.d(TAG, String.format("response from /getuserbyemail: %s", searchResults));
-                            JSONArray user = new JSONArray(searchResults);
-                            shareFoodoList(user.getJSONObject(0).getString("_id"));
-                        }
+                    try {
+                        String userFromEmail = OKHttpService.getResponseBody(response);
+                        JSONArray user = new JSONArray(userFromEmail);
+                        // TODO: Why isn't this just shareFoodoList and you pass in an email?
+                        // Currently you get the ID back from the server and then share it from the frontend. Seems a little wasteful.
+                        Log.d(TAG, String.format("response from /getUserByEmail: %s", userFromEmail));
+                        shareFoodoList(user.getJSONObject(0).getString("_id"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
                 }
-            });
+            };
+
+            OKHttpService.getRequest("getUserByEmail", getUserByEmailCallback, queryParameters);
+
         }
 
         private void handleShareFoodoListAction() {

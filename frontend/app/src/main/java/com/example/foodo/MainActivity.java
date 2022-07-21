@@ -22,6 +22,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.foodo.service.FoodoListService;
+import com.example.foodo.service.OKHttpService;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -35,34 +36,22 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 1;
     private final String TAG = "MainActivity";
-    private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = "http://20.51.215.223:3000";
-    private LocationManager locationManager;
-    private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    private SearchView restaurantSearch;
-    private Button mapButton;
     private GoogleSignInClient mGoogleSignInClient;
-    private FoodoListService foodoListService;
-    private Intent mapsIntent, searchResultIntent;
+    private Intent mapsIntent;
+    private Intent searchResultIntent;
     private Button loginButton;
     private TextView loginText;
-    private Double lat, lng;
+    private Double lat;
+    private Double lng;
 
     private final LocationListener locationListener = new LocationListener() {
         @Override
@@ -76,14 +65,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        foodoListService = new FoodoListService(this);
+        FoodoListService foodoListService = new FoodoListService(this);
         mapsIntent = new Intent(MainActivity.this, MapActivity.class);
         searchResultIntent = new Intent(MainActivity.this, SearchResultActivity.class);
         loginButton = findViewById(R.id.login_button);
         loginText = findViewById(R.id.login_text);
 
-        // Configure sign-in to request the user's ID, email address, and basic
-// profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.server_client_id))
                 .requestEmail()
@@ -101,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
             loginButton.setOnClickListener((View v) -> signIn());
         }
 
-        restaurantSearch = findViewById(R.id.restaurant_search);
+        SearchView restaurantSearch = findViewById(R.id.restaurant_search);
         restaurantSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -115,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mapButton = findViewById(R.id.map_button);
+        Button mapButton = findViewById(R.id.map_button);
         mapButton.setOnClickListener((View v) -> startActivity(mapsIntent));
         foodoListService.setup();
     }
@@ -162,32 +149,20 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             return;
         }
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, locationListener);
-
-        String url = BASE_URL + "/searchRestaurantsByQuery";
-        HttpUrl httpUrl = HttpUrl.parse(url);
-
-        if (httpUrl == null) {
-            Log.d(TAG, String.format("unable to parse server URL: %s", url));
-            return;
-        }
 
         if (lat == null || lng == null) {
             Toast.makeText(this, "Unable to get location, please try again", Toast.LENGTH_LONG);
             return;
         }
 
-        HttpUrl.Builder httpBuilder = httpUrl.newBuilder()
-                .addQueryParameter("query", query)
-                .addQueryParameter("lat", String.valueOf(lat))
-                .addQueryParameter("lng", String.valueOf(lng));
+        HashMap<String, String> queryParameters = new HashMap<>();
+        queryParameters.put("query", query);
+        queryParameters.put("lat", String.valueOf(lat));
+        queryParameters.put("lng", String.valueOf(lng));
 
-        Request request = new Request.Builder()
-                .url(httpBuilder.build())
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
+        Callback searchRestaurantCallback = new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -195,99 +170,65 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                String searchResults;
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful())
-                        throw new IOException(String.format("Unexpected code %s", response));
-                    else if (responseBody == null) {
-                        throw new IOException("null response from /searchRestaurantsByQuery endpoint");
-                    } else {
-                        searchResults = responseBody.string();
-                        Log.d(TAG, String.format("response from /searchRestaurantsByQuery: %s", searchResults));
-                        runOnUiThread(() -> {
-                            try {
-                                JSONArray restaurantResultsArray = new JSONArray(searchResults);
-                                Log.d(TAG, restaurantResultsArray.toString());
-                                searchResultIntent.putExtra("restaurantResultsArray", restaurantResultsArray.toString());
-                                searchResultIntent.putExtra("query", query);
-                                startActivity(searchResultIntent);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        });
-
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
-    private void createUser(String idToken, String username, String email) {
-        String url = buildURL("/createUser");
-        HttpUrl httpUrl = HttpUrl.parse(url);
-
-        if (httpUrl == null) {
-            Log.d(TAG, String.format("unable to parse server URL: %s", url));
-            return;
-        }
-        Log.d(TAG, username);
-
-        Map<String, String> params = new HashMap<>();
-        params.put("id", idToken);
-        params.put("name", username);
-        params.put("email", email);
-
-        JSONObject paramsJSON = new JSONObject(params);
-        RequestBody body = RequestBody.create(paramsJSON.toString(), JSON);
-        Request request = new Request.Builder()
-                .url(httpUrl)
-                .post(body)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                String responseBodyString;
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful()) {
-                        signIn();
-                    } else {
-                        responseBodyString = responseBody.string();
-                        JSONObject resJSON = new JSONObject(responseBodyString);
-
-                        if (resJSON.has("error")) {
-                            //validation failed, perhaps the token has expired, login again
-                            signIn();
-                        } else {
-                            Log.d(TAG, responseBodyString);
-                            JSONObject responseBodyJSON = new JSONObject(responseBodyString);
-
-                            Log.d(TAG, responseBodyJSON.getString("_id"));
-
-                            mapsIntent.putExtra("username", responseBodyJSON.getString("name"));
-                            mapsIntent.putExtra("userID", responseBodyJSON.getString("_id"));
-
-                            searchResultIntent.putExtra("username", responseBodyJSON.getString("name"));
-                            searchResultIntent.putExtra("userID", responseBodyJSON.getString("_id"));
-
-                            Log.d(TAG, "intent extras have all been added");
-                        }
-                    }
+                String searchResults = OKHttpService.getResponseBody(response);
+                try {
+                    JSONArray restaurantResultsArray = new JSONArray(searchResults);
+                    Log.d(TAG, String.format("response from /searchRestaurantsByQuery: %s", searchResults));
+                    runOnUiThread(() -> {
+                        searchResultIntent.putExtra("restaurantResultsArray", restaurantResultsArray.toString());
+                        searchResultIntent.putExtra("query", query);
+                        startActivity(searchResultIntent);
+                    });
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-        });
+        };
+
+        OKHttpService.getRequest("searchRestaurantsByQuery", searchRestaurantCallback, queryParameters);
     }
 
-    private String buildURL(String path) {
-        return BASE_URL + path;
+    private void createUser(String idToken, String username, String email) {
+        Callback createUserCallback = new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try {
+                    String responseBodyString = OKHttpService.getResponseBody(response);
+                    JSONObject resJSON = new JSONObject(responseBodyString);
+
+                    if (resJSON.has("error")) {
+                        //validation failed, perhaps the token has expired, login again
+                        signIn();
+                    } else {
+                        Log.d(TAG, responseBodyString);
+                        Log.d(TAG, resJSON.getString("_id"));
+
+                        mapsIntent.putExtra("username", resJSON.getString("name"));
+                        mapsIntent.putExtra("userID", resJSON.getString("_id"));
+
+                        searchResultIntent.putExtra("username", resJSON.getString("name"));
+                        searchResultIntent.putExtra("userID", resJSON.getString("_id"));
+
+                        Log.d(TAG, "intent extras have all been added");
+                    }
+                }catch(JSONException e){
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Log.d(TAG, username);
+
+        HashMap<String, String> createUserParams = new HashMap<>();
+        createUserParams.put("id", idToken);
+        createUserParams.put("name", username);
+        createUserParams.put("email", email);
+
+        OKHttpService.postRequest("createUser", createUserCallback, createUserParams);
     }
 }

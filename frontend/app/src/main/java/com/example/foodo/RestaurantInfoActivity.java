@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.foodo.objects.ReviewCard;
 import com.example.foodo.objects.ReviewCardAdapter;
+import com.example.foodo.service.OKHttpService;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -38,37 +39,38 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class RestaurantInfoActivity extends AppCompatActivity {
+    private final String TAG = "restaurantInfoActivity";
+    private TextView restaurantName_info;
+    private TextView restaurantAddress_info;
+    private TextView restaurantRating_info;
+    private TextView restaurantPhoneNumber;
+    private TextView restaurantStatus;
+    private TextView mondayHours;
+    private TextView tuesdayHours;
+    private TextView wednesdayHours;
+    private TextView thursdayHours;
+    private TextView fridayHours;
+    private TextView saturdayHours;
+    private TextView sundayHours;
 
-    private final OkHttpClient client = new OkHttpClient();
-    private final String TAG = "restaurantInfoActivity", BASE_URL = "http://20.51.215.223:3000";
-    private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    private TextView restaurantName_info, restaurantAddress_info, restaurantRating_info, restaurantPhoneNumber, restaurantStatus,
-            mondayHours, tuesdayHours, wednesdayHours, thursdayHours, fridayHours, saturdayHours, sundayHours;
-    private static RecyclerView reviewList;
-    private Spinner spinner, addResToListSpinner;
-    private static ArrayList<ReviewCard> reviewCardArrayList;
+    private RecyclerView reviewList;
+    private Spinner spinner;
+    private Spinner addResToListSpinner;
+    private ArrayList<ReviewCard> reviewCardArrayList;
     private String googlePlacesID;
-    private Button submitReviewButton, addRestaurantToFoodoListButton;
+    private Button submitReviewButton;
+    private Button addRestaurantToFoodoListButton;
     private EditText reviewTextBox;
-    private PopupWindow createAddRestaurantToListPopupWindow, userNotLoggedInPopupWindow;
-    private double lng, lat;
-    private ReviewCardAdapter reviewCardAdapter;
-
+    private PopupWindow createAddRestaurantToListPopupWindow;
+    private PopupWindow userNotLoggedInPopupWindow;
+    private double lng;
+    private double lat;
     private boolean isInFoodoList;
-
     private ArrayList<String> foodoListNames;
     private HashMap<String, String> foodoListIDandNames;
 
@@ -246,23 +248,16 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     }
 
     private void getFoodoLists() {
-        String url = buildURL("/getFoodoLists");
-        HttpUrl httpUrl = HttpUrl.parse(url);
-        HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
-
         if (!getIntent().hasExtra("userID")) {
             Log.d(TAG, "Error: Intent does not have the user ID");
             return;
         }
         String userID = getIntent().getStringExtra("userID");
 
-        httpBuilder.addQueryParameter("userID", userID);
+        HashMap<String, String> queryParameters = new HashMap<>();
+        queryParameters.put("userID", userID);
 
-        Request request = new Request.Builder()
-                .url(httpBuilder.build())
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
+        Callback getFoodoListCallback = new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -270,54 +265,25 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                String searchResults;
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful())
-                        throw new IOException(String.format("Unexpected code %s", response));
-                    else if (responseBody == null) {
-                        throw new IOException("null response from /getFoodoLists endpoint");
-                    } else {
-                        searchResults = responseBody.string();
-                        Log.d(TAG, String.format("response from /getFoodoLists: %s", searchResults));
-                        JSONArray foodoListsJSON = new JSONArray(searchResults);
-                        for (int i = 0; i < foodoListsJSON.length(); i++) {
-                            Log.d(TAG, foodoListsJSON.getJSONObject(i).getString("name") + " " + i);
-                            foodoListNames.add(foodoListsJSON.getJSONObject(i).getString("name"));
-                            foodoListIDandNames.put(foodoListsJSON.getJSONObject(i).getString("name"), foodoListsJSON.getJSONObject(i).getString("_id"));
-                        }
+                try {
+                    JSONArray foodoListsJSON = new JSONArray(OKHttpService.getResponseBody(response));
+                    for (int i = 0; i < foodoListsJSON.length(); i++) {
+                        Log.d(TAG, foodoListsJSON.getJSONObject(i).getString("name") + " " + i);
+                        foodoListNames.add(foodoListsJSON.getJSONObject(i).getString("name"));
+                        foodoListIDandNames.put(foodoListsJSON.getJSONObject(i).getString("name"), foodoListsJSON.getJSONObject(i).getString("_id"));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-        });
+        };
+
+        OKHttpService.getRequest("getFoodoLists", getFoodoListCallback, queryParameters);
+
     }
 
     private void addRestaurantToList(String listID) {
-        String url = buildURL("/addRestaurantToList");
-        HttpUrl httpUrl = HttpUrl.parse(url);
-
-        if (httpUrl == null) {
-            Log.d(TAG, String.format("unable to parse server URL: %s", url));
-            return;
-        }
-
-        Map<String, String> params = new HashMap<>();
-        params.put("listID", listID);
-        params.put("restaurantID", googlePlacesID);
-        params.put("restaurantName", restaurantName_info.getText().toString());
-        params.put("isVisited", "false");
-        params.put("lat", Double.toString(lat));
-        params.put("lng", Double.toString(lng));
-
-        JSONObject paramsJSON = new JSONObject(params);
-        RequestBody body = RequestBody.create(paramsJSON.toString(), JSON);
-        Request request = new Request.Builder()
-                .url(httpUrl)
-                .patch(body)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
+        Callback addRestaurantToListCallback = new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -325,29 +291,23 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful())
-                        throw new IOException(String.format("Unexpected code %s", response));
-                    else {
-                        Log.d(TAG, responseBody.string());
-                    }
-                }
+                Log.d(TAG, OKHttpService.getResponseBody(response));
             }
-        });
+        };
+
+        HashMap<String, String> addRestaurantToListParams = new HashMap<>();
+        addRestaurantToListParams.put("listID", listID);
+        addRestaurantToListParams.put("restaurantID", googlePlacesID);
+        addRestaurantToListParams.put("restaurantName", restaurantName_info.getText().toString());
+        addRestaurantToListParams.put("isVisited", "false");
+        addRestaurantToListParams.put("lat", Double.toString(lat));
+        addRestaurantToListParams.put("lng", Double.toString(lng));
+
+        OKHttpService.patchRequest("addRestaurantToList", addRestaurantToListCallback, addRestaurantToListParams);
     }
 
     private void searchRestaurantInfoByID(String restaurantID) {
-        String url = buildURL("/searchRestaurantInfoByID");
-        HttpUrl httpUrl = HttpUrl.parse(url);
-        HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
-        httpBuilder.addQueryParameter("id", restaurantID);
-
-        Request request = new Request.Builder()
-                .url(httpBuilder.build())
-                .build();
-        Log.d(TAG, String.format("Search Request invoked by searchRestaurantInfoByID to %s with query %s", httpBuilder.build(), restaurantID));
-
-        client.newCall(request).enqueue(new Callback() {
+        Callback searchRestaurantInfoByIDCallback = new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -355,31 +315,30 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful())
-                        throw new IOException(String.format("Unexpected code %s", response));
-                    else {
-                        String responseBodyString = responseBody.string();
-                        Log.d(TAG, responseBodyString);
-                        runOnUiThread(() -> {
-                            try {
-                                JSONObject restaurantObj = new JSONObject(responseBodyString);
-                                if (restaurantObj.has("formatted_phone_number")) {
-                                    restaurantPhoneNumber.setText(restaurantObj.getString("formatted_phone_number"));
-                                } else {
-                                    restaurantPhoneNumber.setText("Phone Number Unavailable");
-                                }
-                                JSONArray openingHours = restaurantObj.getJSONObject("opening_hours").getJSONArray("weekday_text");
+                String responseBodyString = OKHttpService.getResponseBody(response);
+                Log.d(TAG, responseBodyString);
+                runOnUiThread(() -> {
+                    try {
+                        JSONObject restaurantObj = new JSONObject(responseBodyString);
+                        if (restaurantObj.has("formatted_phone_number")) {
+                            restaurantPhoneNumber.setText(restaurantObj.getString("formatted_phone_number"));
+                        } else {
+                            restaurantPhoneNumber.setText("Phone Number Unavailable");
+                        }
+                        JSONArray openingHours = restaurantObj.getJSONObject("opening_hours").getJSONArray("weekday_text");
 
-                                setWeekHours(new TextView[]{mondayHours, tuesdayHours, wednesdayHours, thursdayHours, fridayHours, saturdayHours, sundayHours}, openingHours);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        });
+                        setWeekHours(new TextView[]{mondayHours, tuesdayHours, wednesdayHours, thursdayHours, fridayHours, saturdayHours, sundayHours}, openingHours);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                }
+                });
             }
-        });
+        };
+
+        HashMap<String, String> searchRestaurantInfoByID = new HashMap<>();
+        searchRestaurantInfoByID.put("id", restaurantID);
+
+        OKHttpService.getRequest("searchRestaurantInfoByID", searchRestaurantInfoByIDCallback, searchRestaurantInfoByID);
     }
 
     private void setWeekHours(TextView[] daysOfWeek, JSONArray openingHours) throws JSONException {
@@ -389,34 +348,13 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     }
 
     private void addReview(String text, String rating) {
-        String url = buildURL("/addReview");
-        HttpUrl httpUrl = HttpUrl.parse(url);
-
-        if (httpUrl == null) {
-            Log.d(TAG, String.format("unable to parse server URL: %s", url));
-            return;
-        }
-
         if (!getIntent().hasExtra("username")) {
             Log.d(TAG, "Error: intent does not have username");
             return;
         }
         String username = getIntent().getStringExtra("username");
 
-        Map<String, String> params = new HashMap<>();
-        params.put("google_place_id", googlePlacesID);
-        params.put("user_name", username);
-        params.put("review", text);
-        params.put("rating", rating);
-
-        JSONObject paramsJSON = new JSONObject(params);
-        RequestBody body = RequestBody.create(paramsJSON.toString(), JSON);
-        Request request = new Request.Builder()
-                .url(httpUrl)
-                .post(body)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
+        Callback addReviewCallback = new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -424,38 +362,21 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful())
-                        throw new IOException(String.format("Unexpected code %s", response));
-                    else {
-
-                        Log.d(TAG, responseBody.string());
-                    }
-                }
+                Log.d(TAG, OKHttpService.getResponseBody(response));
             }
-        });
+        };
+
+        HashMap<String, String> addReviewParams = new HashMap<>();
+        addReviewParams.put("google_place_id", googlePlacesID);
+        addReviewParams.put("user_name", username);
+        addReviewParams.put("review", text);
+        addReviewParams.put("rating", rating);
+
+        OKHttpService.postRequest("addReview", addReviewCallback, addReviewParams);
     }
 
     private void getReviews(String restaurantID) {
-        Log.d(TAG, String.format("searching for reviews from restaurant with ID: %s", restaurantID));
-
-        String url = buildURL("/getReviews");
-        HttpUrl httpUrl = HttpUrl.parse(url);
-
-        if (httpUrl == null) {
-            Log.d(TAG, String.format("unable to parse server URL: %s", url));
-            return;
-        }
-
-        HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
-        httpBuilder.addQueryParameter("google_place_id", restaurantID);
-
-        Request request = new Request.Builder()
-                .url(httpBuilder.build())
-                .build();
-        Log.d(TAG, String.format("Search Request invoked by getReview to %s with query %s", httpBuilder.build(), restaurantID));
-
-        client.newCall(request).enqueue(new Callback() {
+        Callback getReviewsCallback = new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -463,46 +384,36 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                String searchResults;
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful())
-                        throw new IOException(String.format("Unexpected code %s", response));
-                    else {
-                        if (responseBody == null) {
-                            Log.d(TAG, "response from /searchRestaurantsByQuery is null");
-                            throw new IOException("null response from /searchRestaurantsByQuery endpoint");
+                String searchResults = OKHttpService.getResponseBody(response);
+                runOnUiThread(() -> {
+                    try {
+                        JSONArray responseBodyJSONArray = new JSONArray(searchResults);
+
+                        for (int i = 0; i < responseBodyJSONArray.length(); i++) {
+                            JSONObject reviewCardJSON = responseBodyJSONArray.getJSONObject(i);
+                            Log.d(TAG, reviewCardJSON.toString());
+                            reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating")));
                         }
-                        searchResults = responseBody.string();
-                        runOnUiThread(() -> {
-                            try {
-                                JSONArray responseBodyJSONArray = new JSONArray(searchResults);
 
-                                for (int i = 0; i < responseBodyJSONArray.length(); i++) {
-                                    JSONObject reviewCardJSON = responseBodyJSONArray.getJSONObject(i);
-                                    Log.d(TAG, reviewCardJSON.toString());
-                                    reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating")));
-                                }
+                        ReviewCardAdapter reviewCardAdapter = new ReviewCardAdapter(reviewCardArrayList);
+                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(RestaurantInfoActivity.this, LinearLayoutManager.VERTICAL, false);
 
-                                reviewCardAdapter = new ReviewCardAdapter(RestaurantInfoActivity.this, reviewCardArrayList);
-                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(RestaurantInfoActivity.this, LinearLayoutManager.VERTICAL, false);
+                        reviewList.setLayoutManager(linearLayoutManager);
+                        reviewList.setAdapter(reviewCardAdapter);
 
-                                reviewList.setLayoutManager(linearLayoutManager);
-                                reviewList.setAdapter(reviewCardAdapter);
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                        });
-                        Log.d(TAG, String.format("response from /searchRestaurantsByQuery: %s", searchResults));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                }
-            }
-        });
-    }
 
-    private String buildURL(String path) {
-        return BASE_URL + path;
+                });
+                Log.d(TAG, String.format("response from /searchRestaurantsByQuery: %s", searchResults));
+            }
+        };
+
+        HashMap<String, String> getReviewsParams = new HashMap<>();
+        getReviewsParams.put("google_place_id", restaurantID);
+
+        OKHttpService.getRequest("getReviews", getReviewsCallback, getReviewsParams);
     }
 
     public BroadcastReceiver myReceiver = new BroadcastReceiver() {

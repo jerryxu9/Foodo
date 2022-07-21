@@ -15,28 +15,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.foodo.R;
 import com.example.foodo.RestaurantInfoActivity;
+import com.example.foodo.service.OKHttpService;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAdapter.Viewholder> {
-
     private final Context context;
     private final ArrayList<RestaurantCard> restaurantCardArrayList;
-
     private final String TAG = "RestaurantCardAdapter";
     private final String listID;
-    private final String BASE_URL = "http://20.51.215.223:3000";
-    private final OkHttpClient client = new OkHttpClient();
 
     public RestaurantCardAdapter(Context context, ArrayList<RestaurantCard> restaurantCardArrayList, String listID) {
         this.context = context;
@@ -82,10 +75,9 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                 holder.deleteRestaurantFromList();
             });
             ((Activity) context).runOnUiThread(() -> {
-                if(model.getVisited()) {
+                if (model.getVisited()) {
                     holder.checkFoodoListButton.setBackgroundResource(R.drawable.visited_image);
-                }
-                else {
+                } else {
                     holder.checkFoodoListButton.setBackgroundResource(R.drawable.checkmark_button);
                 }
             });
@@ -105,7 +97,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         holder.setCardID(model.getCardID());
 
         Log.d(TAG, String.valueOf(model.getVisited()));
-        holder.setVisited(model.getVisited());
         holder.setLat(model.getLat());
         holder.setLng(model.getLng());
     }
@@ -120,11 +111,16 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         private final TextView restaurantAddress;
         private final TextView restaurantRating;
         private final TextView restaurantStatus;
-        private final Button deleteRestaurantFromFoodoListButton, checkFoodoListButton;
-        private String googlePlacesID, cardID, username, userID;
+        private final Button deleteRestaurantFromFoodoListButton;
+        private final Button checkFoodoListButton;
+        private String googlePlacesID;
+        private String cardID;
+        private String username;
+        private String userID;
 
-        private double lat, lng;
-        private boolean isInFoodoList, isVisited;
+        private double lat;
+        private double lng;
+        private boolean isInFoodoList;
 
         public Viewholder(@NonNull View itemView) {
             super(itemView);
@@ -153,27 +149,18 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         }
 
         public void deleteRestaurantFromList() {
-            String url = BASE_URL + "/deleteRestaurantFromList";
-            Log.d(TAG, "Card:" + cardID + " will be deleted " + getRestaurantName());
 
-            HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
+            HashMap<String, String> bodyParameters = new HashMap<>();
+            bodyParameters.put("listID", listID);
+            bodyParameters.put("restaurantID", cardID);
 
-            String json = String.format("{\"listID\": \"%s\", \"restaurantID\": \"%s\"}", listID, cardID);
-
-            RequestBody body = RequestBody.create(
-                    MediaType.parse("application/json"), json);
-
-            Request request = new Request.Builder()
-                    .url(httpBuilder.build())
-                    .patch(body)
-                    .build();
-
-            client.newCall(request).enqueue(new Callback() {
+            Callback deleteRestaurantFromFoodoListCallback = new Callback() {
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) {
                     if (!response.isSuccessful()) {
                         Log.d(TAG, String.format("Delete restaurant %s on foodo list under list id %s failed", getRestaurantName(), listID));
                     } else {
+                        Log.d(TAG, String.format("Card with id %s will be deleted %s", cardID, getRestaurantName()));
                         ((Activity) context).runOnUiThread(() -> {
                             restaurantCardArrayList.remove(getLayoutPosition());
                             notifyItemRemoved(getLayoutPosition());
@@ -185,50 +172,34 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
                 }
-            });
+            };
+
+            OKHttpService.patchRequest("deleteRestaurantFromList", deleteRestaurantFromFoodoListCallback, bodyParameters);
         }
 
         public void checkRestaurant() {
-            String url = BASE_URL + "/checkRestaurantOnList";
-            Log.d(TAG, String.format("Card: Restaurant Card (id: %s) will be checked %s", cardID, getRestaurantName()));
-
             RestaurantCard card = restaurantCardArrayList.get(getLayoutPosition());
             card.setVisited(!card.getVisited());
 
-            HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
-            String json = String.format("{\"listID\": \"%s\", \"restaurantID\": \"%s\", \"isVisited\": %b }", listID, cardID, card.getVisited());
-
-            Log.d(TAG, json);
-            RequestBody body = RequestBody.create(
-                    MediaType.parse("application/json"), json);
-
-            Request request = new Request.Builder()
-                    .url(httpBuilder.build())
-                    .patch(body)
-                    .build();
-
-            client.newCall(request).enqueue(new Callback() {
+            Callback checkRestaurantCallback = new Callback() {
                 @Override
-                public void onResponse(@NonNull Call call, @NonNull Response response) {
-                    if (!response.isSuccessful()) {
-                        Log.d(TAG, String.format("Check restaurant %s on foodo list under list id %s failed", getRestaurantName(), listID));
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    String result = OKHttpService.getResponseBody(response);
+                    Log.d(TAG, result);
+
+                    if (card.getInFoodoList()) {
+                        ((Activity) context).runOnUiThread(() -> {
+                            Log.d(TAG, String.valueOf(card.getVisited()));
+                            if (card.getVisited()) {
+                                checkFoodoListButton.setBackgroundResource(R.drawable.visited_image);
+                            } else {
+                                checkFoodoListButton.setBackgroundResource(R.drawable.checkmark_button);
+                            }
+                            notifyItemChanged(getLayoutPosition());
+                        });
                     } else {
-                        if(card.getInFoodoList()) {
-                            ((Activity) context).runOnUiThread(() -> {
-                                Log.d(TAG, String.valueOf(card.getVisited()));
-                                if(card.getVisited()) {
-                                    checkFoodoListButton.setBackgroundResource(R.drawable.visited_image);
-                                }
-                                else {
-                                    checkFoodoListButton.setBackgroundResource(R.drawable.checkmark_button);
-                                }
-                                notifyItemChanged(getLayoutPosition());
-                            });
-                        }
-                        else {
-                            checkFoodoListButton.setVisibility(View.INVISIBLE);
-                            checkFoodoListButton.setEnabled(false);
-                        }
+                        checkFoodoListButton.setVisibility(View.INVISIBLE);
+                        checkFoodoListButton.setEnabled(false);
                     }
                 }
 
@@ -236,7 +207,16 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
                 }
-            });
+            };
+
+            Log.d(TAG, String.format("Card: Restaurant Card (id: %s) will be checked %s", cardID, getRestaurantName()));
+
+            HashMap<String, String> checkRestaurantParams = new HashMap<>();
+            checkRestaurantParams.put("listID", listID);
+            checkRestaurantParams.put("restaurantID", cardID);
+            checkRestaurantParams.put("isVisited", String.valueOf(card.getVisited()));
+
+            OKHttpService.patchRequest("checkRestaurantOnList", checkRestaurantCallback, checkRestaurantParams);
         }
 
         public String getRestaurantName() {
@@ -263,10 +243,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
             this.cardID = id;
         }
 
-        public void setVisited(boolean visited) {
-            this.isVisited = visited;
-        }
-        
         public void setUsername(String username) {
             this.username = username;
         }
