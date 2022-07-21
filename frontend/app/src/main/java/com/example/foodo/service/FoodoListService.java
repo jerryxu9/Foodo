@@ -56,8 +56,6 @@ public class FoodoListService {
     private String userID;
     private String username;
     private RecyclerView foodoLists;
-    private FloatingActionButton createFoodoListButton;
-    private FloatingActionButton refreshButton;
     private PopupWindow createFoodoListPopupWindow;
     private PopupWindow loginDecisionPopupWindow;
 
@@ -69,7 +67,7 @@ public class FoodoListService {
     }
 
     public void setup() {
-        createFoodoListButton = main_activity.findViewById(R.id.create_foodo_list_button);
+        FloatingActionButton createFoodoListButton = main_activity.findViewById(R.id.create_foodo_list_button);
         createFoodoListButton.setOnClickListener((View v) -> {
             GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
             if (account != null) {
@@ -84,7 +82,7 @@ public class FoodoListService {
             }
         });
 
-        refreshButton = main_activity.findViewById(R.id.refresh_button);
+        FloatingActionButton refreshButton = main_activity.findViewById(R.id.refresh_button);
         refreshButton.setOnClickListener((View v) -> {
             GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
             if (account != null) {
