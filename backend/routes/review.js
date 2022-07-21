@@ -3,19 +3,6 @@ const router = express.Router();
 const Review = require("../models/Review");
 const { getMessaging } = require("firebase-admin/messaging");
 
-// Get all reviews of a restaurant
-router.get("/getReviews", async (req, res) => {
-  Review.find({
-    google_place_id: req.query?.google_place_id,
-  })
-    .then((reviews) => {
-      res.json(reviews);
-    })
-    .catch((err) => {
-      res.json(err);
-    });
-});
-
 // Post a new review
 router.post("/addReview", async (req, res) => {
   const review = new Review({
