@@ -30,11 +30,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
-//    private GoogleMap mMap;
-//    private ActivityMapsBinding binding;
-
     private final String TAG = "MapActivity";
-    private final OkHttpClient client = new OkHttpClient();
     private ArrayList<RestaurantMarkerInfo> markers;
 
     @Override
@@ -117,7 +113,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                         restaurantInfo.getString("name")));
             }
         }
-
     }
 
     public class RestaurantMarkerInfo {
