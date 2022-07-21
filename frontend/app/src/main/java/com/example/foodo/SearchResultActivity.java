@@ -53,19 +53,19 @@ public class SearchResultActivity extends AppCompatActivity {
                     businessStatus = restaurantResult.getString("businessStatus");
                 }
                 boolean isInFoodoList = false;
-                // pass in a dummy_id for the cardID since these restaurantCards aren't being created as part of a Foodo list.
-                restaurantCardArrayList.add(new RestaurantCard(restaurantResult.getString("name"),
-                        restaurantResult.getString("address"),
-                        restaurantResult.getString("GoogleRating"),
-                        businessStatus,
-                        restaurantResult.getString("id"),
+                RestaurantCard card = new RestaurantCard(restaurantResult.getString("id"),
                         "dummy_id",
-                        restaurantResult.getDouble("lat"),
-                        restaurantResult.getDouble("lng"),
                         isInFoodoList,
-                        getIntent().hasExtra("username") ? getIntent().getStringExtra("username") : "",
-                        getIntent().hasExtra("userID") ? getIntent().getStringExtra("userID") : ""));
-
+                        getIntent().hasExtra("userID") ? getIntent().getStringExtra("userID") : "");
+                card.setRestaurantName(restaurantResult.getString("name"));
+                card.setAddress(restaurantResult.getString("address"));
+                card.setRating(restaurantResult.getString("GoogleRating"));
+                card.setStatus(businessStatus);
+                card.setLat(restaurantResult.getDouble("lat"));
+                card.setLng(restaurantResult.getDouble("lng"));
+                card.setUsername(getIntent().hasExtra("username") ? getIntent().getStringExtra("username") : "");
+                // pass in a dummy_id for the cardID since these restaurantCards aren't being created as part of a Foodo list.
+                restaurantCardArrayList.add(card);
             }
         } catch (JSONException e) {
             e.printStackTrace();

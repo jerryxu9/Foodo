@@ -114,18 +114,14 @@ public class FoodoListCardService {
                     String businessStatus = getBusinessStatus(restaurant);
                     foodoCardActivity.runOnUiThread(() -> {
                         try {
-                            RestaurantCard card = new RestaurantCard(
-                                    restaurant.getString("name"),
-                                    restaurant.getString("formatted_address"),
-                                    restaurant.getString("rating"),
-                                    businessStatus,
-                                    googlePlaceID,
-                                    cardID,
-                                    getLatitude(restaurant),
-                                    getLongitude(restaurant),
-                                    true,
-                                    username,
-                                    userID);
+                            RestaurantCard card = new RestaurantCard(googlePlaceID, cardID, true, userID);
+                            card.setRestaurantName(restaurant.getString("name"));
+                            card.setAddress(restaurant.getString("formatted_address"));
+                            card.setRating(restaurant.getString("rating"));
+                            card.setStatus(businessStatus);
+                            card.setLat(getLatitude(restaurant));
+                            card.setLng(getLongitude(restaurant));
+                            card.setUsername(username);
 
                             card.setVisited(isVisited);
                             restaurantCardArrayList.add(card);
