@@ -478,7 +478,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                                     reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating")));
                                 }
 
-                                ReviewCardAdapter reviewCardAdapter = new ReviewCardAdapter(RestaurantInfoActivity.this, reviewCardArrayList);
+                                ReviewCardAdapter reviewCardAdapter = new ReviewCardAdapter(reviewCardArrayList);
                                 LinearLayoutManager linearLayoutManager = new LinearLayoutManager(RestaurantInfoActivity.this, LinearLayoutManager.VERTICAL, false);
 
                                 reviewList.setLayoutManager(linearLayoutManager);

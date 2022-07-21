@@ -2,7 +2,14 @@ package com.example.foodo.objects;
 
 public class RestaurantCard {
 
-    private final String name, address, rating, status, googlePlacesID, cardID, username, userID;
+    private final String name;
+    private final String address;
+    private final String rating;
+    private final String status;
+    private final String googlePlacesID;
+    private final String cardID;
+    private final String username;
+    private final String userID;
     private final double lat, lng;
     private final boolean isInFoodoList;
     private boolean isVisited;
@@ -62,12 +69,12 @@ public class RestaurantCard {
         return isInFoodoList;
     }
 
-    public void setVisited(boolean isVisited) {
-        this.isVisited = isVisited;
-    }
-
     public boolean getVisited() {
         return this.isVisited;
+    }
+
+    public void setVisited(boolean isVisited) {
+        this.isVisited = isVisited;
     }
 
     public String getUsername() {

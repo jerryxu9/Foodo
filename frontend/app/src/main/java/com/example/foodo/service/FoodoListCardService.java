@@ -42,7 +42,8 @@ public class FoodoListCardService {
     private final ArrayList<RestaurantCard> restaurantCardArrayList;
     private final String listID;
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    private String username, userID;
+    private String username;
+    private String userID;
     private RestaurantCardAdapter restaurantCardAdapter;
 
     public FoodoListCardService(AppCompatActivity foodoCardActivity, String listID) {

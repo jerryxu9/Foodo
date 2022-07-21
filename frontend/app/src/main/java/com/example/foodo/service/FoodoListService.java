@@ -45,7 +45,7 @@ import okhttp3.ResponseBody;
 
 public class FoodoListService {
 
-    private static String BASE_URL = BuildConfig.BASE_URL;
+    private static final String BASE_URL = BuildConfig.BASE_URL;
     private final String TAG = "FoodoListService";
     private final AppCompatActivity main_activity;
     private final FoodoListCardAdapter foodoListCardAdapter;
@@ -53,10 +53,11 @@ public class FoodoListService {
     private final ArrayList<FoodoListCard> foodoListCardArrayList;
     private final OkHttpClient client = new OkHttpClient();
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    private String userID, username;
+    private String userID;
+    private String username;
     private RecyclerView foodoLists;
-    private FloatingActionButton createFoodoListButton, refreshButton;
-    private PopupWindow createFoodoListPopupWindow, loginDecisionPopupWindow;
+    private PopupWindow createFoodoListPopupWindow;
+    private PopupWindow loginDecisionPopupWindow;
 
     public FoodoListService(AppCompatActivity activity) {
         this.main_activity = activity;
@@ -66,7 +67,7 @@ public class FoodoListService {
     }
 
     public void setup() {
-        createFoodoListButton = main_activity.findViewById(R.id.create_foodo_list_button);
+        FloatingActionButton createFoodoListButton = main_activity.findViewById(R.id.create_foodo_list_button);
         createFoodoListButton.setOnClickListener((View v) -> {
             GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
             if (account != null) {
@@ -81,7 +82,7 @@ public class FoodoListService {
             }
         });
 
-        refreshButton = main_activity.findViewById(R.id.refresh_button);
+        FloatingActionButton refreshButton = main_activity.findViewById(R.id.refresh_button);
         refreshButton.setOnClickListener((View v) -> {
             GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
             if (account != null) {
