@@ -6,7 +6,7 @@ const { getMessaging } = require("firebase-admin/messaging");
 // Get all reviews of a restaurant
 router.get("/getReviews", async (req, res) => {
   Review.find({
-    google_place_id: req.query.google_place_id,
+    google_place_id: req.query?.google_place_id,
   })
     .then((reviews) => {
       res.json(reviews);
@@ -19,10 +19,10 @@ router.get("/getReviews", async (req, res) => {
 // Post a new review
 router.post("/addReview", async (req, res) => {
   const review = new Review({
-    google_place_id: req.body.google_place_id,
-    user_name: req.body.user_name,
-    review: req.body.review,
-    rating: req.body.rating,
+    google_place_id: req.body?.google_place_id,
+    user_name: req.body?.user_name,
+    review: req.body?.review,
+    rating: req.body?.rating,
   });
 
   // Save this review to database
@@ -43,7 +43,7 @@ router.post("/addReview", async (req, res) => {
 
 // Delete a review
 router.delete("/deleteReview", async (req, res) => {
-  Review.deleteOne({ _id: req.body.id })
+  Review.deleteOne({ _id: req.body?.id })
     .then((result) => {
       res.json(result);
     })
