@@ -21,7 +21,6 @@ import com.example.foodo.service.OKHttpService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -156,27 +155,18 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         }
 
         public void deleteRestaurantFromList() {
-            String url = BASE_URL + "/deleteRestaurantFromList";
-            Log.d(TAG, "Card:" + cardID + " will be deleted " + getRestaurantName());
 
-            HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
+            HashMap<String, String> bodyParameters = new HashMap<>();
+            bodyParameters.put("listID", listID);
+            bodyParameters.put("restaurantID", cardID);
 
-            String json = String.format("{\"listID\": \"%s\", \"restaurantID\": \"%s\"}", listID, cardID);
-
-            RequestBody body = RequestBody.create(
-                    MediaType.parse("application/json"), json);
-
-            Request request = new Request.Builder()
-                    .url(httpBuilder.build())
-                    .patch(body)
-                    .build();
-
-            client.newCall(request).enqueue(new Callback() {
+            Callback deleteRestaurantFromFoodoListCallback = new Callback() {
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) {
                     if (!response.isSuccessful()) {
                         Log.d(TAG, String.format("Delete restaurant %s on foodo list under list id %s failed", getRestaurantName(), listID));
                     } else {
+                        Log.d(TAG, String.format("Card with id %s will be deleted %s", cardID, getRestaurantName()));
                         ((Activity) context).runOnUiThread(() -> {
                             restaurantCardArrayList.remove(getLayoutPosition());
                             notifyItemRemoved(getLayoutPosition());
@@ -188,7 +178,9 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
                 }
-            });
+            };
+
+            OKHttpService.patchRequest("deleteRestaurantFromList", deleteRestaurantFromFoodoListCallback, bodyParameters);
         }
 
         public void checkRestaurant() {

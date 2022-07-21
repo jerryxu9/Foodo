@@ -123,26 +123,13 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
         private void handleDeleteFoodoListAction() {
             Log.d(TAG, "Pressed delete Foodo button");
 
-            String url = BASE_URL + "/deleteFoodoList";
-            HttpUrl httpUrl = HttpUrl.parse(url);
+            HashMap<String , String> bodyParameters = new HashMap<>();
+            bodyParameters.put("listID", list_id);
 
-            if (httpUrl == null) {
-                Log.d(TAG, String.format("unable to parse server URL: %s", url));
-                return;
-            }
+            HashMap<String , String> queryParameters = new HashMap<>();
+            queryParameters.put("userID", userID);
 
-            String json = String.format("{\"listID\": \"%s\"}", list_id);
-            RequestBody body = RequestBody.create(
-                    MediaType.parse("application/json"), json);
-
-            HttpUrl.Builder httpBuilder = httpUrl.newBuilder().addQueryParameter("userID", userID);
-
-            Request request = new Request.Builder()
-                    .url(httpBuilder.build())
-                    .delete(body)
-                    .build();
-
-            client.newCall((request)).enqueue(new Callback() {
+            Callback deleteFoodoListCallback = new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
@@ -160,7 +147,9 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                         });
                     }
                 }
-            });
+            };
+
+            OKHttpService.deleteRequest("deleteFoodoList", deleteFoodoListCallback, bodyParameters, queryParameters);
 
         }
 
