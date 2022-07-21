@@ -21,7 +21,7 @@ async function verify(token) {
 }
 
 router.post("/createUser", async (req, res) => {
-  verify(req.body.id)
+  verify(req.body?.id)
     .then(async (userID) => {
       console.log(userID);
       const existingUser = await User.findById(userID);
@@ -29,8 +29,8 @@ router.post("/createUser", async (req, res) => {
       if (!existingUser) {
         const user = new User({
           _id: userID,
-          name: req.body.name,
-          email: req.body.email,
+          name: req.body?.name,
+          email: req.body?.email,
         });
 
         const data = await user.save();
@@ -46,7 +46,7 @@ router.post("/createUser", async (req, res) => {
 });
 
 router.get("/getUser", async (req, res) => {
-  User.find({ _id: req.query.id })
+  User.find({ _id: req.query?.id })
     .then((user) => {
       res.json(user);
     })
@@ -56,7 +56,7 @@ router.get("/getUser", async (req, res) => {
 });
 
 router.get("/getUserByEmail", async (req, res) => {
-  User.find({ email: req.query.email })
+  User.find({ email: req.query?.email })
     .then((user) => {
       res.json(user);
     })

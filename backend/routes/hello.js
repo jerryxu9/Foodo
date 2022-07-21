@@ -18,8 +18,8 @@ router.get("/", async (req, res) => {
 // Post a new hello message
 router.post("/", async (req, res) => {
   const hello = new Hello({
-    title: req.body.title,
-    message: req.body.message,
+    title: req.body?.title,
+    message: req.body?.message,
   });
   // Save this hello message to database
   const data = await hello.save();
@@ -28,7 +28,7 @@ router.post("/", async (req, res) => {
 
 // Find a specific hello message by title
 router.get("/findHello", async (req, res) => {
-  Hello.findOne({ title: req.query.title })
+  Hello.findOne({ title: req.query?.title })
     .then((hello) => {
       res.json(hello);
     })
@@ -39,7 +39,7 @@ router.get("/findHello", async (req, res) => {
 
 // Delete a hello message
 router.delete("/", async (req, res) => {
-  Hello.deleteOne({ _id: req.body.id })
+  Hello.deleteOne({ _id: req.body?.id })
     .then((removedHello) => {
       res.json(removedHello);
     })
@@ -50,9 +50,9 @@ router.delete("/", async (req, res) => {
 
 // Update the message part of a hello message
 router.patch("/", async (req, res) => {
-  const setItem = { message: req.body.message };
+  const setItem = { message: req.body?.message };
 
-  Hello.findOneAndUpdate({ title: req.body.title }, { $set: setItem })
+  Hello.findOneAndUpdate({ title: req.body?.title }, { $set: setItem })
     .then((updatedHello) => {
       res.json(updatedHello);
     })
