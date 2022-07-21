@@ -149,10 +149,10 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                 Log.d(TAG, "Unable to submit empty userEmail");
                 return;
             }
-            getUserByEmail(userEmail);
+            shareFoodoList(userEmail);
         }
 
-        private void shareFoodoList(String id) {
+        private void shareFoodoList(String email) {
             Callback callback = new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -163,46 +163,15 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                     String result = OKHttpService.getResponseBody(response);
                     Log.d(TAG, result);
-                    Log.d(TAG, String.format("Shared FoodoList: %s with %s", list_id, id));
+                    Log.d(TAG, String.format("Shared FoodoList: %s with %s", list_id, email));
                 }
             };
 
             HashMap<String, String> params = new HashMap<>();
             params.put("listID", list_id);
-            params.put("userID", id);
+            params.put("email", email);
 
             OKHttpService.patchRequest("addNewUserToList", callback, params);
-        }
-
-        private void getUserByEmail(String email) {
-
-            HashMap<String, String> queryParameters = new HashMap<>();
-            queryParameters.put("email", email);
-
-            Callback getUserByEmailCallback = new Callback() {
-                @Override
-                public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                    e.printStackTrace();
-                }
-
-                @Override
-                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                    try {
-                        String userFromEmail = OKHttpService.getResponseBody(response);
-                        JSONArray user = new JSONArray(userFromEmail);
-                        // TODO: Why isn't this just shareFoodoList and you pass in an email?
-                        // Currently you get the ID back from the server and then share it from the frontend. Seems a little wasteful.
-                        Log.d(TAG, String.format("response from /getUserByEmail: %s", userFromEmail));
-                        shareFoodoList(user.getJSONObject(0).getString("_id"));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            };
-
-            OKHttpService.getRequest("getUserByEmail", getUserByEmailCallback, queryParameters);
-
         }
 
         private void handleShareFoodoListAction() {

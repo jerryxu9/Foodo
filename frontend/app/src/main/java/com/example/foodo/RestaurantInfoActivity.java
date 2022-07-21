@@ -73,6 +73,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     private boolean isInFoodoList;
     private ArrayList<String> foodoListNames;
     private HashMap<String, String> foodoListIDandNames;
+    private ReviewCardAdapter reviewCardAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -395,7 +396,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                             reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating")));
                         }
 
-                        ReviewCardAdapter reviewCardAdapter = new ReviewCardAdapter(reviewCardArrayList);
+                        reviewCardAdapter = new ReviewCardAdapter(reviewCardArrayList);
                         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(RestaurantInfoActivity.this, LinearLayoutManager.VERTICAL, false);
 
                         reviewList.setLayoutManager(linearLayoutManager);
