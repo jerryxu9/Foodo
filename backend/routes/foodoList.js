@@ -106,7 +106,7 @@ router.patch("/deleteRestaurantFromList", async (req, res) => {
 
 // Add a user to the users array in a Foodo list
 router.patch("/addNewUserToList", async (req, res) => {
-  User.find({ email: req.query?.email })
+  User.find({ email: req.body.email })
     .then((userList) => {
       if (userList.length === 0) {
         res.json({ error: "User not found!" });

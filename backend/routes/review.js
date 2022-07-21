@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const Review = require("../models/Review");
 const { getMessaging } = require("firebase-admin/messaging");
-const { app } = require("../utils/firebase");
 
 // Get all reviews of a restaurant
 router.get("/getReviews", async (req, res) => {
