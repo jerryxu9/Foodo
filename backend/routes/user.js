@@ -46,13 +46,23 @@ router.post("/createUser", async (req, res) => {
 });
 
 router.get("/getUser", async (req, res) => {
-  const user = await User.find({ _id: req.query.id });
-  res.json(user);
+  User.find({ _id: req.query.id })
+    .then((user) => {
+      res.json(user);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
 });
 
 router.get("/getUserByEmail", async (req, res) => {
-  const user = await User.find({ email: req.query.email });
-  res.json(user);
+  User.find({ email: req.query.email })
+    .then((user) => {
+      res.json(user);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
 });
 
 module.exports = router;

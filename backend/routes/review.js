@@ -5,10 +5,15 @@ const { getMessaging } = require("firebase-admin/messaging");
 
 // Get all reviews of a restaurant
 router.get("/getReviews", async (req, res) => {
-  const reviews = await Review.find({
+  Review.find({
     google_place_id: req.query.google_place_id,
-  });
-  res.json(reviews);
+  })
+    .then((reviews) => {
+      res.json(reviews);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
 });
 
 // Post a new review
@@ -38,12 +43,13 @@ router.post("/addReview", async (req, res) => {
 
 // Delete a review
 router.delete("/deleteReview", async (req, res) => {
-  try {
-    const result = await Review.deleteOne({ _id: req.body.id });
-    res.json(result);
-  } catch (err) {
-    res.json(err);
-  }
+  Review.deleteOne({ _id: req.body.id })
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
 });
 
 module.exports = router;
