@@ -1,8 +1,8 @@
 const Review = require("../models/Review");
 
-async function getReviews(id) {
+async function getReviews(google_place_id) {
   return Review.find({
-    google_place_id: id,
+    google_place_id,
   })
     .then((reviews) => {
       return reviews;
