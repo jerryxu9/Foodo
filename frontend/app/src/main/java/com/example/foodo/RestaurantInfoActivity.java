@@ -1,6 +1,9 @@
 package com.example.foodo;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -26,6 +29,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,6 +73,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     private boolean isInFoodoList;
     private ArrayList<String> foodoListNames;
     private HashMap<String, String> foodoListIDandNames;
+    private ReviewCardAdapter reviewCardAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +118,8 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        Log.d(TAG, googlePlacesID);
 
         FirebaseMessaging.getInstance().subscribeToTopic(googlePlacesID)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -388,7 +396,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                             reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating")));
                         }
 
-                        ReviewCardAdapter reviewCardAdapter = new ReviewCardAdapter(reviewCardArrayList);
+                        reviewCardAdapter = new ReviewCardAdapter(reviewCardArrayList);
                         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(RestaurantInfoActivity.this, LinearLayoutManager.VERTICAL, false);
 
                         reviewList.setLayoutManager(linearLayoutManager);
@@ -409,7 +417,33 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         OKHttpService.getRequest("getReviews", getReviewsCallback, getReviewsParams);
     }
 
-    public void addReviewCard(ReviewCard reviewCard) {
-        reviewCardArrayList.add(reviewCard);
+    public BroadcastReceiver myReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ArrayList<String> action = intent.getStringArrayListExtra("action");
+            changeUi(action);
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(myReceiver, new IntentFilter("FBR-IMAGE"));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(myReceiver);
+    }
+
+    private void changeUi(ArrayList<String> action) {
+        ReviewCard reviewCard = new ReviewCard(action.get(2),
+                action.get(1),
+                action.get(0));
+        runOnUiThread(() -> {
+            reviewCardArrayList.add(reviewCard);
+            reviewCardAdapter.notifyItemInserted(reviewCardArrayList.size());
+        });
     }
 }

@@ -106,27 +106,32 @@ router.patch("/deleteRestaurantFromList", async (req, res) => {
 
 // Add a user to the users array in a Foodo list
 router.patch("/addNewUserToList", async (req, res) => {
-  User.findById(req.body?.userID).then((user) => {
-    if (!user) {
-      res.json({ error: "User not found!" });
-    } else {
-      const pushItem = { users: req.body?.userID };
+  User.find({ email: req.body.email })
+    .then((userList) => {
+      if (userList.length === 0) {
+        res.json({ error: "User not found!" });
+      } else {
+        const user = userList[0];
+        const pushItem = { users: user._id };
 
-      FoodoListModel.findByIdAndUpdate(
-        req.body.listID,
-        { $push: pushItem },
-        {
-          returnDocument: "after",
-        }
-      )
-        .then((updatedList) => {
-          res.json(updatedList);
-        })
-        .catch((err) => {
-          res.json(err);
-        });
-    }
-  });
+        FoodoListModel.findByIdAndUpdate(
+          req.body.listID,
+          { $push: pushItem },
+          {
+            returnDocument: "after",
+          }
+        )
+          .then((updatedList) => {
+            res.json(updatedList);
+          })
+          .catch((err) => {
+            res.json(err);
+          });
+      }
+    })
+    .catch((err) => {
+      res.json(err);
+    });
 });
 
 // Set the "isValid" field of a Foodo Restaurant as isVisited

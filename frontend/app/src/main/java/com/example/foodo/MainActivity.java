@@ -232,4 +232,3 @@ public class MainActivity extends AppCompatActivity {
         OKHttpService.postRequest("createUser", createUserCallback, createUserParams);
     }
 }
-
