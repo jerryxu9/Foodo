@@ -28,7 +28,6 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
-
     private final String TAG = "MapActivity";
     private ArrayList<RestaurantMarkerInfo> markers;
 
@@ -112,7 +111,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                         restaurantInfo.getString("name")));
             }
         }
-
     }
 
     public class RestaurantMarkerInfo {

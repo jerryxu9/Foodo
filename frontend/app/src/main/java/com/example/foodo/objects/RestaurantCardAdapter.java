@@ -188,44 +188,28 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         }
 
         public void checkRestaurant() {
-            String url = BASE_URL + "/checkRestaurantOnList";
-            Log.d(TAG, String.format("Card: Restaurant Card (id: %s) will be checked %s", cardID, getRestaurantName()));
-
             RestaurantCard card = restaurantCardArrayList.get(getLayoutPosition());
             card.setVisited(!card.getVisited());
 
-            HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
-            String json = String.format("{\"listID\": \"%s\", \"restaurantID\": \"%s\", \"isVisited\": %b }", listID, cardID, card.getVisited());
-
-            Log.d(TAG, json);
-            RequestBody body = RequestBody.create(
-                    MediaType.parse("application/json"), json);
-
-            Request request = new Request.Builder()
-                    .url(httpBuilder.build())
-                    .patch(body)
-                    .build();
-
-            client.newCall(request).enqueue(new Callback() {
+            Callback checkRestaurantCallback = new Callback() {
                 @Override
-                public void onResponse(@NonNull Call call, @NonNull Response response) {
-                    if (!response.isSuccessful()) {
-                        Log.d(TAG, String.format("Check restaurant %s on foodo list under list id %s failed", getRestaurantName(), listID));
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    String result = OKHttpService.getResponseBody(response);
+                    Log.d(TAG, result);
+
+                    if (card.getInFoodoList()) {
+                        ((Activity) context).runOnUiThread(() -> {
+                            Log.d(TAG, String.valueOf(card.getVisited()));
+                            if (card.getVisited()) {
+                                checkFoodoListButton.setBackgroundResource(R.drawable.visited_image);
+                            } else {
+                                checkFoodoListButton.setBackgroundResource(R.drawable.checkmark_button);
+                            }
+                            notifyItemChanged(getLayoutPosition());
+                        });
                     } else {
-                        if (card.getInFoodoList()) {
-                            ((Activity) context).runOnUiThread(() -> {
-                                Log.d(TAG, String.valueOf(card.getVisited()));
-                                if (card.getVisited()) {
-                                    checkFoodoListButton.setBackgroundResource(R.drawable.visited_image);
-                                } else {
-                                    checkFoodoListButton.setBackgroundResource(R.drawable.checkmark_button);
-                                }
-                                notifyItemChanged(getLayoutPosition());
-                            });
-                        } else {
-                            checkFoodoListButton.setVisibility(View.INVISIBLE);
-                            checkFoodoListButton.setEnabled(false);
-                        }
+                        checkFoodoListButton.setVisibility(View.INVISIBLE);
+                        checkFoodoListButton.setEnabled(false);
                     }
                 }
 
@@ -233,7 +217,16 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
                 }
-            });
+            };
+
+            Log.d(TAG, String.format("Card: Restaurant Card (id: %s) will be checked %s", cardID, getRestaurantName()));
+
+            HashMap<String, String> checkRestaurantParams = new HashMap<>();
+            checkRestaurantParams.put("listID", listID);
+            checkRestaurantParams.put("restaurantID", cardID);
+            checkRestaurantParams.put("isVisited", String.valueOf(card.getVisited()));
+
+            OKHttpService.patchRequest("checkRestaurantOnList", checkRestaurantCallback, checkRestaurantParams);
         }
 
         public String getRestaurantName() {

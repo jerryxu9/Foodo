@@ -16,7 +16,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.foodo.BuildConfig;
 import com.example.foodo.R;
 import com.example.foodo.objects.FoodoListCard;
 import com.example.foodo.objects.FoodoListCardAdapter;
@@ -35,24 +34,16 @@ import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class FoodoListService {
-
-    private static final String BASE_URL = BuildConfig.BASE_URL;
     private final String TAG = "FoodoListService";
     private final AppCompatActivity main_activity;
     private final FoodoListCardAdapter foodoListCardAdapter;
     private final LinearLayoutManager linearLayoutManager;
     private final ArrayList<FoodoListCard> foodoListCardArrayList;
     private final OkHttpClient client = new OkHttpClient();
-    private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private String userID;
     private String username;
     private RecyclerView foodoLists;
@@ -196,14 +187,6 @@ public class FoodoListService {
     }
 
     private void createFoodoList(ViewGroup container) throws IOException {
-        String url = BASE_URL + "/createFoodoList";
-        HttpUrl httpUrl = HttpUrl.parse(url);
-
-        if (httpUrl == null) {
-            Log.d(TAG, String.format("unable to parse server URL: %s", url));
-            return;
-        }
-
         if (userID == null || username == null) {
             return;
         }
@@ -216,18 +199,8 @@ public class FoodoListService {
             Log.d(TAG, "Unable to submit empty foodoListName");
             return;
         }
-        String json = String.format("{\"userID\": \"%s\", \"listName\": \"%s\"}", userID, foodoListName.trim());
-        RequestBody body = RequestBody.create(
-                MediaType.parse("application/json"), json);
 
-        HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
-
-        Request request = new Request.Builder()
-                .url(httpBuilder.build())
-                .post(body)
-                .build();
-
-        client.newCall((request)).enqueue(new Callback() {
+        Callback createFoodoListCallback = new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -235,52 +208,30 @@ public class FoodoListService {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful())
-                        throw new IOException(String.format("Unexpected code %s", response));
-                    else if (responseBody == null) {
-                        throw new IOException("null response from /getFoodoLists endpoint");
-                    } else {
-                        JSONObject createdFoodoList = new JSONObject(responseBody.string());
-                        String listName = createdFoodoList.getString("name");
-                        String listID = createdFoodoList.getString("_id");
-                        main_activity.runOnUiThread(() -> {
-                            foodoListCardAdapter.addFoodoList(new FoodoListCard(listName, listID, username, userID));
-                            createFoodoListPopupWindow.dismiss();
-                        });
-                        Log.d(TAG, String.format("Foodo list %s was successfully created. Result: %s", foodoListName, listName));
-                    }
-                } catch (JSONException e) {
+                try {
+                    JSONObject createdFoodoList = new JSONObject(OKHttpService.getResponseBody(response));
+                    String listName = createdFoodoList.getString("name");
+                    String listID = createdFoodoList.getString("_id");
+                    main_activity.runOnUiThread(() -> {
+                        foodoListCardAdapter.addFoodoList(new FoodoListCard(listName, listID, username, userID));
+                        createFoodoListPopupWindow.dismiss();
+                    });
+                    Log.d(TAG, String.format("Foodo list %s was successfully created. Result: %s", foodoListName, listName));
+                }catch(JSONException e){
                     e.printStackTrace();
                 }
-
             }
-        });
+        };
+
+        HashMap<String, String> createFoodoListParams = new HashMap<>();
+        createFoodoListParams.put("userID", userID);
+        createFoodoListParams.put("listName", foodoListName.trim());
+
+        OKHttpService.postRequest("createFoodoList", createFoodoListCallback, createFoodoListParams);
     }
 
     private void createUser(String idToken, String user, String email) {
-        String url = buildURL("/createUser");
-        HttpUrl httpUrl = HttpUrl.parse(url);
-
-        if (httpUrl == null) {
-            Log.d(TAG, String.format("unable to parse server URL: %s", url));
-            return;
-        }
-        Log.d(TAG, user);
-
-        Map<String, String> params = new HashMap<>();
-        params.put("id", idToken);
-        params.put("name", user);
-        params.put("email", email);
-
-        JSONObject paramsJSON = new JSONObject(params);
-        RequestBody body = RequestBody.create(paramsJSON.toString(), JSON);
-        Request request = new Request.Builder()
-                .url(httpUrl)
-                .post(body)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
+        Callback createUserCallback = new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -288,40 +239,35 @@ public class FoodoListService {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                String responseBodyString;
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful()) {
-                        Log.d(TAG, responseBody.string());
-                    } else {
-                        responseBodyString = responseBody.string();
-                        JSONObject resJSON = new JSONObject(responseBodyString);
-                        //seems that an invalid token doesn't respond with an error?
-                        if (!resJSON.has("error")) {
-                            //valid session, snatch that id and username
-                            Log.d(TAG, responseBodyString);
-                            JSONObject responseBodyJSON = new JSONObject(responseBodyString);
+                try {
+                    String responseBodyString = OKHttpService.getResponseBody(response);
+                    Log.d(TAG, responseBodyString);
+                    JSONObject resJSON = new JSONObject(responseBodyString);
+                    if (!resJSON.has("error")) {
+                        //valid session
+                        Log.d(TAG, resJSON.getString("_id"));
+                        Log.d(TAG, resJSON.getString("name"));
 
-                            Log.d(TAG, responseBodyJSON.getString("_id"));
-                            Log.d(TAG, responseBodyJSON.getString("name"));
+                        userID = resJSON.getString("_id");
+                        Log.d(TAG, "userID: " + userID);
+                        username = resJSON.getString("name");
 
-                            userID = responseBodyJSON.getString("_id");
-                            Log.d(TAG, "userID: " + userID);
-                            username = responseBodyJSON.getString("name");
-
-                            loadFoodoLists();
-                        }
+                        loadFoodoLists();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
+                }catch(JSONException e){
                     e.printStackTrace();
                 }
+                
             }
-        });
-    }
+        };
+        Log.d(TAG, user);
 
-    private String buildURL(String path) {
-        return BASE_URL + path;
+        HashMap<String, String> createUserParams = new HashMap<>();
+        createUserParams.put("id", idToken);
+        createUserParams.put("name", user);
+        createUserParams.put("email", email);
+
+        OKHttpService.postRequest("createUser", createUserCallback, createUserParams);
     }
 }
 

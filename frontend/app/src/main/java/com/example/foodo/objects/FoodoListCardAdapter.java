@@ -164,26 +164,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
         }
 
         private void shareFoodoList(String id) {
-            String url = BASE_URL + "/addNewUserToList";
-            HttpUrl httpUrl = HttpUrl.parse(url);
-
-            if (httpUrl == null) {
-                Log.d(TAG, String.format("unable to parse server URL: %s", url));
-                return;
-            }
-
-            String json = String.format("{\"listID\": \"%s\", \"userID\": \"%s\"}", list_id, id);
-            RequestBody body = RequestBody.create(
-                    MediaType.parse("application/json"), json);
-
-            HttpUrl.Builder httpBuilder = httpUrl.newBuilder();
-
-            Request request = new Request.Builder()
-                    .url(httpBuilder.build())
-                    .patch(body)
-                    .build();
-
-            client.newCall((request)).enqueue(new Callback() {
+            Callback callback = new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
@@ -191,18 +172,17 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
 
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                    try (ResponseBody responseBody = response.body()) {
-                        if (!response.isSuccessful())
-                            throw new IOException(String.format("Unexpected code %s", response));
-                        else if (responseBody == null) {
-                            throw new IOException("null response from /addNewUserTList endpoint");
-                        } else {
-                            Log.d(TAG, responseBody.string());
-                            Log.d(TAG, String.format("Shared FoodoList: %s with %s", list_id, id));
-                        }
-                    }
+                    String result = OKHttpService.getResponseBody(response);
+                    Log.d(TAG, result);
+                    Log.d(TAG, String.format("Shared FoodoList: %s with %s", list_id, id));
                 }
-            });
+            };
+
+            HashMap<String, String> params = new HashMap<>();
+            params.put("listID", list_id);
+            params.put("userID", id);
+
+            OKHttpService.patchRequest("addNewUserToList", callback, params);
         }
 
         private void getUserByEmail(String email) {

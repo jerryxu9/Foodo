@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.foodo.BuildConfig;
 import com.example.foodo.R;
 import com.example.foodo.objects.RestaurantCard;
 import com.example.foodo.objects.RestaurantCardAdapter;
@@ -21,27 +20,17 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
+
 import okhttp3.Response;
-import okhttp3.ResponseBody;
+
 
 public class FoodoListCardService {
-
-    private static final String BASE_URL = BuildConfig.BASE_URL;
     private final String TAG = "FoodoListCardService";
-    private final OkHttpClient client = new OkHttpClient();
     private final AppCompatActivity foodoCardActivity;
     private final ArrayList<RestaurantCard> restaurantCardArrayList;
     private final String listID;
-    private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private String username;
     private String userID;
     private RestaurantCardAdapter restaurantCardAdapter;
@@ -72,7 +61,6 @@ public class FoodoListCardService {
     }
 
     private void populateRestaurantCardsArray() {
-
         if (userID == null || username == null) {
             return;
         }
@@ -106,12 +94,10 @@ public class FoodoListCardService {
         };
 
         OKHttpService.getRequest("getRestaurantsByFoodoListID", populateRestaurantCardsArrayCallback, queryParameters);
-
     }
 
 
     private void createRestaurantCards(String googlePlaceID, String cardID, boolean isVisited) {
-
         if (userID == null || username == null) {
             return;
         }
@@ -184,28 +170,7 @@ public class FoodoListCardService {
     }
 
     private void createUser(String idToken, String user, String email) {
-        String url = buildURL("/createUser");
-        HttpUrl httpUrl = HttpUrl.parse(url);
-
-        if (httpUrl == null) {
-            Log.d(TAG, String.format("unable to parse server URL: %s", url));
-            return;
-        }
-        Log.d(TAG, user);
-
-        Map<String, String> params = new HashMap<>();
-        params.put("id", idToken);
-        params.put("name", user);
-        params.put("email", email);
-
-        JSONObject paramsJSON = new JSONObject(params);
-        RequestBody body = RequestBody.create(paramsJSON.toString(), JSON);
-        Request request = new Request.Builder()
-                .url(httpUrl)
-                .post(body)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
+        Callback createUserCallback = new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -213,39 +178,30 @@ public class FoodoListCardService {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                String responseBodyString;
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful()) {
-                        Log.d(TAG, "Login unsuccessful");
-                        Log.d(TAG, responseBody.string());
-                    } else {
-                        responseBodyString = responseBody.string();
-                        JSONObject resJSON = new JSONObject(responseBodyString);
-                        //seems that an invalid token doesn't respond with an error?
-                        if (!resJSON.has("error")) {
-                            //valid session, snatch that id and username
-                            Log.d(TAG, responseBodyString);
-                            JSONObject responseBodyJSON = new JSONObject(responseBodyString);
+                String responseBodyString = OKHttpService.getResponseBody(response);
+                Log.d(TAG, responseBodyString);
+                try{
+                    JSONObject resJSON = new JSONObject(responseBodyString);
+                    if (!resJSON.has("error")) {
+                        Log.d(TAG, resJSON.getString("_id"));
+                        Log.d(TAG, resJSON.getString("name"));
 
-                            Log.d(TAG, responseBodyJSON.getString("_id"));
-                            Log.d(TAG, responseBodyJSON.getString("name"));
+                        userID = resJSON.getString("_id");
+                        username = resJSON.getString("name");
 
-                            userID = responseBodyJSON.getString("_id");
-                            username = responseBodyJSON.getString("name");
-
-                            populateRestaurantCardsArray();
-                        }
+                        populateRestaurantCardsArray();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-        });
+        };
+
+        HashMap<String, String> createUserParams = new HashMap<>();
+        createUserParams.put("id", idToken);
+        createUserParams.put("name", user);
+        createUserParams.put("email", email);
+
+        OKHttpService.postRequest("createUser", createUserCallback, createUserParams);
     }
-
-    private String buildURL(String path) {
-        return BASE_URL + path;
-    }
-
-
 }
