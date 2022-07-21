@@ -121,11 +121,16 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         private final TextView restaurantAddress;
         private final TextView restaurantRating;
         private final TextView restaurantStatus;
-        private final Button deleteRestaurantFromFoodoListButton, checkFoodoListButton;
-        private String googlePlacesID, cardID, username, userID;
+        private final Button deleteRestaurantFromFoodoListButton;
+        private final Button checkFoodoListButton;
+        private String googlePlacesID;
+        private String cardID;
+        private String username;
+        private String userID;
 
-        private double lat, lng;
-        private boolean isInFoodoList, isVisited;
+        private double lat;
+        private double lng;
+        private boolean isInFoodoList;
 
         public Viewholder(@NonNull View itemView) {
             super(itemView);
@@ -256,7 +261,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         }
 
         public void setVisited(boolean visited) {
-            this.isVisited = visited;
         }
 
         public void setUsername(String username) {
