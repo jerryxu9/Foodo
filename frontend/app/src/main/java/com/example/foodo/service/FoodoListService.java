@@ -16,7 +16,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.foodo.BuildConfig;
 import com.example.foodo.R;
 import com.example.foodo.objects.FoodoListCard;
 import com.example.foodo.objects.FoodoListCardAdapter;
@@ -35,14 +34,8 @@ import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttp;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class FoodoListService {
     private final String TAG = "FoodoListService";
@@ -259,8 +252,6 @@ public class FoodoListService {
                         username = resJSON.getString("name");
 
                         loadFoodoLists();
-                    }else{
-
                     }
                 }catch(JSONException e){
                     e.printStackTrace();
