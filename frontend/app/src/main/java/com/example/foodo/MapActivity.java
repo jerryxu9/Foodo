@@ -25,9 +25,7 @@ import java.util.HashMap;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.OkHttpClient;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
     private final String TAG = "MapActivity";
@@ -100,7 +98,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     }
 
     private void getMapPins(JSONArray foodoListsJSON) throws JSONException {
-        for(int i = 0; i < foodoListsJSON.length(); i++) {
+        for (int i = 0; i < foodoListsJSON.length(); i++) {
             JSONObject foodoListInfo = foodoListsJSON.getJSONObject(i);
             JSONArray restaurants = foodoListInfo.getJSONArray("restaurants");
             Log.d(TAG, restaurants.toString());
