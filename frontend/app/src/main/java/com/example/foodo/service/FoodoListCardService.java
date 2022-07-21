@@ -47,10 +47,9 @@ public class FoodoListCardService {
         RecyclerView restaurantsView = foodoCardActivity.findViewById(R.id.foodo_list_card_restaurants_list);
 
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(foodoCardActivity);
-        if (account != null) {
-            if (userID == null || username == null) {
-                createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
-            }
+        if (account != null &&
+                (userID == null || username == null)) {
+            createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
         }
 
         restaurantCardAdapter = new RestaurantCardAdapter(foodoCardActivity, restaurantCardArrayList, listID);
@@ -114,26 +113,22 @@ public class FoodoListCardService {
                     Log.d(TAG, restaurant.toString());
                     String businessStatus = getBusinessStatus(restaurant);
                     foodoCardActivity.runOnUiThread(() -> {
-                        RestaurantCard card = null;
                         try {
-                            card = new RestaurantCard(
-                                    restaurant.getString("name"),
-                                    restaurant.getString("formatted_address"),
-                                    restaurant.getString("rating"),
-                                    businessStatus,
-                                    googlePlaceID,
-                                    cardID,
-                                    getLatitude(restaurant),
-                                    getLongitude(restaurant),
-                                    true,
-                                    username,
-                                    userID);
+                            RestaurantCard card = new RestaurantCard(googlePlaceID, cardID, true, userID);
+                            card.setRestaurantName(restaurant.getString("name"));
+                            card.setAddress(restaurant.getString("formatted_address"));
+                            card.setRating(restaurant.getString("rating"));
+                            card.setStatus(businessStatus);
+                            card.setLat(getLatitude(restaurant));
+                            card.setLng(getLongitude(restaurant));
+                            card.setUsername(username);
+
+                            card.setVisited(isVisited);
+                            restaurantCardArrayList.add(card);
+                            restaurantCardAdapter.notifyItemInserted(restaurantCardAdapter.getItemCount());
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        card.setVisited(isVisited);
-                        restaurantCardArrayList.add(card);
-                        restaurantCardAdapter.notifyItemInserted(restaurantCardAdapter.getItemCount());
                     });
                 } catch (JSONException e) {
                     e.printStackTrace();

@@ -13,7 +13,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.foodo.BuildConfig;
 import com.example.foodo.R;
 import com.example.foodo.RestaurantInfoActivity;
 import com.example.foodo.service.OKHttpService;
@@ -24,21 +23,13 @@ import java.util.HashMap;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAdapter.Viewholder> {
-
-    private static final String BASE_URL = BuildConfig.BASE_URL;
     private final Context context;
     private final ArrayList<RestaurantCard> restaurantCardArrayList;
     private final String TAG = "RestaurantCardAdapter";
     private final String listID;
-    private final OkHttpClient client = new OkHttpClient();
 
     public RestaurantCardAdapter(Context context, ArrayList<RestaurantCard> restaurantCardArrayList, String listID) {
         this.context = context;
@@ -106,7 +97,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         holder.setCardID(model.getCardID());
 
         Log.d(TAG, String.valueOf(model.getVisited()));
-        holder.setVisited(model.getVisited());
         holder.setLat(model.getLat());
         holder.setLng(model.getLng());
     }
@@ -251,9 +241,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         public void setCardID(String id) {
             this.cardID = id;
-        }
-
-        public void setVisited(boolean visited) {
         }
 
         public void setUsername(String username) {

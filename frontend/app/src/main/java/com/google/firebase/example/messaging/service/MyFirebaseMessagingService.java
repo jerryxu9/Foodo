@@ -55,6 +55,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void sendRegistrationToServer(String token) {
+        //filler for now until the real time updates is merged in
+        Log.d(TAG, token);
         // TODO: Implement this method to send token to your app server.
     }
 

@@ -16,7 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.foodo.BuildConfig;
 import com.example.foodo.FoodoListActivity;
 import com.example.foodo.R;
 import com.example.foodo.service.OKHttpService;
@@ -30,27 +29,17 @@ import java.util.HashMap;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdapter.Viewholder> {
-
-    private static final String BASE_URL = BuildConfig.BASE_URL;
     private final String TAG = "FoodoListCardAdapter";
     private final ArrayList<FoodoListCard> foodoListArrayList;
-    private final OkHttpClient client;
     private final Activity mainActivity;
     Context context;
 
-    public FoodoListCardAdapter(Context context, ArrayList<FoodoListCard> foodoListArrayList, OkHttpClient client) {
+    public FoodoListCardAdapter(Context context, ArrayList<FoodoListCard> foodoListArrayList) {
         this.context = context;
         this.foodoListArrayList = foodoListArrayList;
-        this.client = client;
         this.mainActivity = ((Activity) context);
     }
 
@@ -199,7 +188,6 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                     try {
-                        //
                         String userFromEmail = OKHttpService.getResponseBody(response);
                         JSONArray user = new JSONArray(userFromEmail);
                         // TODO: Why isn't this just shareFoodoList and you pass in an email?

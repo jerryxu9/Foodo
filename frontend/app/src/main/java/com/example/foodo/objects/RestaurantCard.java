@@ -2,35 +2,55 @@ package com.example.foodo.objects;
 
 public class RestaurantCard {
 
-    private final String name;
-    private final String address;
-    private final String rating;
-    private final String status;
+    private String name;
+    private String address;
+    private String rating;
+    private String status;
     private final String googlePlacesID;
     private final String cardID;
-    private final String username;
+    private String username;
     private final String userID;
-    private final double lat, lng;
+    private double lat;
+    private double lng;
     private final boolean isInFoodoList;
     private boolean isVisited;
 
-    public RestaurantCard(String name, String address, String rating, String status,
-                          String googlePlacesID, String cardID, double lat, double lng,
-                          boolean isInFoodoList, String username, String userID) {
-        this.name = name;
-        this.address = address;
-        this.rating = rating;
-        this.status = status;
+    public RestaurantCard(String googlePlacesID, String cardID, boolean isInFoodoList, String userID) {
         // Make a distinction between the restaurant card ID (as stored in the database)
         // and the google place_id of the restaurant the RestaurantCard represents
         this.googlePlacesID = googlePlacesID;
         this.cardID = cardID;
-        this.lat = lat;
-        this.lng = lng;
         this.isInFoodoList = isInFoodoList;
         this.isVisited = false;
-        this.username = username;
         this.userID = userID;
+    }
+
+    public void setUsername(String username){
+        this.username = username;
+    }
+
+    public void setLat(double lat){
+        this.lat = lat;
+    }
+
+    public void setLng(double lng){
+        this.lng = lng;
+    }
+
+    public void setRestaurantName(String name){
+        this.name = name;
+    }
+
+    public void setAddress(String address){
+        this.address = address;
+    }
+
+    public void setRating(String rating){
+        this.rating = rating;
+    }
+
+    public void setStatus(String status){
+        this.status = status;
     }
 
     public String getName() {
