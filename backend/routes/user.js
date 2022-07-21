@@ -17,30 +17,32 @@ async function verify(token) {
       const payload = ticket.getPayload();
       const userid = payload["sub"];
       return userid;
-    })
+    });
 }
 
 router.post("/createUser", async (req, res) => {
-  verify(req.body.id).then(async (userID)=>{
-    console.log(userID)
-    const existingUser = await User.findById(userID);
+  verify(req.body.id)
+    .then(async (userID) => {
+      console.log(userID);
+      const existingUser = await User.findById(userID);
 
-    if (!existingUser) {
-      const user = new User({
-        _id: userID,
-        name: req.body.name,
-        email: req.body.email,
-      });
+      if (!existingUser) {
+        const user = new User({
+          _id: userID,
+          name: req.body.name,
+          email: req.body.email,
+        });
 
-      const data = await user.save();
-      res.json(data);
-    } else {
-      res.json(existingUser);
-    }
-  }).catch((err)=>{
-    console.log(err)
-    res.json({error: "validation error"})
-  })
+        const data = await user.save();
+        res.json(data);
+      } else {
+        res.json(existingUser);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({ error: "validation error" });
+    });
 });
 
 router.get("/getUser", async (req, res) => {

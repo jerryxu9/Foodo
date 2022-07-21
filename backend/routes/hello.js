@@ -12,17 +12,13 @@ router.get("/", async (req, res) => {
 
 // Post a new hello message
 router.post("/", async (req, res) => {
-  try {
-    const hello = new Hello({
-      title: req.body.title,
-      message: req.body.message,
-    });
-    // Save this hello message to database
-    const data = await hello.save();
-    res.json(data);
-  } catch (err) {
-    res.json(err);
-  }
+  const hello = new Hello({
+    title: req.body.title,
+    message: req.body.message,
+  });
+  // Save this hello message to database
+  const data = await hello.save();
+  res.json(data);
 });
 
 // Find a specific hello message by title

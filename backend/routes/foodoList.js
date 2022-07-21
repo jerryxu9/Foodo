@@ -21,13 +21,8 @@ router.post("/createFoodoList", async (req, res) => {
 
 // Get all the Foodo lists of a user
 router.get("/getFoodoLists", async (req, res) => {
-  try {
-    const lists = await FoodoListModel.find({ users: req.query.userID });
-
-    res.json(lists);
-  } catch (err) {
-    res.json(err);
-  }
+  const lists = await FoodoListModel.find({ users: req.query.userID });
+  res.json(lists);
 });
 
 // Get all the restaurants under a Foodo list given its ID
@@ -83,14 +78,13 @@ router.patch("/addRestaurantToList", async (req, res) => {
 // Delete a restaurant from a Foodo list
 router.patch("/deleteRestaurantFromList", async (req, res) => {
   try {
-    const pullItem = { _id: req.body.restaurantID };
+    const restaurant = { _id: req.body.restaurantID };
+    const pullItem = { restaurants: restaurant };
 
     const updatedList = await FoodoListModel.findByIdAndUpdate(
       req.body.listID,
       {
-        $pull: {
-          restaurants: pullItem,
-        },
+        $pull: pullItem,
       },
       {
         returnDocument: "after",

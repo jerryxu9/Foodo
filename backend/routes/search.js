@@ -18,36 +18,42 @@ router.get("/searchRestaurantsByQuery", async (req, res) => {
     "&key=" +
     process.env.GOOGLE_PLACES_API_KEY;
 
-  const response = await axios.get(text_search_string);
-
-  if (response?.data?.results) {
-    const parsed_data = parseRestResult(response?.data?.results); // parse the response
-    res.json(parsed_data);
-  } else {
-    res.json(response?.data);
-  }
+  axios
+    .get(text_search_string)
+    .then((response) => {
+      if (response?.data?.results) {
+        const parsed_data = parseRestResult(response?.data?.results); // parse the response
+        res.json(parsed_data);
+      } else {
+        res.json(response?.data);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
 // Get restaurant info detail by restaurant id
 router.get("/searchRestaurantInfoByID", async (req, res) => {
-  try {
-    let place_details_string =
-      "https://maps.googleapis.com/maps/api/place/details/json?place_id=" +
-      req.query.id +
-      "&fields=place_id,name,formatted_address,business_status,opening_hours/open_now,opening_hours/weekday_text,rating,formatted_phone_number,geometry/location" +
-      "&key=" +
-      process.env.GOOGLE_PLACES_API_KEY;
+  let place_details_string =
+    "https://maps.googleapis.com/maps/api/place/details/json?place_id=" +
+    req.query.id +
+    "&fields=place_id,name,formatted_address,business_status,opening_hours/open_now,opening_hours/weekday_text,rating,formatted_phone_number,geometry/location" +
+    "&key=" +
+    process.env.GOOGLE_PLACES_API_KEY;
 
-    const response = await axios.get(place_details_string);
-
-    if (response?.data?.result) {
-      res.json(response.data.result);
-    } else {
-      res.json(response?.data);
-    }
-  } catch (err) {
-    res.json(err);
-  }
+  axios
+    .get(place_details_string)
+    .then((response) => {
+      if (response?.data?.result) {
+        res.json(response.data.result);
+      } else {
+        res.json(response?.data);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
 module.exports = router;
