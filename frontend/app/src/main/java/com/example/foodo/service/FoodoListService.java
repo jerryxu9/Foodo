@@ -34,7 +34,6 @@ import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.OkHttpClient;
 import okhttp3.Response;
 
 public class FoodoListService {
@@ -42,18 +41,15 @@ public class FoodoListService {
     private final AppCompatActivity main_activity;
     private final FoodoListCardAdapter foodoListCardAdapter;
     private final LinearLayoutManager linearLayoutManager;
-    private final ArrayList<FoodoListCard> foodoListCardArrayList;
-    private final OkHttpClient client = new OkHttpClient();
     private String userID;
     private String username;
-    private RecyclerView foodoLists;
     private PopupWindow createFoodoListPopupWindow;
     private PopupWindow loginDecisionPopupWindow;
 
     public FoodoListService(AppCompatActivity activity) {
         this.main_activity = activity;
-        foodoListCardArrayList = new ArrayList<>();
-        foodoListCardAdapter = new FoodoListCardAdapter(main_activity, foodoListCardArrayList, client);
+        ArrayList<FoodoListCard> foodoListCardArrayList = new ArrayList<>();
+        foodoListCardAdapter = new FoodoListCardAdapter(main_activity, foodoListCardArrayList);
         linearLayoutManager = new LinearLayoutManager(main_activity, LinearLayoutManager.VERTICAL, false);
     }
 
@@ -84,7 +80,7 @@ public class FoodoListService {
             }
         });
 
-        foodoLists = main_activity.findViewById(R.id.foodo_lists);
+        RecyclerView foodoLists = main_activity.findViewById(R.id.foodo_lists);
 
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
         if (account != null && userID == null) {

@@ -10,7 +10,8 @@ public class RestaurantCard {
     private final String cardID;
     private final String username;
     private final String userID;
-    private final double lat, lng;
+    private final double lat;
+    private final double lng;
     private final boolean isInFoodoList;
     private boolean isVisited;
 

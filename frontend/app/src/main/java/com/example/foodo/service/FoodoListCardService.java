@@ -47,10 +47,9 @@ public class FoodoListCardService {
         RecyclerView restaurantsView = foodoCardActivity.findViewById(R.id.foodo_list_card_restaurants_list);
 
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(foodoCardActivity);
-        if (account != null) {
-            if (userID == null || username == null) {
-                createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
-            }
+        if (account != null &&
+                (userID == null || username == null)) {
+            createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
         }
 
         restaurantCardAdapter = new RestaurantCardAdapter(foodoCardActivity, restaurantCardArrayList, listID);
@@ -114,9 +113,8 @@ public class FoodoListCardService {
                     Log.d(TAG, restaurant.toString());
                     String businessStatus = getBusinessStatus(restaurant);
                     foodoCardActivity.runOnUiThread(() -> {
-                        RestaurantCard card = null;
                         try {
-                            card = new RestaurantCard(
+                            RestaurantCard card = new RestaurantCard(
                                     restaurant.getString("name"),
                                     restaurant.getString("formatted_address"),
                                     restaurant.getString("rating"),
@@ -128,12 +126,13 @@ public class FoodoListCardService {
                                     true,
                                     username,
                                     userID);
+
+                            card.setVisited(isVisited);
+                            restaurantCardArrayList.add(card);
+                            restaurantCardAdapter.notifyItemInserted(restaurantCardAdapter.getItemCount());
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        card.setVisited(isVisited);
-                        restaurantCardArrayList.add(card);
-                        restaurantCardAdapter.notifyItemInserted(restaurantCardAdapter.getItemCount());
                     });
                 } catch (JSONException e) {
                     e.printStackTrace();
