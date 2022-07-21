@@ -16,19 +16,12 @@ public class RestaurantCard {
     private boolean isVisited;
 
     public RestaurantCard(String googlePlacesID, String cardID, boolean isInFoodoList, String userID) {
-//        this.name = name;
-//        this.address = address;
-//        this.rating = rating;
-//        this.status = status;
         // Make a distinction between the restaurant card ID (as stored in the database)
         // and the google place_id of the restaurant the RestaurantCard represents
         this.googlePlacesID = googlePlacesID;
         this.cardID = cardID;
-//        this.lat = lat;
-//        this.lng = lng;
         this.isInFoodoList = isInFoodoList;
         this.isVisited = false;
-//        this.username = username;
         this.userID = userID;
     }
 

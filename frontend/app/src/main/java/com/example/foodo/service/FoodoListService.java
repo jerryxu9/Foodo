@@ -87,7 +87,6 @@ public class FoodoListService {
             //no other way to get the token, just go through createUser endpoint
             //and get the id from the existing entry in the database
 
-            //Have to duplicate this method from MainActivity too :( DRY who
             createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
         }
 

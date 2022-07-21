@@ -188,7 +188,6 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                     try {
-                        //
                         String userFromEmail = OKHttpService.getResponseBody(response);
                         JSONArray user = new JSONArray(userFromEmail);
                         // TODO: Why isn't this just shareFoodoList and you pass in an email?

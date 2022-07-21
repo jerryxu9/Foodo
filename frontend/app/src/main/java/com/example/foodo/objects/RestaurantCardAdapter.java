@@ -97,7 +97,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         holder.setCardID(model.getCardID());
 
         Log.d(TAG, String.valueOf(model.getVisited()));
-//        holder.setVisited(model.getVisited());
         holder.setLat(model.getLat());
         holder.setLng(model.getLng());
     }
