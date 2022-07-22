@@ -14,9 +14,23 @@ router.post("/addReview", async (req, res) => {
 
   // Save this review to database
   const data = await review.save();
+
+  console.log(review)
+  const message = {
+    data: {
+      google_place_id: review.google_place_id,
+      user_name: review.user_name,
+      review: review.review,
+      rating: review.rating.toString()
+    },
+    topic: review.google_place_id
+  }
+
+  console.log(message);
+
   // Send a message to devices subscribed to the provided topic.
   getMessaging()
-    .send(review)
+    .send(message)
     .then((response) => {
       // Response is a message ID string.
       console.log("Successfully sent message:", response);

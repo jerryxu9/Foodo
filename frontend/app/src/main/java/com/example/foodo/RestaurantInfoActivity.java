@@ -113,11 +113,11 @@ public class RestaurantInfoActivity extends AppCompatActivity {
 
         setStatusBackground(restaurantStatus);
         searchRestaurantInfoByID(googlePlacesID);
-        try {
-            getReviews(googlePlacesID);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            getReviews(googlePlacesID);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         Log.d(TAG, googlePlacesID);
 
@@ -318,6 +318,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 String responseBodyString = OKHttpService.getResponseBody(response);
                 Log.d(TAG, responseBodyString);
+                Log.d(TAG, "restaurantID: " + restaurantID);
                 runOnUiThread(() -> {
                     try {
                         JSONObject restaurantObj = new JSONObject(responseBodyString);
@@ -327,8 +328,21 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                             restaurantPhoneNumber.setText("Phone Number Unavailable");
                         }
                         JSONArray openingHours = restaurantObj.getJSONObject("opening_hours").getJSONArray("weekday_text");
-
                         setWeekHours(new TextView[]{mondayHours, tuesdayHours, wednesdayHours, thursdayHours, fridayHours, saturdayHours, sundayHours}, openingHours);
+
+                        JSONArray responseBodyJSONArray = restaurantObj.getJSONArray("reviews");
+
+                        for (int i = 0; i < responseBodyJSONArray.length(); i++) {
+                            JSONObject reviewCardJSON = responseBodyJSONArray.getJSONObject(i);
+                            Log.d(TAG, reviewCardJSON.toString());
+                            reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating")));
+                        }
+
+                        reviewCardAdapter = new ReviewCardAdapter(reviewCardArrayList);
+                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(RestaurantInfoActivity.this, LinearLayoutManager.VERTICAL, false);
+
+                        reviewList.setLayoutManager(linearLayoutManager);
+                        reviewList.setAdapter(reviewCardAdapter);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -376,46 +390,46 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         OKHttpService.postRequest("addReview", addReviewCallback, addReviewParams);
     }
 
-    private void getReviews(String restaurantID) {
-        Callback getReviewsCallback = new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                String searchResults = OKHttpService.getResponseBody(response);
-                runOnUiThread(() -> {
-                    try {
-                        JSONArray responseBodyJSONArray = new JSONArray(searchResults);
-
-                        for (int i = 0; i < responseBodyJSONArray.length(); i++) {
-                            JSONObject reviewCardJSON = responseBodyJSONArray.getJSONObject(i);
-                            Log.d(TAG, reviewCardJSON.toString());
-                            reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating")));
-                        }
-
-                        reviewCardAdapter = new ReviewCardAdapter(reviewCardArrayList);
-                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(RestaurantInfoActivity.this, LinearLayoutManager.VERTICAL, false);
-
-                        reviewList.setLayoutManager(linearLayoutManager);
-                        reviewList.setAdapter(reviewCardAdapter);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                });
-                Log.d(TAG, String.format("response from /searchRestaurantsByQuery: %s", searchResults));
-            }
-        };
-
-        HashMap<String, String> getReviewsParams = new HashMap<>();
-        getReviewsParams.put("google_place_id", restaurantID);
-
-        OKHttpService.getRequest("getReviews", getReviewsCallback, getReviewsParams);
-    }
+//    private void getReviews(String restaurantID) {
+//        Callback getReviewsCallback = new Callback() {
+//            @Override
+//            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            @Override
+//            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+//                String searchResults = OKHttpService.getResponseBody(response);
+//                runOnUiThread(() -> {
+//                    try {
+//                        JSONArray responseBodyJSONArray = new JSONArray(searchResults);
+//
+//                        for (int i = 0; i < responseBodyJSONArray.length(); i++) {
+//                            JSONObject reviewCardJSON = responseBodyJSONArray.getJSONObject(i);
+//                            Log.d(TAG, reviewCardJSON.toString());
+//                            reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating")));
+//                        }
+//
+//                        reviewCardAdapter = new ReviewCardAdapter(reviewCardArrayList);
+//                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(RestaurantInfoActivity.this, LinearLayoutManager.VERTICAL, false);
+//
+//                        reviewList.setLayoutManager(linearLayoutManager);
+//                        reviewList.setAdapter(reviewCardAdapter);
+//
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                });
+//                Log.d(TAG, String.format("response from /searchRestaurantsByQuery: %s", searchResults));
+//            }
+//        };
+//
+//        HashMap<String, String> getReviewsParams = new HashMap<>();
+//        getReviewsParams.put("google_place_id", restaurantID);
+//
+//        OKHttpService.getRequest("getReviews", getReviewsCallback, getReviewsParams);
+//    }
 
     public BroadcastReceiver myReceiver = new BroadcastReceiver() {
         @Override
