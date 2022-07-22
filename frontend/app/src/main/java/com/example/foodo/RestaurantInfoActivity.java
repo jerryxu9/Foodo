@@ -325,19 +325,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                         JSONArray openingHours = restaurantObj.getJSONObject("opening_hours").getJSONArray("weekday_text");
                         setWeekHours(new TextView[]{mondayHours, tuesdayHours, wednesdayHours, thursdayHours, fridayHours, saturdayHours, sundayHours}, openingHours);
 
-                        JSONArray responseBodyJSONArray = restaurantObj.getJSONArray("reviews");
-
-                        for (int i = 0; i < responseBodyJSONArray.length(); i++) {
-                            JSONObject reviewCardJSON = responseBodyJSONArray.getJSONObject(i);
-                            Log.d(TAG, reviewCardJSON.toString());
-                            reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating")));
-                        }
-
-                        reviewCardAdapter = new ReviewCardAdapter(reviewCardArrayList);
-                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(RestaurantInfoActivity.this, LinearLayoutManager.VERTICAL, false);
-
-                        reviewList.setLayoutManager(linearLayoutManager);
-                        reviewList.setAdapter(reviewCardAdapter);
+                        populateReviews(restaurantObj.getJSONArray("reviews"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -349,6 +337,20 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         searchRestaurantInfoByID.put("id", restaurantID);
 
         OKHttpService.getRequest("searchRestaurantInfoByID", searchRestaurantInfoByIDCallback, searchRestaurantInfoByID);
+    }
+
+    private void populateReviews(JSONArray reviewArrayJSON) throws JSONException {
+        for (int i = 0; i < reviewArrayJSON.length(); i++) {
+            JSONObject reviewCardJSON = reviewArrayJSON.getJSONObject(i);
+            Log.d(TAG, reviewCardJSON.toString());
+            reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating")));
+        }
+
+        reviewCardAdapter = new ReviewCardAdapter(reviewCardArrayList);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(RestaurantInfoActivity.this, LinearLayoutManager.VERTICAL, false);
+
+        reviewList.setLayoutManager(linearLayoutManager);
+        reviewList.setAdapter(reviewCardAdapter);
     }
 
     private void setWeekHours(TextView[] daysOfWeek, JSONArray openingHours) throws JSONException {
