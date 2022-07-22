@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -13,22 +12,18 @@ import android.widget.PopupWindow;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.foodo.R;
 import com.example.foodo.objects.FoodoListCard;
 import com.example.foodo.objects.FoodoListCardAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,67 +35,56 @@ public class FoodoListService {
     private final String TAG = "FoodoListService";
     private final AppCompatActivity main_activity;
     private final FoodoListCardAdapter foodoListCardAdapter;
-    private final LinearLayoutManager linearLayoutManager;
     private String userID;
     private String username;
     private PopupWindow createFoodoListPopupWindow;
     private PopupWindow loginDecisionPopupWindow;
 
-    public FoodoListService(AppCompatActivity activity) {
+    public FoodoListService(AppCompatActivity activity, FoodoListCardAdapter foodoListCardAdapter) {
         this.main_activity = activity;
-        ArrayList<FoodoListCard> foodoListCardArrayList = new ArrayList<>();
-        foodoListCardAdapter = new FoodoListCardAdapter(main_activity, foodoListCardArrayList);
-        linearLayoutManager = new LinearLayoutManager(main_activity, LinearLayoutManager.VERTICAL, false);
+        this.foodoListCardAdapter = foodoListCardAdapter;
     }
 
-    public void setup() {
-        FloatingActionButton createFoodoListButton = main_activity.findViewById(R.id.create_foodo_list_button);
-        createFoodoListButton.setOnClickListener((View v) -> {
-            GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
-            if (account != null) {
-                Log.d(TAG, "User is logged in, allowing them to create FoodoList");
-                if (userID == null) {
-                    Log.d(TAG, "need to fetch user ID before creating foodo list foodoList");
-                    createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
-                }
-                handleCreateFoodoListAction();
-            } else {
-                handleNonLoggedInUser();
-            }
-        });
-
-        FloatingActionButton refreshButton = main_activity.findViewById(R.id.refresh_button);
-        refreshButton.setOnClickListener((View v) -> {
-            GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
-            if (account != null) {
-                if (userID == null) {
-                    createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
-                }
-                refreshFoodoLists();
-            }
-        });
-
-        RecyclerView foodoLists = main_activity.findViewById(R.id.foodo_lists);
-
+    public void setupUserAccount() {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
         if (account != null && userID == null) {
             //no other way to get the token, just go through createUser endpoint
             //and get the id from the existing entry in the database
-
             createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
         }
+    }
 
-        foodoLists.setLayoutManager(linearLayoutManager);
-        foodoLists.setAdapter(foodoListCardAdapter);
+    public void createFoodoList() {
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
+        if (account != null) {
+            Log.d(TAG, "User is logged in, allowing them to create FoodoList");
+            if (userID == null) {
+                Log.d(TAG, "need to fetch user ID before creating foodo list foodoList");
+                createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
+            }
+            renderCreateFoodoListPopup();
+        } else {
+            handleNonLoggedInUser();
+        }
     }
 
 
     public void refreshFoodoLists() {
-        foodoListCardAdapter.clearFoodoLists();
-        loadFoodoLists();
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
+        if (account != null) {
+            if (userID == null) {
+                createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
+            }
+            foodoListCardAdapter.clearFoodoLists();
+            loadFoodoLists();
+        }
     }
 
     public void loadFoodoLists() {
+
+        Map<String, String> queryParameters = new HashMap<>();
+        queryParameters.put("userID", userID);
+
         Callback loadFoodoListCallback = new Callback() {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
@@ -129,8 +113,7 @@ public class FoodoListService {
                 e.printStackTrace();
             }
         };
-        Map<String, String> queryParameters = new HashMap<>();
-        queryParameters.put("userID", userID);
+
         OKHttpService.getRequest("getFoodoLists", loadFoodoListCallback, queryParameters);
 
     }
@@ -151,7 +134,7 @@ public class FoodoListService {
         });
     }
 
-    private void handleCreateFoodoListAction() {
+    private void renderCreateFoodoListPopup() {
         LayoutInflater layoutInflater = (LayoutInflater) main_activity.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.create_foodo_list_popup, null);
 
@@ -173,12 +156,7 @@ public class FoodoListService {
             createFoodoListPopupWindow.dismiss();
         });
 
-        container.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return false;
-            }
-        });
+        container.setOnTouchListener((v, event) -> false);
     }
 
     private void createFoodoList(ViewGroup container) throws IOException {
@@ -238,6 +216,7 @@ public class FoodoListService {
                     String responseBodyString = OKHttpService.getResponseBody(response);
                     Log.d(TAG, responseBodyString);
                     JSONObject resJSON = new JSONObject(responseBodyString);
+                    Log.d(TAG, resJSON.toString());
                     if (!resJSON.has("error")) {
                         //valid session
                         Log.d(TAG, resJSON.getString("_id"));
@@ -246,7 +225,6 @@ public class FoodoListService {
                         userID = resJSON.getString("_id");
                         Log.d(TAG, "userID: " + userID);
                         username = resJSON.getString("name");
-
                         loadFoodoLists();
                     }
                 }catch(JSONException e){

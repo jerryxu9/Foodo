@@ -111,6 +111,7 @@ public class FoodoListCardService {
                     String result = OKHttpService.getResponseBody(response);
                     JSONObject restaurant = new JSONObject(result);
                     Log.d(TAG, restaurant.toString());
+                    Log.d(TAG, "restaurant");
                     String businessStatus = getBusinessStatus(restaurant);
                     foodoCardActivity.runOnUiThread(() -> {
                         try {
@@ -122,7 +123,6 @@ public class FoodoListCardService {
                             card.setLat(getLatitude(restaurant));
                             card.setLng(getLongitude(restaurant));
                             card.setUsername(username);
-
                             card.setVisited(isVisited);
                             restaurantCardArrayList.add(card);
                             restaurantCardAdapter.notifyItemInserted(restaurantCardAdapter.getItemCount());
