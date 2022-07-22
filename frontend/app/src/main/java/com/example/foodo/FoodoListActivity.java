@@ -17,7 +17,7 @@ public class FoodoListActivity extends AppCompatActivity {
 
     private String listID;
     private String name;
-    private FoodoListCardService foodoListCardService;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +35,7 @@ public class FoodoListActivity extends AppCompatActivity {
         RestaurantCardAdapter restaurantCardAdapter = new RestaurantCardAdapter(this, new ArrayList<RestaurantCard>(), listID);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
 
-        this.foodoListCardService = new FoodoListCardService(this, listID, restaurantCardAdapter);
+        FoodoListCardService foodoListCardService = new FoodoListCardService(this, listID, restaurantCardAdapter);
 
         RecyclerView restaurantsView = findViewById(R.id.foodo_list_card_restaurants_list);
 
