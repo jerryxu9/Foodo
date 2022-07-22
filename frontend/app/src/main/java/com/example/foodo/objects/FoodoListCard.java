@@ -1,10 +1,10 @@
 package com.example.foodo.objects;
 
 public class FoodoListCard {
+    private final String id;
+    private final String username;
+    private final String userID;
     private String name;
-    private String id;
-    private String username;
-    private String userID;
 
     public FoodoListCard(String name, String id, String username, String userID) {
         this.name = name;

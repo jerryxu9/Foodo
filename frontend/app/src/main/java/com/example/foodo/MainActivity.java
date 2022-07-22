@@ -20,7 +20,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.foodo.objects.FoodoListCard;
+import com.example.foodo.objects.FoodoListCardAdapter;
 import com.example.foodo.service.FoodoListService;
 import com.example.foodo.service.OKHttpService;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -29,12 +33,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import okhttp3.Call;
@@ -45,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 1;
     private final String TAG = "MainActivity";
+    private FoodoListService foodoListService;
     private GoogleSignInClient mGoogleSignInClient;
     private Intent mapsIntent;
     private Intent searchResultIntent;
@@ -65,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        FoodoListService foodoListService = new FoodoListService(this);
         mapsIntent = new Intent(MainActivity.this, MapActivity.class);
         searchResultIntent = new Intent(MainActivity.this, SearchResultActivity.class);
         loginButton = findViewById(R.id.login_button);
@@ -83,10 +89,26 @@ public class MainActivity extends AppCompatActivity {
         if (account != null) {
             handleSuccessfulSignIn(account);
         } else {
-            loginButton.setVisibility(View.VISIBLE);
-            loginText.setVisibility(View.VISIBLE);
             loginButton.setOnClickListener((View v) -> signIn());
         }
+        setupComponentListeners();
+        setupFoodoLists();
+    }
+
+    private void setupComponentListeners() {
+
+        Button mapButton = findViewById(R.id.map_button);
+        mapButton.setOnClickListener((View v) -> startActivity(mapsIntent));
+
+        FloatingActionButton createFoodoListButton = findViewById(R.id.create_foodo_list_button);
+        createFoodoListButton.setOnClickListener((View v) -> {
+            foodoListService.createFoodoList();
+        });
+
+        FloatingActionButton refreshButton = findViewById(R.id.refresh_button);
+        refreshButton.setOnClickListener((View v) -> {
+            foodoListService.refreshFoodoLists();
+        });
 
         SearchView restaurantSearch = findViewById(R.id.restaurant_search);
         restaurantSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -101,10 +123,22 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+    }
 
-        Button mapButton = findViewById(R.id.map_button);
-        mapButton.setOnClickListener((View v) -> startActivity(mapsIntent));
-        foodoListService.setup();
+    private void setupFoodoLists() {
+        FoodoListCardAdapter foodoListCardAdapter = new FoodoListCardAdapter(this, new ArrayList<FoodoListCard>());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+
+        this.foodoListService = new FoodoListService(this, foodoListCardAdapter);
+
+        RecyclerView foodoLists = findViewById(R.id.foodo_lists);
+
+        foodoListService.setupUserAccount();
+
+        foodoLists.setLayoutManager(linearLayoutManager);
+        foodoLists.setAdapter(foodoListCardAdapter);
+
+        foodoListService.loadFoodoLists();
     }
 
     private void signIn() {
@@ -216,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
 
                         Log.d(TAG, "intent extras have all been added");
                     }
-                }catch(JSONException e){
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }

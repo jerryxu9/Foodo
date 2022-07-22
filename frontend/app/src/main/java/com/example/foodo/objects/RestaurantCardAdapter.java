@@ -101,6 +101,14 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         holder.setLng(model.getLng());
     }
 
+    public void addRestaurantCard(RestaurantCard card) {
+        ((Activity) context).runOnUiThread(() -> {
+            restaurantCardArrayList.add(card);
+            notifyItemInserted(restaurantCardArrayList.size());
+        });
+    }
+
+
     @Override
     public int getItemCount() {
         return restaurantCardArrayList.size();

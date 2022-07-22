@@ -2,17 +2,17 @@ package com.example.foodo.objects;
 
 public class RestaurantCard {
 
+    private final String googlePlacesID;
+    private final String cardID;
+    private final String userID;
+    private final boolean isInFoodoList;
     private String name;
     private String address;
     private String rating;
     private String status;
-    private final String googlePlacesID;
-    private final String cardID;
     private String username;
-    private final String userID;
     private double lat;
     private double lng;
-    private final boolean isInFoodoList;
     private boolean isVisited;
 
     public RestaurantCard(String googlePlacesID, String cardID, boolean isInFoodoList, String userID) {
@@ -25,32 +25,8 @@ public class RestaurantCard {
         this.userID = userID;
     }
 
-    public void setUsername(String username){
-        this.username = username;
-    }
-
-    public void setLat(double lat){
-        this.lat = lat;
-    }
-
-    public void setLng(double lng){
-        this.lng = lng;
-    }
-
-    public void setRestaurantName(String name){
+    public void setRestaurantName(String name) {
         this.name = name;
-    }
-
-    public void setAddress(String address){
-        this.address = address;
-    }
-
-    public void setRating(String rating){
-        this.rating = rating;
-    }
-
-    public void setStatus(String status){
-        this.status = status;
     }
 
     public String getName() {
@@ -61,12 +37,24 @@ public class RestaurantCard {
         return address;
     }
 
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     public String getRating() {
         return rating;
     }
 
+    public void setRating(String rating) {
+        this.rating = rating;
+    }
+
     public String getStatus() {
         return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getGooglePlacesID() {
@@ -81,8 +69,16 @@ public class RestaurantCard {
         return lat;
     }
 
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
     public double getLng() {
         return lng;
+    }
+
+    public void setLng(double lng) {
+        this.lng = lng;
     }
 
     public boolean getInFoodoList() {
@@ -99,6 +95,10 @@ public class RestaurantCard {
 
     public String getUsername() {
         return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getUserID() {
