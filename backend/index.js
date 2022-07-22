@@ -1,4 +1,4 @@
-const fb = require("./utils/firebase");
+require("./utils/firebase");
 const app = require("./server");
 const mongoose = require("mongoose");
 
