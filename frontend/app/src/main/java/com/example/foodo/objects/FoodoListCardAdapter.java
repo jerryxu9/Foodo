@@ -20,9 +20,6 @@ import com.example.foodo.FoodoListActivity;
 import com.example.foodo.R;
 import com.example.foodo.service.OKHttpService;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;

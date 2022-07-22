@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios").default;
 const parseRestResult = require("../utils/parseRestResult");
+const getReviews = require("../utils/getReview");
 
 // Get restaurants info by query
 router.get("/searchRestaurantsByQuery", async (req, res) => {
@@ -46,7 +47,12 @@ router.get("/searchRestaurantInfoByID", async (req, res) => {
     .get(place_details_string)
     .then((response) => {
       if (response?.data?.result) {
-        res.json(response.data.result);
+        let result = response?.data?.result;
+
+        getReviews(req.query.id).then((reviews) => {
+          result.reviews = reviews; // add reviews to result
+          res.json(result);
+        });
       } else {
         res.json(response?.data);
       }
