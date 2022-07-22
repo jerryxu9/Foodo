@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 module.exports = {
   type: "service_account",
   project_id: "foodo-354901",
