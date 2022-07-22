@@ -26,9 +26,9 @@ public class FoodoListCardService {
     private final String TAG = "FoodoListCardService";
     private final AppCompatActivity foodoCardActivity;
     private final String listID;
+    private final RestaurantCardAdapter restaurantCardAdapter;
     private String username;
     private String userID;
-    private final RestaurantCardAdapter restaurantCardAdapter;
 
     public FoodoListCardService(AppCompatActivity foodoCardActivity, String listID, RestaurantCardAdapter restaurantCardAdapter) {
         this.foodoCardActivity = foodoCardActivity;
@@ -45,14 +45,14 @@ public class FoodoListCardService {
         }
     }
 
-    public void populateRestaurantCardsArray() {
+    public void loadRestaurantCards() {
         if (userID == null || username == null) {
             return;
         }
         HashMap<String, String> queryParameters = new HashMap<>();
         queryParameters.put("listID", listID);
 
-        Callback populateRestaurantCardsArrayCallback = new Callback() {
+        Callback loadRestaurantCardsCallback = new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -78,7 +78,7 @@ public class FoodoListCardService {
             }
         };
 
-        OKHttpService.getRequest("getRestaurantsByFoodoListID", populateRestaurantCardsArrayCallback, queryParameters);
+        OKHttpService.getRequest("getRestaurantsByFoodoListID", loadRestaurantCardsCallback, queryParameters);
     }
 
 
@@ -169,7 +169,7 @@ public class FoodoListCardService {
                         userID = resJSON.getString("_id");
                         username = resJSON.getString("name");
 
-                        populateRestaurantCardsArray();
+                        loadRestaurantCards();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

@@ -44,7 +44,7 @@ public class FoodoListActivity extends AppCompatActivity {
         restaurantsView.setLayoutManager(linearLayoutManager);
         restaurantsView.setAdapter(restaurantCardAdapter);
 
-        foodoListCardService.populateRestaurantCardsArray();
+        foodoListCardService.loadRestaurantCards();
     }
 
     private void getIntentExtras() {

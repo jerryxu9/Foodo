@@ -31,6 +31,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     // [START on_new_token]
+
     /**
      * There are two scenarios when onNewToken is called:
      * 1) When a new token is generated on initial app startup
