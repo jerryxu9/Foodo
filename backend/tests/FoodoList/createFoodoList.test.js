@@ -1,29 +1,7 @@
 const request = require("supertest");
 const app = require("../../server");
-const mongoose = require("mongoose");
 const mockingoose = require("mockingoose");
 const User = require("../../models/User");
-const { FoodoListModel } = require("../../models/FoodoList");
-
-/* If you want to use the data in local mongodb, uncommment below and comment out the mocked one */
-// describe("/createFoodoList", () => {
-//   beforeEach(() => {
-//     mongoose.connect("mongodb://localhost:27017/cpen321");
-//   });
-
-//   afterEach(() => {
-//     mongoose.disconnect();
-//   });
-
-//   it("non-exsiting user", async () => {
-//     const body = { userID: "non_exisiting_user", listName: "test" };
-//     const expectedBody = { error: "User not found!" };
-//     const response = await request(app).post("/createFoodoList").send(body);
-
-//     expect(response.body).toStrictEqual(expectedBody);
-//     expect(response.statusCode).toBe(200);
-//   });
-// });
 
 /* Using mockingoose to mock the User model */
 describe("/createFoodoList", () => {
