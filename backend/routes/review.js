@@ -11,22 +11,22 @@ router.post("/addReview", async (req, res) => {
     review: req.body?.review,
     rating: req.body?.rating,
   });
-
+  console.log(review);
   // Save this review to database
   const data = await review.save();
 
-  console.log(review)
   const message = {
     data: {
+      action: "add",
       google_place_id: review.google_place_id,
       user_name: review.user_name,
       review: review.review,
-      rating: review.rating.toString()
+      rating: review.rating.toString(),
+      id: data._id.toString()
     },
     topic: review.google_place_id
   }
-
-  console.log(message);
+  console.log(message)
 
   // Send a message to devices subscribed to the provided topic.
   getMessaging()
@@ -45,7 +45,28 @@ router.post("/addReview", async (req, res) => {
 // Delete a review
 router.delete("/deleteReview", async (req, res) => {
   Review.deleteOne({ _id: req.body?.id })
-    .then((result) => {
+    .then(async (result) => {
+      console.log(result);
+      const message = {
+        data: {
+          action: "delete",
+          id: req.body?.id,
+          position: req.body?.position
+        },
+        topic: req.body?.google_place_id
+      }
+
+      console.log(message);
+      getMessaging()
+      .send(message)
+      .then((response) => {
+        // Response is a message ID string.
+        console.log("Successfully sent request to delete:", response);
+      })
+      .catch((error) => {
+        console.log("Error sending request to delete:", error);
+      });
+
       res.json(result);
     })
     .catch((err) => {

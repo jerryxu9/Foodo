@@ -149,7 +149,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         }
 
         public void deleteRestaurantFromList() {
-
             HashMap<String, String> bodyParameters = new HashMap<>();
             bodyParameters.put("listID", listID);
             bodyParameters.put("restaurantID", cardID);

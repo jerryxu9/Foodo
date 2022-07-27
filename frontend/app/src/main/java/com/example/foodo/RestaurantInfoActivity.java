@@ -30,8 +30,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,6 +37,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -128,6 +127,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                     }
                 });
     }
+
 
     private void handleNonLoggedInUser(View view) {
         Log.d(TAG, "User is not logged in, login now!!! >:(");
@@ -343,10 +343,10 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         for (int i = 0; i < reviewArrayJSON.length(); i++) {
             JSONObject reviewCardJSON = reviewArrayJSON.getJSONObject(i);
             Log.d(TAG, reviewCardJSON.toString());
-            reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating")));
+            reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating"), reviewCardJSON.getString("_id")));
         }
 
-        reviewCardAdapter = new ReviewCardAdapter(reviewCardArrayList);
+        reviewCardAdapter = new ReviewCardAdapter(reviewCardArrayList, googlePlacesID);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(RestaurantInfoActivity.this, LinearLayoutManager.VERTICAL, false);
 
         reviewList.setLayoutManager(linearLayoutManager);
@@ -360,7 +360,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     }
 
     private void addReview(String text, String rating) {
-        if (!getIntent().hasExtra("username")) {
+        if (!getIntent().hasExtra("username") || !getIntent().hasExtra("userID")) {
             Log.d(TAG, "Error: intent does not have username");
             return;
         }
@@ -408,12 +408,24 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     }
 
     private void changeUi(ArrayList<String> action) {
-        ReviewCard reviewCard = new ReviewCard(action.get(2),
-                action.get(1),
-                action.get(0));
-        runOnUiThread(() -> {
-            reviewCardArrayList.add(reviewCard);
-            reviewCardAdapter.notifyItemInserted(reviewCardArrayList.size());
-        });
+        System.out.println(action);
+        if(action.get(0).equals("add")){
+            System.out.println("adding message");
+            ReviewCard reviewCard = new ReviewCard(action.get(4), action.get(2),
+                    action.get(1),
+                    action.get(3));
+            runOnUiThread(() -> {
+                reviewCardArrayList.add(reviewCard);
+                reviewCardAdapter.notifyItemInserted(reviewCardArrayList.size());
+            });
+        }else{
+            System.out.println("deleting message");
+            runOnUiThread(() -> {
+                int position = Integer.valueOf(action.get(2));
+                reviewCardArrayList.remove(position);
+                reviewCardAdapter.notifyItemRemoved(position);
+                reviewCardAdapter.notifyItemRangeChanged(position, reviewCardAdapter.getItemCount());
+            });
+        }
     }
 }

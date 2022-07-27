@@ -169,6 +169,23 @@ public class OKHttpService {
         }
     }
 
+    public static void deleteReviewRequest(String endpoint, Callback callbackMethod, Map<String, String> bodyParams) {
+        try {
+            HttpUrl httpUrl = parseURL(endpoint);
+
+            JSONObject paramsJSON = new JSONObject(bodyParams);
+            RequestBody body = RequestBody.create(paramsJSON.toString(), JSON);
+            Request request = new Request.Builder()
+                    .url(httpUrl)
+                    .delete(body)
+                    .build();
+
+            client.newCall(request).enqueue(callbackMethod);
+        } catch (MalformedURLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
     /***
      * A method to return the response body as a String
      *
