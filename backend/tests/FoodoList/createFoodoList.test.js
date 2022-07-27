@@ -66,6 +66,7 @@ describe("/createFoodoList", () => {
   // will fail because we need to update the endpoint to handle the error
   // NOTE: THIS TEST CASE WILL TIME OUT BECAUSE MONGODB ALREADY CHECKS IF LISTNAME IS EMPTY
   // So it should be pass once we add error handling to prevent adding a list with empty name string
+  // If you want to see it finishes, change the listName on line 73 to be "ANYTHING" but ""
   it("test with empty string for list name", async () => {
     mockingoose(User).toReturn(userDoc, "findOne"); // tried find_by_id which didn't work, not sure why
 
