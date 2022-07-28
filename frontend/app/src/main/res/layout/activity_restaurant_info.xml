@@ -266,8 +266,8 @@
         </LinearLayout>
 
     <LinearLayout
-        android:layout_width="371dp"
-        android:layout_height="400dp"
+        android:layout_width="372dp"
+        android:layout_height="481dp"
         android:background="@drawable/review_background"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -288,7 +288,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/review_list"
             android:layout_width="match_parent"
-            android:layout_height="270dp"
+            android:layout_height="255dp"
             android:layout_gravity="center" />
 
         <RelativeLayout
@@ -298,44 +298,50 @@
 
             <EditText
                 android:id="@+id/reviewTextBox"
-                android:layout_width="254dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginStart="18dp"
-                android:layout_marginEnd="22dp"
-                android:layout_marginBottom="17dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="63dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="7dp"
                 android:layout_toStartOf="@+id/reviewSendButton"
                 android:background="@color/inner_boxes"
                 android:inputType="textMultiLine" />
 
             <Button
                 android:id="@+id/reviewSendButton"
-                android:layout_width="59dp"
-                android:layout_height="37dp"
+                android:layout_width="56dp"
+                android:layout_height="38dp"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentBottom="true"
-                android:layout_centerVertical="true"
-                android:layout_marginTop="39dp"
-                android:layout_marginEnd="18dp"
-                android:layout_marginBottom="20dp"
+                android:layout_marginTop="57dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="-30dp"
                 android:background="@color/white"
                 android:elevation="0dp"
                 android:text="Send" />
 
             <Spinner
                 android:id="@+id/choose_rating_spinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_above="@+id/reviewTextBox"
+                android:layout_width="107dp"
+                android:layout_height="36dp"
                 android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:layout_centerHorizontal="true"
-                android:layout_marginStart="88dp"
-                android:layout_marginEnd="172dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginStart="108dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="156dp"
+                android:layout_marginBottom="57dp"
                 android:spinnerMode="dropdown" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="107dp" />
 
 
         </RelativeLayout>

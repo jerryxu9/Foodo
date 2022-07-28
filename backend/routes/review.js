@@ -10,6 +10,7 @@ router.post("/addReview", async (req, res) => {
     user_name: req.body?.user_name,
     review: req.body?.review,
     rating: req.body?.rating,
+    user_id: req.body?.user_id
   });
   console.log(review);
   // Save this review to database
@@ -22,7 +23,8 @@ router.post("/addReview", async (req, res) => {
       user_name: review.user_name,
       review: review.review,
       rating: review.rating.toString(),
-      id: data._id.toString()
+      id: data._id.toString(),
+      user_id: review.user_id
     },
     topic: review.google_place_id
   }

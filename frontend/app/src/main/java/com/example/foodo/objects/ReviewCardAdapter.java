@@ -27,10 +27,12 @@ public class ReviewCardAdapter extends RecyclerView.Adapter<ReviewCardAdapter.Vi
     private final ArrayList<ReviewCard> reviewCardArrayList;
     private final String TAG = "ReviewCardAdapter";
     private String googlePlacesId;
+    private String currUserID;
 
-    public ReviewCardAdapter(ArrayList<ReviewCard> reviewCardArrayList, String googlePlacesId) {
+    public ReviewCardAdapter(ArrayList<ReviewCard> reviewCardArrayList, String googlePlacesId, String userID) {
         this.reviewCardArrayList = reviewCardArrayList;
         this.googlePlacesId = googlePlacesId;
+        this.currUserID = userID;
     }
 
     @NonNull
@@ -47,14 +49,18 @@ public class ReviewCardAdapter extends RecyclerView.Adapter<ReviewCardAdapter.Vi
         holder.reviewText.setText(model.getReviewText());
         holder.reviewRating.setText(model.getReviewRating() + " stars");
 
-        holder.deleteReviewButton.setOnClickListener((View v)->{
-            try {
-                System.out.println("Delete button has been pressed for review!");
-                holder.deleteReview(model.getReviewId());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        });
+        if(model.getUserID().equals(currUserID)){
+            holder.deleteReviewButton.setOnClickListener((View v)->{
+                try {
+                    System.out.println("Delete button has been pressed for review!");
+                    holder.deleteReview(model.getReviewId());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            });
+        }else{
+            holder.deleteReviewButton.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override

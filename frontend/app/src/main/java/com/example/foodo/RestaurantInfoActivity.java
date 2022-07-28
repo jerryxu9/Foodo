@@ -33,11 +33,9 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -114,7 +112,6 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         searchRestaurantInfoByID(googlePlacesID);
 
         Log.d(TAG, googlePlacesID);
-
         FirebaseMessaging.getInstance().subscribeToTopic(googlePlacesID)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -343,10 +340,15 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         for (int i = 0; i < reviewArrayJSON.length(); i++) {
             JSONObject reviewCardJSON = reviewArrayJSON.getJSONObject(i);
             Log.d(TAG, reviewCardJSON.toString());
-            reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating"), reviewCardJSON.getString("_id")));
+            reviewCardArrayList.add(new ReviewCard(reviewCardJSON.getString("user_name"), reviewCardJSON.getString("review"), reviewCardJSON.getString("rating"), reviewCardJSON.getString("_id"), reviewCardJSON.getString("user_id")));
         }
 
-        reviewCardAdapter = new ReviewCardAdapter(reviewCardArrayList, googlePlacesID);
+        if(!getIntent().hasExtra("userID")){
+            Log.d(TAG, "No userID, something failed");
+            return;
+        }
+
+        reviewCardAdapter = new ReviewCardAdapter(reviewCardArrayList, googlePlacesID, getIntent().getStringExtra("userID"));
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(RestaurantInfoActivity.this, LinearLayoutManager.VERTICAL, false);
 
         reviewList.setLayoutManager(linearLayoutManager);
@@ -383,6 +385,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         addReviewParams.put("user_name", username);
         addReviewParams.put("review", text);
         addReviewParams.put("rating", rating);
+        addReviewParams.put("user_id", getIntent().getStringExtra("userID"));
 
         OKHttpService.postRequest("addReview", addReviewCallback, addReviewParams);
     }
@@ -411,8 +414,9 @@ public class RestaurantInfoActivity extends AppCompatActivity {
         System.out.println(action);
         if(action.get(0).equals("add")){
             System.out.println("adding message");
-            ReviewCard reviewCard = new ReviewCard(action.get(4), action.get(2),
+            ReviewCard reviewCard = new ReviewCard(action.get(5), action.get(2),
                     action.get(1),
+                    action.get(4),
                     action.get(3));
             runOnUiThread(() -> {
                 reviewCardArrayList.add(reviewCard);
