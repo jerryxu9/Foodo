@@ -4,10 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.foodo.R;
 import com.example.foodo.objects.RestaurantCard;
 import com.example.foodo.objects.RestaurantCardAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -18,55 +15,44 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+
 import okhttp3.Call;
 import okhttp3.Callback;
-
 import okhttp3.Response;
 
 
 public class FoodoListCardService {
     private final String TAG = "FoodoListCardService";
     private final AppCompatActivity foodoCardActivity;
-    private final ArrayList<RestaurantCard> restaurantCardArrayList;
     private final String listID;
+    private final RestaurantCardAdapter restaurantCardAdapter;
     private String username;
     private String userID;
-    private RestaurantCardAdapter restaurantCardAdapter;
 
-    public FoodoListCardService(AppCompatActivity foodoCardActivity, String listID) {
+    public FoodoListCardService(AppCompatActivity foodoCardActivity, String listID, RestaurantCardAdapter restaurantCardAdapter) {
         this.foodoCardActivity = foodoCardActivity;
-        this.restaurantCardArrayList = new ArrayList<>();
+        this.restaurantCardAdapter = restaurantCardAdapter;
         this.listID = listID;
     }
 
-    public void initializeComponents() {
-        populateRestaurantCardsArray();
-
-        RecyclerView restaurantsView = foodoCardActivity.findViewById(R.id.foodo_list_card_restaurants_list);
-
+    public void setupUserAccount() {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(foodoCardActivity);
-        if (account != null &&
-                (userID == null || username == null)) {
+        if (account != null && userID == null) {
+            //no other way to get the token, just go through createUser endpoint
+            //and get the id from the existing entry in the database
             createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
         }
-
-        restaurantCardAdapter = new RestaurantCardAdapter(foodoCardActivity, restaurantCardArrayList, listID);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(foodoCardActivity, LinearLayoutManager.VERTICAL, false);
-
-        restaurantsView.setLayoutManager(linearLayoutManager);
-        restaurantsView.setAdapter(restaurantCardAdapter);
     }
 
-    private void populateRestaurantCardsArray() {
+    public void loadRestaurantCards() {
         if (userID == null || username == null) {
             return;
         }
         HashMap<String, String> queryParameters = new HashMap<>();
         queryParameters.put("listID", listID);
 
-        Callback populateRestaurantCardsArrayCallback = new Callback() {
+        Callback loadRestaurantCardsCallback = new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -92,7 +78,7 @@ public class FoodoListCardService {
             }
         };
 
-        OKHttpService.getRequest("getRestaurantsByFoodoListID", populateRestaurantCardsArrayCallback, queryParameters);
+        OKHttpService.getRequest("getRestaurantsByFoodoListID", loadRestaurantCardsCallback, queryParameters);
     }
 
 
@@ -111,6 +97,7 @@ public class FoodoListCardService {
                     String result = OKHttpService.getResponseBody(response);
                     JSONObject restaurant = new JSONObject(result);
                     Log.d(TAG, restaurant.toString());
+                    Log.d(TAG, "restaurant");
                     String businessStatus = getBusinessStatus(restaurant);
                     foodoCardActivity.runOnUiThread(() -> {
                         try {
@@ -122,10 +109,8 @@ public class FoodoListCardService {
                             card.setLat(getLatitude(restaurant));
                             card.setLng(getLongitude(restaurant));
                             card.setUsername(username);
-
                             card.setVisited(isVisited);
-                            restaurantCardArrayList.add(card);
-                            restaurantCardAdapter.notifyItemInserted(restaurantCardAdapter.getItemCount());
+                            restaurantCardAdapter.addRestaurantCard(card);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -175,7 +160,7 @@ public class FoodoListCardService {
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 String responseBodyString = OKHttpService.getResponseBody(response);
                 Log.d(TAG, responseBodyString);
-                try{
+                try {
                     JSONObject resJSON = new JSONObject(responseBodyString);
                     if (!resJSON.has("error")) {
                         Log.d(TAG, resJSON.getString("_id"));
@@ -184,7 +169,7 @@ public class FoodoListCardService {
                         userID = resJSON.getString("_id");
                         username = resJSON.getString("name");
 
-                        populateRestaurantCardsArray();
+                        loadRestaurantCards();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
