@@ -49,7 +49,7 @@ describe("/createFoodoList", () => {
     mockingoose(User).toReturn(userDoc, "findOne"); // tried find_by_id which didn't work, not sure why
 
     const reqBody = { userID: "123", listName: "" };
-    const expectedBody = { error: "Empty string for name" };
+    const expectedBody = { error: "Empty string for list name" };
 
     const response = await request(app).post("/createFoodoList").send(reqBody);
     expect(response.body).toStrictEqual(expectedBody);
