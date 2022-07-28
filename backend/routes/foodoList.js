@@ -8,7 +8,11 @@ const User = require("../models/User");
 router.post("/createFoodoList", async (req, res) => {
   const user = await User.findById(req.body?.userID);
   if (!user) {
+    res.statusCode = 404;
     res.json({ error: "User not found!" });
+  } else if (req.body?.listName === "") {
+    res.statusCode = 400;
+    res.json({ error: "Empty string for list name" });
   } else {
     const newList = new FoodoListModel({
       name: req.body.listName,

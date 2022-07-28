@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "jest": "^28.1.2",
+    "mockingoose": "^2.15.2",
     "supertest": "^6.2.4"
   }
 }

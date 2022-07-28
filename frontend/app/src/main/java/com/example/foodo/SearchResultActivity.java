@@ -1,14 +1,15 @@
 package com.example.foodo;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.foodo.objects.RestaurantCard;
 import com.example.foodo.objects.RestaurantCardAdapter;
+import com.example.foodo.objects.RestaurantCard;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +21,7 @@ public class SearchResultActivity extends AppCompatActivity {
     private RecyclerView searchResults;
     private ArrayList<RestaurantCard> restaurantCardArrayList;
     private TextView searchText;
+    private final String TAG = "SearchResultActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +44,17 @@ public class SearchResultActivity extends AppCompatActivity {
             JSONArray restaurantResultsArray = new JSONArray(getIntent().getStringExtra("restaurantResultsArray"));
             for (int i = 0; i < restaurantResultsArray.length(); i++) {
                 JSONObject restaurantResult = restaurantResultsArray.getJSONObject(i);
+                Log.d(TAG, restaurantResult.toString());
                 String businessStatus;
                 if (restaurantResult.getString("businessStatus").equals("OPERATIONAL")) {
-                    if (restaurantResult.getString("openNow").equals("true")) {
-                        businessStatus = "Open";
-                    } else {
-                        businessStatus = "Closed";
+                    if(restaurantResult.has("openNow")){
+                        if (restaurantResult.getString("openNow").equals("true")) {
+                            businessStatus = "Open";
+                        } else {
+                            businessStatus = "Closed";
+                        }
+                    }else{
+                        businessStatus = "Unknown";
                     }
                 } else {
                     businessStatus = restaurantResult.getString("businessStatus");
