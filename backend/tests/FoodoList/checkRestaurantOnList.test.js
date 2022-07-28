@@ -2,7 +2,6 @@ const request = require("supertest");
 const app = require("../../server");
 const mockingoose = require("mockingoose");
 const { FoodoListModel } = require("../../models/FoodoList");
-const mongoose = require("mongoose");
 
 /* Using mockingoose to mock the User model */
 describe("/checkRestaurantOnList", () => {
