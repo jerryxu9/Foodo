@@ -94,7 +94,7 @@ public class ReviewCardAdapter extends RecyclerView.Adapter<ReviewCardAdapter.Vi
             deleteReviewParams.put("position", String.valueOf(getLayoutPosition()));
             deleteReviewParams.put("google_place_id", googlePlacesId);
 
-            OKHttpService.deleteReviewRequest("deleteReview", deleteReviewCallback, deleteReviewParams);
+            OKHttpService.deleteRequest("deleteReview", deleteReviewCallback, deleteReviewParams, new HashMap<>());
         }
     }
 }
