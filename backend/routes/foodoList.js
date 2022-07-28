@@ -109,6 +109,7 @@ router.patch("/addNewUserToList", async (req, res) => {
   User.find({ email: req.body.email })
     .then((userList) => {
       if (userList.length === 0) {
+        res.statusCode = 404;
         res.json({ error: "User not found!" });
       } else {
         const user = userList[0];
