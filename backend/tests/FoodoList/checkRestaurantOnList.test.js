@@ -102,12 +102,13 @@ describe("/checkRestaurantOnList", () => {
       listID: foodoListId,
       restaurantID: restaurantId,
     };
+    const expectedBody = { error: "Restaurant not found" };
     const response = await request(app)
       .patch("/checkRestaurantOnList")
       .send(reqBody);
 
-    expect(response.body).toStrictEqual(foodoListDoc);
-    expect(response.statusCode).toBe(200);
+    expect(response.body).toStrictEqual(expectedBody);
+    expect(response.statusCode).toBe(404);
   });
 
   //   Will error since we need to implement error handling in this case
@@ -135,11 +136,12 @@ describe("/checkRestaurantOnList", () => {
       listID: foodoListId,
       restaurantID: restaurantId,
     };
+    const expectedBody = { error: "List not found" };
     const response = await request(app)
       .patch("/checkRestaurantOnList")
       .send(reqBody);
 
-    expect(response.body).toStrictEqual(foodoListDoc);
-    expect(response.statusCode).toBe(200);
+    expect(response.body).toStrictEqual(expectedBody);
+    expect(response.statusCode).toBe(404);
   });
 });
