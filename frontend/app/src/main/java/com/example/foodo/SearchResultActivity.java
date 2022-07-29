@@ -1,7 +1,6 @@
 package com.example.foodo;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,10 +30,7 @@ public class SearchResultActivity extends AppCompatActivity {
 
         searchResultActivityCountingIdlingResource = new CountingIdlingResource("SearchResultActivityLoaded");
 
-        if (searchResultActivityCountingIdlingResource != null) {
-            Log.d(TAG, "Search result activity start load. Increment");
-            searchResultActivityCountingIdlingResource.increment();
-        }
+        searchResultActivityCountingIdlingResource.increment();
 
         setContentView(R.layout.activity_search_result);
         searchResults = findViewById(R.id.search_list);
@@ -44,10 +40,7 @@ public class SearchResultActivity extends AppCompatActivity {
         setSearchBarText();
         populateSearchResultList();
 
-        if (searchResultActivityCountingIdlingResource != null) {
-            Log.d(TAG, "Search result activity loaded. Decrement");
-            searchResultActivityCountingIdlingResource.decrement();
-        }
+        searchResultActivityCountingIdlingResource.decrement();
 
     }
 
