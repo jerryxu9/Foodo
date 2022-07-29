@@ -17,11 +17,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.IdlingResource;
+import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.example.foodo.objects.FoodoListCard;
 import com.example.foodo.objects.FoodoListCardAdapter;
@@ -43,6 +46,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import io.opencensus.stats.Aggregation;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -59,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView loginText;
     private Double lat;
     private Double lng;
+    private CountingIdlingResource serverCountIdlingResource;
 
     private final LocationListener locationListener = new LocationListener() {
         @Override
@@ -91,6 +96,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
             loginButton.setOnClickListener((View v) -> signIn());
         }
+
+        Log.d(TAG, "starting idling resource");
+        serverCountIdlingResource = new CountingIdlingResource("QueryCountingIdlingResource");
+
         setupComponentListeners();
         setupFoodoLists();
     }
@@ -191,6 +200,8 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+
+
         HashMap<String, String> queryParameters = new HashMap<>();
         queryParameters.put("query", query);
         queryParameters.put("lat", String.valueOf(lat));
@@ -213,12 +224,20 @@ public class MainActivity extends AppCompatActivity {
                         searchResultIntent.putExtra("query", query);
                         startActivity(searchResultIntent);
                     });
+                    if (serverCountIdlingResource != null) {
+                        Log.d(TAG, "Decrement");
+                        serverCountIdlingResource.decrement();
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
         };
 
+        if (serverCountIdlingResource != null) {
+            Log.d(TAG, "Increment. Awiting");
+            serverCountIdlingResource.increment();
+        }
         OKHttpService.getRequest("searchRestaurantsByQuery", searchRestaurantCallback, queryParameters);
     }
 
@@ -264,5 +283,9 @@ public class MainActivity extends AppCompatActivity {
         createUserParams.put("email", email);
 
         OKHttpService.postRequest("createUser", createUserCallback, createUserParams);
+    }
+
+    public CountingIdlingResource getServerCountIdlingResource() {
+        return serverCountIdlingResource;
     }
 }
