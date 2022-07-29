@@ -17,6 +17,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import android.util.Log;
 import android.view.View;
@@ -47,17 +48,17 @@ import org.junit.runner.RunWith;
 public class SearchForRestaurantInformationTest {
 
     private static final String TAG = "SearchForRestaurantInformationTest";
+    private final String SEARCH_QUERY = "Tim Hortons";
+    private final String INVALID_QUERY = "**&@(#$&";
     @Rule
     public ActivityScenarioRule<MainActivity> mActivityScenarioRule =
             new ActivityScenarioRule<>(MainActivity.class);
-
     @Rule
     public GrantPermissionRule mGrantPermissionRule =
             GrantPermissionRule.grant(
                     "android.permission.ACCESS_FINE_LOCATION",
                     "android.permission.ACCESS_COARSE_LOCATION");
-
-    private IdlingResource queryIdlingResource;
+    private IdlingResource searchQueryIdlingResource;
 
     private static Matcher<View> childAtPosition(
             final Matcher<View> parentMatcher, final int position) {
@@ -78,24 +79,11 @@ public class SearchForRestaurantInformationTest {
         };
     }
 
-    @Before
-    public void registerIdlingResource() {
-        ActivityScenario<MainActivity> activityScenario = ActivityScenario.launch(MainActivity.class);
-        activityScenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
-            @Override
-            public void perform(MainActivity activity) {
-                queryIdlingResource = activity.getServerCountIdlingResource();
-                IdlingRegistry.getInstance().register(queryIdlingResource);
-            }
-        });
-    }
-
     /**
      * Matcher to pick a single view in an Activity with multiple views
      * with the same resID, text, or content description
-     *
+     * <p>
      * Source: https://stackoverflow.com/a/39756832
-     *
      */
     public static Matcher<View> withIndex(final Matcher<View> matcher, final int index) {
         return new TypeSafeMatcher<View>() {
@@ -114,6 +102,25 @@ public class SearchForRestaurantInformationTest {
             }
         };
     }
+
+    @Before
+    public void registerIdlingResource() {
+        ActivityScenario<MainActivity> activityScenario = ActivityScenario.launch(MainActivity.class);
+        activityScenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
+            /**
+             * This method is invoked on the main thread with the reference to the Activity.
+             *
+             * @param activity an Activity instrumented by the {@link ActivityScenario}. It never be null.
+             */
+            @Override
+            public void perform(MainActivity activity) {
+                searchQueryIdlingResource = activity.getSearchQueryCountingIdlingResource();
+                IdlingRegistry.getInstance().register(searchQueryIdlingResource);
+            }
+        });
+
+    }
+
 
     @Test
     public void searchForRestaurantInformationTest() {
@@ -140,70 +147,40 @@ public class SearchForRestaurantInformationTest {
                                                 1)),
                                 0),
                         isDisplayed()));
-        searchAutoComplete.perform(replaceText("Tim Hortons"), closeSoftKeyboard());
+        searchAutoComplete.perform(replaceText(SEARCH_QUERY), closeSoftKeyboard());
 
         ViewInteraction editText = onView(
-                allOf(IsInstanceOf.<View>instanceOf(android.widget.EditText.class), withText("Tim Hortons"),
-                        withParent(allOf(IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class),
-                                withParent(IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class)))),
+                allOf(IsInstanceOf.instanceOf(android.widget.EditText.class), withText(SEARCH_QUERY),
+                        withParent(allOf(IsInstanceOf.instanceOf(android.widget.LinearLayout.class),
+                                withParent(IsInstanceOf.instanceOf(android.widget.LinearLayout.class)))),
                         isDisplayed()));
-        editText.check(matches(withText("Tim Hortons")));
+        editText.check(matches(withText(SEARCH_QUERY)));
 
         Log.d(TAG, "Click Search Button");
-        ViewInteraction searchAutoComplete2 = onView(
-                allOf(withClassName(is("android.widget.SearchView$SearchAutoComplete")), withText("Tim Hortons"),
-                        childAtPosition(
-                                allOf(withClassName(is("android.widget.LinearLayout")),
-                                        childAtPosition(
-                                                withClassName(is("android.widget.LinearLayout")),
-                                                1)),
-                                0),
-                        isDisplayed()));
-        searchAutoComplete2.perform(pressImeActionButton());
 
-        ViewInteraction searchAutoComplete3 = onView(
-                allOf(withClassName(is("android.widget.SearchView$SearchAutoComplete")), withText("Tim Hortons"),
-                        childAtPosition(
-                                allOf(withClassName(is("android.widget.LinearLayout")),
-                                        childAtPosition(
-                                                withClassName(is("android.widget.LinearLayout")),
-                                                1)),
-                                0),
-                        isDisplayed()));
-        searchAutoComplete3.perform(pressImeActionButton());
-
-        ViewInteraction searchAutoComplete4 = onView(
-                allOf(withClassName(is("android.widget.SearchView$SearchAutoComplete")), withText("Tim Hortons"),
-                        childAtPosition(
-                                allOf(withClassName(is("android.widget.LinearLayout")),
-                                        childAtPosition(
-                                                withClassName(is("android.widget.LinearLayout")),
-                                                1)),
-                                0),
-                        isDisplayed()));
-        searchAutoComplete4.perform(pressImeActionButton());
+        searchAutoComplete.perform(pressImeActionButton());
 
         Log.d(TAG, "Check search results page displays Tim Hortons in top bar");
         ViewInteraction textView = onView(
-                allOf(withId(R.id.search_text), withText("Tim Hortons"),
+                allOf(withIndex(withId(R.id.search_text), 0),
                         withParent(withParent(withId(android.R.id.content))),
                         isDisplayed()));
-        textView.check(matches(withText("Tim Hortons")));
+        textView.check(matches(withText(SEARCH_QUERY)));
 
-//        Log.d(TAG, "Assert search results list exists");
-//        ViewInteraction relativeLayout = onView(
-//                allOf(withId(R.id.restaurant_card_relative_layout),
-//                        withParent(withParent(withId(R.id.search_list))),
-//                        isDisplayed()));
-//        relativeLayout.check(matches(isDisplayed()));
+        Log.d(TAG, "Assert search results list exists");
+        ViewInteraction relativeLayout = onView(
+                allOf(withIndex(withId(R.id.restaurant_card_relative_layout), 0),
+                        withParent(withParent(withId(R.id.search_list))),
+                        isDisplayed()));
+        relativeLayout.check(matches(isDisplayed()));
 
         Log.d(TAG, "Check Tim Hortons is displayed in the search result");
         ViewInteraction textView2 = onView(
-                allOf(withId(R.id.restaurantName), withText("Tim Hortons"),
+                allOf(withId(R.id.restaurantName), withText(SEARCH_QUERY),
                         withParent(allOf(withIndex(withId(R.id.restaurant_card_relative_layout), 0),
-                                withParent(IsInstanceOf.<View>instanceOf(android.widget.FrameLayout.class)))),
+                                withParent(IsInstanceOf.instanceOf(android.widget.FrameLayout.class)))),
                         isDisplayed()));
-        textView2.check(matches(withText("Tim Hortons")));
+        textView2.check(matches(withText(SEARCH_QUERY)));
 
         Log.d(TAG, "Click first search result for Tim Hortons query");
         ViewInteraction recyclerView = onView(
@@ -215,15 +192,15 @@ public class SearchForRestaurantInformationTest {
 
         Log.d(TAG, "Check Tim Hortons is in the restaurant name field");
         ViewInteraction textView3 = onView(
-                allOf(withId(R.id.restaurantName_info), withText("Tim Hortons"),
+                allOf(withId(R.id.restaurantName_info), withText(SEARCH_QUERY),
                         withParent(withParent(withId(R.id.linearLayout))),
                         isDisplayed()));
-        textView3.check(matches(withText("Tim Hortons")));
+        textView3.check(matches(withText(SEARCH_QUERY)));
 
         Log.d(TAG, "Check Reviews text is displayed in the restaurant info page");
         ViewInteraction textView4 = onView(
                 allOf(withId(R.id.Review_title), withText("Reviews"),
-                        withParent(withParent(IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class))),
+                        withParent(withParent(IsInstanceOf.instanceOf(android.view.ViewGroup.class))),
                         isDisplayed()));
         textView4.check(matches(withText("Reviews")));
 
@@ -231,7 +208,7 @@ public class SearchForRestaurantInformationTest {
         ViewInteraction textView5 = onView(
                 allOf(withText("Hours"),
                         withParent(allOf(withId(R.id.linearLayout),
-                                withParent(IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class)))),
+                                withParent(IsInstanceOf.instanceOf(android.view.ViewGroup.class)))),
                         isDisplayed()));
         textView5.check(matches(withText("Hours")));
 
@@ -239,7 +216,7 @@ public class SearchForRestaurantInformationTest {
         ViewInteraction textView6 = onView(
                 allOf(withId(R.id.restaurantAddress_info),
                         withParent(allOf(withId(R.id.linearLayout),
-                                withParent(IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class)))),
+                                withParent(IsInstanceOf.instanceOf(android.view.ViewGroup.class)))),
                         isDisplayed()));
         textView6.check(matches(isDisplayed()));
 
@@ -247,7 +224,7 @@ public class SearchForRestaurantInformationTest {
         ViewInteraction textView7 = onView(
                 allOf(withId(R.id.restaurantNumber_info),
                         withParent(allOf(withId(R.id.linearLayout),
-                                withParent(IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class)))),
+                                withParent(IsInstanceOf.instanceOf(android.view.ViewGroup.class)))),
                         isDisplayed()));
         textView7.check(matches(isDisplayed()));
 
@@ -258,12 +235,26 @@ public class SearchForRestaurantInformationTest {
                         isDisplayed()));
         textView8.check(matches(isDisplayed()));
 
+        Log.d(TAG, "Navigate back to the Search Results Page");
+        pressBack();
+
+        Log.d(TAG, "Navigate back to the Main Page");
+        pressBack();
+
+        Log.d(TAG, "Enter in an invalid string to the search bar");
+        searchAutoComplete.perform(replaceText(INVALID_QUERY), closeSoftKeyboard());
+
+        Log.d(TAG, "Click search using the invalid query");
+        searchAutoComplete.perform(pressImeActionButton());
+
+        Log.d(TAG, "Check that no search results appear");
+        //TODO: Implement https://stackoverflow.com/questions/63562046/how-to-check-if-recyclerview-is-empty-espresso
     }
 
     @After
     public void unregisterIdlingResource() {
-        if (queryIdlingResource != null) {
-            IdlingRegistry.getInstance().unregister(queryIdlingResource);
+        if (searchQueryIdlingResource != null) {
+            IdlingRegistry.getInstance().unregister(searchQueryIdlingResource);
         }
     }
 }
