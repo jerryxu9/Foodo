@@ -23,10 +23,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
+import androidx.test.espresso.NoMatchingViewException;
+import androidx.test.espresso.ViewAssertion;
 import androidx.test.espresso.ViewInteraction;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -119,7 +123,6 @@ public class SearchForRestaurantInformationTest {
         });
 
     }
-
 
     @Test
     public void searchForRestaurantInformationTest() {
@@ -247,13 +250,37 @@ public class SearchForRestaurantInformationTest {
         searchAutoComplete.perform(pressImeActionButton());
 
         Log.d(TAG, "Check that no search results appear");
-        //TODO: Implement https://stackoverflow.com/questions/63562046/how-to-check-if-recyclerview-is-empty-espresso
+        recyclerView.check(new RecyclerViewItemCountAssertion(0));
     }
 
     @After
     public void unregisterIdlingResource() {
         if (searchQueryIdlingResource != null) {
             IdlingRegistry.getInstance().unregister(searchQueryIdlingResource);
+        }
+    }
+
+    /**
+     * Custom ViewAssertion to check Recycler View
+     * <p>
+     * Source: https://stackoverflow.com/a/37339656
+     */
+    public class RecyclerViewItemCountAssertion implements ViewAssertion {
+        private final int expectedCount;
+
+        public RecyclerViewItemCountAssertion(int expectedCount) {
+            this.expectedCount = expectedCount;
+        }
+
+        @Override
+        public void check(View view, NoMatchingViewException noViewFoundException) {
+            if (noViewFoundException != null) {
+                throw noViewFoundException;
+            }
+
+            RecyclerView recyclerView = (RecyclerView) view;
+            RecyclerView.Adapter adapter = recyclerView.getAdapter();
+            ViewMatchers.assertThat(adapter.getItemCount(), is(expectedCount));
         }
     }
 }
