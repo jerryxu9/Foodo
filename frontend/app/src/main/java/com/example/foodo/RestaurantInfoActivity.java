@@ -411,9 +411,8 @@ public class RestaurantInfoActivity extends AppCompatActivity {
     }
 
     private void changeUi(ArrayList<String> action) {
-        System.out.println(action);
         if(action.get(0).equals("add")){
-            System.out.println("adding message");
+            Log.d(TAG, "adding message");
             ReviewCard reviewCard = new ReviewCard(action.get(5), action.get(2),
                     action.get(1),
                     action.get(4),
@@ -423,7 +422,7 @@ public class RestaurantInfoActivity extends AppCompatActivity {
                 reviewCardAdapter.notifyItemInserted(reviewCardArrayList.size());
             });
         }else{
-            System.out.println("deleting message");
+            Log.d(TAG, "deleting message");
             runOnUiThread(() -> {
                 int position = Integer.valueOf(action.get(2));
                 reviewCardArrayList.remove(position);
