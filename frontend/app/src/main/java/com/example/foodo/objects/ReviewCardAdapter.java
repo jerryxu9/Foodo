@@ -52,7 +52,7 @@ public class ReviewCardAdapter extends RecyclerView.Adapter<ReviewCardAdapter.Vi
         if(model.getUserID().equals(currUserID)){
             holder.deleteReviewButton.setOnClickListener((View v)->{
                 try {
-                    System.out.println("Delete button has been pressed for review!");
+                    Log.d(TAG, "Delete button has been pressed for review!");
                     holder.deleteReview(model.getReviewId());
                 } catch (JSONException e) {
                     e.printStackTrace();
