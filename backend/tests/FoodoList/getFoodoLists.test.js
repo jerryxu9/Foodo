@@ -41,9 +41,9 @@ describe("/getFoodoLists", () => {
   it("test with a non-existing user", async () => {
     mockingoose(User).toReturn(userDoc, "findById");
 
-    const reqBody = { userID: "non_exisiting_user" };
+    const queryBody = { userID: "non_exisiting_user" };
     const expectedBody = { error: "User not found" };
-    const response = await request(app).get("/getFoodoLists").send(reqBody);
+    const response = await request(app).get("/getFoodoLists").query(queryBody);
 
     expect(response.body).toStrictEqual(expectedBody);
     expect(response.statusCode).toBe(404); // need to change to 404 according to m6
@@ -53,8 +53,8 @@ describe("/getFoodoLists", () => {
     mockingoose(User).toReturn(userDoc, "findOne");
     mockingoose(FoodoListModel).toReturn(foodoListDocs, "find");
 
-    const reqBody = { userID: "123" };
-    const response = await request(app).get("/getFoodoLists").send(reqBody);
+    const queryBody = { userID: "123" };
+    const response = await request(app).get("/getFoodoLists").query(queryBody);
 
     expect(response.body).toStrictEqual(foodoListDocs);
     expect(response.statusCode).toBe(200);
