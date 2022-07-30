@@ -15,21 +15,23 @@ describe("/getFoodoLists", () => {
     email: "sbarnes@gmail.com",
   };
 
-  const foodoListDoc = {
-    _id: foodoListId,
-    name: "Deserts",
-    restaurants: [
-      {
-        _id: restaurantId,
-        place_id: "90",
-        name: "Uncle Tetsu",
-        isVisited: true,
-        lat: 10,
-        lng: -10,
-      },
-    ],
-    users: ["123"],
-  };
+  const foodoListDocs = [
+    {
+      _id: foodoListId,
+      name: "Deserts",
+      restaurants: [
+        {
+          _id: restaurantId,
+          place_id: "90",
+          name: "Uncle Tetsu",
+          isVisited: true,
+          lat: 10,
+          lng: -10,
+        },
+      ],
+      users: ["123"],
+    },
+  ];
 
   beforeEach(() => {
     mockingoose.resetAll();
@@ -49,12 +51,12 @@ describe("/getFoodoLists", () => {
 
   it("test with an existing user", async () => {
     mockingoose(User).toReturn(userDoc, "findOne");
-    mockingoose(FoodoListModel).toReturn(foodoListDoc, "find");
+    mockingoose(FoodoListModel).toReturn(foodoListDocs, "find");
 
     const reqBody = { userID: "123" };
     const response = await request(app).get("/getFoodoLists").send(reqBody);
 
-    expect(response.body).toStrictEqual(foodoListDoc);
+    expect(response.body).toStrictEqual(foodoListDocs);
     expect(response.statusCode).toBe(200);
   });
 });
