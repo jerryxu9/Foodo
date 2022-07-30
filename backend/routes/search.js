@@ -7,6 +7,17 @@ const getReviews = require("../utils/getReview");
 // Get restaurants info by query
 router.get("/searchRestaurantsByQuery", async (req, res) => {
   // Note: text_search returns max of 20 results unless passing in next_page_token to a subsequent request
+  if (
+    req.query?.lat < -90 ||
+    req.query?.lat > 90 ||
+    req.query?.lng < -180 ||
+    req.query?.lng > 180
+  ) {
+    res.statusCode = 400;
+    res.json({ error: "Invalid latitude/longitude values" });
+    return;
+  }
+
   let text_search_string =
     "https://maps.googleapis.com/maps/api/place/textsearch/json?query=" +
     req.query?.query +
