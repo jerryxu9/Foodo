@@ -1,25 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
-const { OAuth2Client } = require("google-auth-library");
-const client = new OAuth2Client(
-  "415243569715-ft0h81psvpkm3ufbc9h5qlkomrd1k8bp.apps.googleusercontent.com"
-);
-
-async function verify(token) {
-  console.log("HI");
-  return client
-    .verifyIdToken({
-      idToken: token,
-      audience:
-        "415243569715-ft0h81psvpkm3ufbc9h5qlkomrd1k8bp.apps.googleusercontent.com",
-    })
-    .then((ticket) => {
-      const payload = ticket.getPayload();
-      const userid = payload["sub"];
-      return userid;
-    });
-}
+const verify = require("../utils/verifyToken");
 
 router.post("/createUser", async (req, res) => {
   verify(req.body?.id)
@@ -49,7 +31,10 @@ router.post("/createUser", async (req, res) => {
 router.get("/getUser", async (req, res) => {
   User.find({ _id: req.query?.id })
     .then((user) => {
-      res.json(user);
+      if (user.length === 0) {
+        res.statusCode = 404;
+        res.json({ error: "User not found" });
+      } else res.json(user);
     })
     .catch((err) => {
       res.json(err);
@@ -59,11 +44,14 @@ router.get("/getUser", async (req, res) => {
 router.get("/getUserByEmail", async (req, res) => {
   User.find({ email: req.query?.email })
     .then((user) => {
-      res.json(user);
+      if (user.length === 0) {
+        res.statusCode = 404;
+        res.json({ error: "User not found" });
+      } else res.json(user);
     })
     .catch((err) => {
       res.json(err);
     });
 });
 
-module.exports = { router, verify };
+module.exports = router;
