@@ -48,9 +48,9 @@ router.get("/searchRestaurantInfoByID", async (req, res) => {
     .then((response) => {
       if (response?.data?.result) {
         let result = response?.data?.result;
-
         getReviews(req.query.id).then((reviews) => {
           result.reviews = reviews; // add reviews to result
+          console.log(result);
           res.json(result);
         });
       } else {
