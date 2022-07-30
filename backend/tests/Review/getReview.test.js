@@ -18,7 +18,7 @@ describe("getReviews", () => {
       __v: 0,
     },
     {
-      google_place_id: google_place_id,
+      google_place_id,
       user_name: "Kyle Lowry",
       review: "I like the Philly cheesesteak",
       rating: 5,
