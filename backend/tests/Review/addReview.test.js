@@ -1,0 +1,53 @@
+const request = require("supertest");
+const app = require("../../server");
+const mockingoose = require("mockingoose");
+const Review = require("../../models/review");
+
+let ourGetMessaging = require("../../utils/ourGetMessaging");
+jest.mock("../../utils/ourGetMessaging", () => jest.fn());
+
+describe("/addReview", () => {
+  const reviewDoc = {
+    google_place_id: "ChIJ5UuDwMtyhlQRa2nfU9eAqRQ",
+    user_name: "Scottie Barnes",
+    review: "Food is great",
+    rating: 5,
+    user_id: "123",
+    __v: 0,
+  };
+
+  beforeEach(() => {
+    mockingoose.resetAll();
+  });
+
+  it("should add a new reivew", async () => {
+    ourGetMessaging.mockImplementation(async () => {
+      return new Promise((resolve, reject) => {
+        console.log("It is done.");
+        resolve("Success");
+      });
+    });
+
+    mockingoose(Review).toReturn(reviewDoc, "findById");
+    const reqBody = {
+      google_place_id: "ChIJ5UuDwMtyhlQRa2nfU9eAqRQ",
+      user_name: "Scottie Barnes",
+      review: "Food is great",
+      rating: 5,
+      user_id: "123",
+    };
+
+    const resp = await request(app).post("/addReview").send(reqBody);
+    const respBody = resp.body;
+
+    const expectedBody = reviewDoc;
+    expect(respBody.google_place_id).toStrictEqual(
+      expectedBody.google_place_id
+    );
+    expect(respBody.user_name).toStrictEqual(expectedBody.user_name);
+    expect(respBody.review).toStrictEqual(expectedBody.review);
+    expect(respBody.rating).toStrictEqual(expectedBody.rating);
+    expect(respBody.user_id).toStrictEqual(expectedBody.user_id);
+    expect(resp.statusCode).toBe(200);
+  });
+});
