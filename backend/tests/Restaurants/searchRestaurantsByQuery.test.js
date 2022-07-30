@@ -25,4 +25,18 @@ describe("/searchRestaurantsByQuery", () => {
     expect(response.body).toEqual(QUERY_1_RESP);
     expect(response.statusCode).toBe(200);
   });
+
+  // will fail because we need to add error handling in the endpoint
+  it("test with invalid lat/lng values", async () => {
+    const expectedBody = { error: "Invalid latitude/longitude values" };
+
+    const response = await request(app).get("/searchRestaurantsByQuery").query({
+      query: "chinese food in downtown vancouver",
+      lat: -100,
+      lng: 200,
+    });
+
+    expect(response.body).toEqual(expectedBody);
+    expect(response.statusCode).toBe(400); // will need to update the endpoint
+  });
 });
