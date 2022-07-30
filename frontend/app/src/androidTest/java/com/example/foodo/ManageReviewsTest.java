@@ -4,14 +4,45 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
+import androidx.test.espresso.IdlingRegistry;
+import androidx.test.espresso.IdlingResource;
+import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.assertion.ViewAssertions;
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.matcher.ViewMatchers;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.onData;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.pressImeActionButton;
+import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
+import static androidx.test.espresso.matcher.ViewMatchers.hasChildCount;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
+import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withParent;
+import static androidx.test.espresso.matcher.ViewMatchers.withSpinnerText;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
@@ -20,6 +51,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.GrantPermissionRule;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject;
@@ -30,6 +62,10 @@ import androidx.test.uiautomator.UiSelector;
 import androidx.test.uiautomator.Until;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,118 +81,163 @@ import org.junit.runner.RunWith;
 public class ManageReviewsTest {
 
     UiDevice mDevice;
-    private static final int PAGE_LOAD_TIMEOUT =60000;
-    private static final int SHORTER_PAGE_LOAD_TIMEOUT = 40000;
     private static final int OBJECT_TIMEOUT = 20000;
-    private static final String BASIC_SAMPLE_PACKAGE
-            = "com.example.foodo";
+    private final String REVIEW_NAME = "Test Account";
+    private final String REVIEW_TEXT = "hello world";
+    private final String REVIEW_RATING = "3 stars";
+    private final String SEARCH_QUERY = "Tim Hortons";
 
-//    @Rule
-//    public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
+    @Rule
+    public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
+
+    @Rule
+    public GrantPermissionRule mGrantPermissionRule =
+            GrantPermissionRule.grant(
+                    "android.permission.ACCESS_FINE_LOCATION",
+                    "android.permission.ACCESS_COARSE_LOCATION");
+
+    private static Matcher<View> childAtPosition(
+            final Matcher<View> parentMatcher, final int position) {
+
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("Child at position " + position + " in parent ");
+                parentMatcher.describeTo(description);
+            }
+
+            @Override
+            public boolean matchesSafely(View view) {
+                ViewParent parent = view.getParent();
+                return parent instanceof ViewGroup && parentMatcher.matches(parent)
+                        && view.equals(((ViewGroup) parent).getChildAt(position));
+            }
+        };
+    }
+
+    /**
+     * Matcher to pick a single view in an Activity with multiple views
+     * with the same resID, text, or content description
+     * <p>
+     * Source: https://stackoverflow.com/a/39756832
+     */
+    public static Matcher<View> withIndex(final Matcher<View> matcher, final int index) {
+        return new TypeSafeMatcher<View>() {
+            int currentIndex = 0;
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with index: ");
+                description.appendValue(index);
+                matcher.describeTo(description);
+            }
+
+            @Override
+            public boolean matchesSafely(View view) {
+                return matcher.matches(view) && currentIndex++ == index;
+            }
+        };
+    }
 
     @Before
-    public void startMainActivityFromHomeScreen() {
+    public void initializeUiDevice() {
         // Initialize UiDevice instance
         mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-
-        // Start from the home screen
-        mDevice.pressHome();
-
-        // Wait for launcher
-        final String launcherPackage = getLauncherPackageName();
-        assertThat(launcherPackage, notNullValue());
-        mDevice.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)), SHORTER_PAGE_LOAD_TIMEOUT);
-
-        // Launch the blueprint app
-        Context context = getApplicationContext();
-        final Intent intent = context.getPackageManager()
-                .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);    // Clear out any previous instances
-        context.startActivity(intent);
-
-        // Wait for the app to appear
-        mDevice.wait(Until.hasObject(By.pkg(BASIC_SAMPLE_PACKAGE).depth(0)), SHORTER_PAGE_LOAD_TIMEOUT);
     }
 
     @Test
     public void userCanAddAndDeleteReviews() throws UiObjectNotFoundException, InterruptedException {
+        login();
+
+        ViewInteraction appCompatImageView = onView(
+                allOf(withClassName(is("androidx.appcompat.widget.AppCompatImageView")), withContentDescription("Search"),
+                        childAtPosition(
+                                allOf(withClassName(is("android.widget.LinearLayout")),
+                                        childAtPosition(
+                                                withId(R.id.restaurant_search),
+                                                0)),
+                                1),
+                        isDisplayed()));
+        appCompatImageView.perform(click());
+
+        ViewInteraction searchAutoComplete = onView(
+                allOf(withClassName(is("android.widget.SearchView$SearchAutoComplete")),
+                        childAtPosition(
+                                allOf(withClassName(is("android.widget.LinearLayout")),
+                                        childAtPosition(
+                                                withClassName(is("android.widget.LinearLayout")),
+                                                1)),
+                                0),
+                        isDisplayed()));
+        searchAutoComplete.perform(replaceText(SEARCH_QUERY));
+
+
+        searchAutoComplete.perform(pressImeActionButton());
+        // Have to click twice Search Button twice on first search: Peer group pointed this out. Must fix!
+        Thread.sleep(1000);
+        searchAutoComplete.perform(pressImeActionButton());
+
+        Thread.sleep(1000);
+
+        ViewInteraction recyclerView = onView(
+                allOf(withId(R.id.search_list),
+                        childAtPosition(
+                                withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
+                                1)));
+
+        recyclerView.perform(actionOnItemAtPosition(0, click()));
+
+        //Check that all the review related components are there
+        onView(withId(R.id.reviewTextBox)).check(matches(isDisplayed()));
+        onView(withId(R.id.reviewSendButton)).check(matches(isDisplayed()));
+        onView(withId(R.id.choose_rating_spinner)).check(matches(isDisplayed()));
+
+        //Type in body of review and check textbox text has actually been updated
+        onView(withId(R.id.reviewTextBox)).perform(typeText(REVIEW_TEXT));
+        Thread.sleep(1000);
+        onView(withId(R.id.reviewTextBox)).check(matches(withText(REVIEW_TEXT)));
+
+        //Ensure all rating options are displayed in the spinner
+        //https://stackoverflow.com/questions/31420839/android-espresso-check-selected-spinner-text
+        onView(withId(R.id.choose_rating_spinner)).perform(click());
+        onData(allOf(is(instanceOf(String.class)), is("1"))).check(matches(isDisplayed()));
+        onData(allOf(is(instanceOf(String.class)), is("2"))).check(matches(isDisplayed()));
+        onData(allOf(is(instanceOf(String.class)), is("3"))).check(matches(isDisplayed()));
+        onData(allOf(is(instanceOf(String.class)), is("4"))).check(matches(isDisplayed()));
+        onData(allOf(is(instanceOf(String.class)), is("5"))).check(matches(isDisplayed()));
+
+        onData(allOf(is(instanceOf(String.class)), is("3"))).perform(click());
+
+        //Submit the review
+        onView(withId(R.id.reviewSendButton)).perform(click());
+
+        //Wait until the review shows up in the UI
+        mDevice.wait(Until.hasObject(By.text(REVIEW_NAME)), OBJECT_TIMEOUT);
+
+        //Check that review has populated recycler view and the data matches what was put
+        onView(withId(R.id.review_list)).check(matches(hasChildCount(1)));
+        onView(withId(R.id.reviewName)).check(matches(withText(REVIEW_NAME)));
+        onView(withId(R.id.reviewText)).check(matches(withText(REVIEW_TEXT)));
+        onView(withId(R.id.reviewRating)).check(matches(withText(REVIEW_RATING)));
+
+        //Now delete the review
+        onView(withId(R.id.deleteReview)).perform(click());
+
+        //Wait for review to be deleted from UI
+        mDevice.wait(Until.gone(By.text(REVIEW_NAME)), OBJECT_TIMEOUT);
+
+        //Check that the recycler view has no children (review cards)
+        onView(withId(R.id.review_list)).check(matches(hasChildCount(0)));
+    }
+
+    private void login() throws UiObjectNotFoundException {
         UiObject loginButton = mDevice.findObject(new UiSelector()
                 .text("LOGIN")
                 .className("android.widget.Button"));
         loginButton.waitForExists(OBJECT_TIMEOUT);
-        loginButton.clickAndWaitForNewWindow();
+        loginButton.click();
 
-        UiObject2 emailInput = mDevice.wait(Until.findObject(By
-                .clazz(EditText.class)), PAGE_LOAD_TIMEOUT);
-
-        emailInput.click();
-        emailInput.setText("cpen321espresso@gmail.com");
-        emailInput.wait(Until.textEquals("cpen321espresso@gmail.com"), OBJECT_TIMEOUT);
-        assertEquals(emailInput.getText(), "cpen321espresso@gmail.com");
-
-        UiObject2 nextButton = mDevice.wait(Until.findObject(By
-                .textContains("N")
-                .clazz("android.widget.Button")), OBJECT_TIMEOUT);
-
-        nextButton.click();
-
-        mDevice.wait(Until.hasObject(By.text("Hi Test").clazz(TextView.class)), SHORTER_PAGE_LOAD_TIMEOUT);
-//        // Set Password
-        UiObject2 passwordInput = mDevice.wait(Until.findObject(By
-                .clazz(EditText.class)), OBJECT_TIMEOUT);
-
-        passwordInput.click();
-        passwordInput.setText("cpen#@!espresso");// type your password here
-        passwordInput.wait(Until.textEquals("cpen#@!espresso"), OBJECT_TIMEOUT);
-
-        //check that password is filled
-        //Note: it returns *******, probably bc of security, so
-        //just compare the length instead
-        assertEquals(passwordInput.getText().length(), 15);
-
-        // Confirm Button Click
-        nextButton = mDevice.wait(Until.findObject(By
-                .textContains("N")
-                .clazz("android.widget.Button")), OBJECT_TIMEOUT);
-
-        nextButton.click();
-
-        UiObject2 agreeTermsOfService = mDevice.wait(Until.findObject(By
-                .text("I agree")
-                .clazz("android.widget.Button")), OBJECT_TIMEOUT);
-        agreeTermsOfService.click();
-
-        mDevice.wait(Until.hasObject(By.textContains("Tap to learn more about each service")), SHORTER_PAGE_LOAD_TIMEOUT);
-
-        UiScrollable scrollToAccept = new UiScrollable(
-                new UiSelector().scrollable(true));
-        scrollToAccept.waitForExists(OBJECT_TIMEOUT);
-        scrollToAccept.scrollToEnd(10);
-
-        UiObject acceptButton = mDevice.findObject(new UiSelector().text("ACCEPT"));
-        acceptButton.clickAndWaitForNewWindow(SHORTER_PAGE_LOAD_TIMEOUT);
-
-        mDevice.wait(Until.hasObject(By.text("Foodo")), PAGE_LOAD_TIMEOUT);
-        mDevice.click(133, 496);
-
-//        UiObject loginButton = mDevice.findObject(new UiSelector()
-//                .text("LOGIN")
-//                .className("android.widget.Button"));
-//        loginButton.waitForExists(OBJECT_TIMEOUT);
-//        loginButton.click();
-//
-//        mDevice.wait(Until.hasObject(By.text("Choose an account")), OBJECT_TIMEOUT);
-//        mDevice.click(538, 1099);
-    }
-
-    private String getLauncherPackageName() {
-        // Create launcher Intent
-        final Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-
-        // Use PackageManager to get the launcher package name
-        PackageManager pm = getApplicationContext().getPackageManager();
-        ResolveInfo resolveInfo = pm.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
-        return resolveInfo.activityInfo.packageName;
+        mDevice.wait(Until.hasObject(By.text("Choose an account")), OBJECT_TIMEOUT);
+        mDevice.click(538, 1099);
     }
 }
