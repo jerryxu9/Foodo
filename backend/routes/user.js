@@ -7,6 +7,7 @@ const client = new OAuth2Client(
 );
 
 async function verify(token) {
+  console.log("HI");
   return client
     .verifyIdToken({
       idToken: token,
@@ -65,4 +66,4 @@ router.get("/getUserByEmail", async (req, res) => {
     });
 });
 
-module.exports = router;
+module.exports = { router, verify };

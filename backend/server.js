@@ -22,7 +22,7 @@ const searchRoute = require("./routes/search");
 app.use("/", searchRoute);
 // User route
 const userRoute = require("./routes/user");
-app.use("/", userRoute);
+app.use("/", userRoute.router);
 // Foodo list route
 const foodoListRoute = require("./routes/foodoList");
 app.use("/", foodoListRoute);
