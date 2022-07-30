@@ -234,7 +234,7 @@ const GOOGLE_TEXT_SEARCH_RESP = [
     formatted_address: "2424 Main Mall, Vancouver, BC V6T 1Z2",
     geometry: {
       location: { lat: 49.2602273, lng: -123.2484189 },
-      viewport: [Object],
+      viewport: null,
     },
     icon: "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
     icon_background_color: "#FF9E67",
@@ -242,7 +242,7 @@ const GOOGLE_TEXT_SEARCH_RESP = [
       "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet",
     name: "Tim Hortons",
     opening_hours: { open_now: false },
-    photos: [[Object]],
+    photos: null,
     place_id: "ChIJ5UuDwMtyhlQRa2nfU9eAqRQ",
     plus_code: {
       compound_code: "7Q62+3J Vancouver, British Columbia",
@@ -260,7 +260,7 @@ const GOOGLE_TEXT_SEARCH_RESP = [
       "Foodsrvc-trek Exp, 2033 Main Mall, Vancouver, BC V6T 1Z2",
     geometry: {
       location: { lat: 49.265665, lng: -123.2542726 },
-      viewport: [Object],
+      viewport: null,
     },
     icon: "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
     icon_background_color: "#FF9E67",
@@ -268,7 +268,7 @@ const GOOGLE_TEXT_SEARCH_RESP = [
       "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet",
     name: "Tim Hortons",
     opening_hours: { open_now: false },
-    photos: [[Object]],
+    photos: null,
     place_id: "ChIJaVgq5MtyhlQRhGixrme65Qg",
     plus_code: {
       compound_code: "7P8W+77 Vancouver, British Columbia",
@@ -285,7 +285,7 @@ const GOOGLE_TEXT_SEARCH_RESP = [
     formatted_address: "5965 Student Union Blvd, Vancouver, BC V6T 1K2",
     geometry: {
       location: { lat: 49.2687858, lng: -123.2496818 },
-      viewport: [Object],
+      viewport: null,
     },
     icon: "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
     icon_background_color: "#FF9E67",
@@ -293,7 +293,7 @@ const GOOGLE_TEXT_SEARCH_RESP = [
       "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet",
     name: "Tim Hortons",
     opening_hours: { open_now: true },
-    photos: [[Object]],
+    photos: null,
     place_id: "ChIJXcT5ygxzhlQRjof8DpW2MFE",
     plus_code: {
       compound_code: "7Q92+G4 Vancouver, British Columbia",

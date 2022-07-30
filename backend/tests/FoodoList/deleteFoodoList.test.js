@@ -4,7 +4,7 @@ const mockingoose = require("mockingoose");
 const { FoodoListModel } = require("../../models/FoodoList");
 
 /* Using mockingoose to mock the User model */
-describe("/deleteFoodoLists", () => {
+describe("/deleteFoodoList", () => {
   const foodoListId = "62e167d0af78853605d0f435";
   const restaurantId = "62e167d0af78853605d0f436";
 
