@@ -228,7 +228,121 @@ const ID_1_RESP = {
   rating: 3.5,
 };
 
+const GOOGLE_TEXT_SEARCH_RESP = [
+  {
+    business_status: "OPERATIONAL",
+    formatted_address: "2424 Main Mall, Vancouver, BC V6T 1Z2",
+    geometry: {
+      location: { lat: 49.2602273, lng: -123.2484189 },
+      viewport: [Object],
+    },
+    icon: "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+    icon_background_color: "#FF9E67",
+    icon_mask_base_uri:
+      "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet",
+    name: "Tim Hortons",
+    opening_hours: { open_now: false },
+    photos: [[Object]],
+    place_id: "ChIJ5UuDwMtyhlQRa2nfU9eAqRQ",
+    plus_code: {
+      compound_code: "7Q62+3J Vancouver, British Columbia",
+      global_code: "84XR7Q62+3J",
+    },
+    price_level: 1,
+    rating: 3.4,
+    reference: "ChIJ5UuDwMtyhlQRa2nfU9eAqRQ",
+    types: ["restaurant", "food", "point_of_interest", "establishment"],
+    user_ratings_total: 356,
+  },
+  {
+    business_status: "OPERATIONAL",
+    formatted_address:
+      "Foodsrvc-trek Exp, 2033 Main Mall, Vancouver, BC V6T 1Z2",
+    geometry: {
+      location: { lat: 49.265665, lng: -123.2542726 },
+      viewport: [Object],
+    },
+    icon: "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+    icon_background_color: "#FF9E67",
+    icon_mask_base_uri:
+      "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet",
+    name: "Tim Hortons",
+    opening_hours: { open_now: false },
+    photos: [[Object]],
+    place_id: "ChIJaVgq5MtyhlQRhGixrme65Qg",
+    plus_code: {
+      compound_code: "7P8W+77 Vancouver, British Columbia",
+      global_code: "84XR7P8W+77",
+    },
+    price_level: 1,
+    rating: 3.2,
+    reference: "ChIJaVgq5MtyhlQRhGixrme65Qg",
+    types: ["restaurant", "food", "point_of_interest", "establishment"],
+    user_ratings_total: 135,
+  },
+  {
+    business_status: "OPERATIONAL",
+    formatted_address: "5965 Student Union Blvd, Vancouver, BC V6T 1K2",
+    geometry: {
+      location: { lat: 49.2687858, lng: -123.2496818 },
+      viewport: [Object],
+    },
+    icon: "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+    icon_background_color: "#FF9E67",
+    icon_mask_base_uri:
+      "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet",
+    name: "Tim Hortons",
+    opening_hours: { open_now: true },
+    photos: [[Object]],
+    place_id: "ChIJXcT5ygxzhlQRjof8DpW2MFE",
+    plus_code: {
+      compound_code: "7Q92+G4 Vancouver, British Columbia",
+      global_code: "84XR7Q92+G4",
+    },
+    price_level: 1,
+    rating: 2.2,
+    reference: "ChIJXcT5ygxzhlQRjof8DpW2MFE",
+    types: ["restaurant", "food", "point_of_interest", "establishment"],
+    user_ratings_total: 130,
+  },
+];
+
+const PARSED_GOOGLE_TEXT_SEARCH_RESP = [
+  {
+    id: "ChIJ5UuDwMtyhlQRa2nfU9eAqRQ",
+    name: "Tim Hortons",
+    address: "2424 Main Mall, Vancouver, BC V6T 1Z2",
+    lat: 49.2602273,
+    lng: -123.2484189,
+    openNow: false,
+    businessStatus: "OPERATIONAL",
+    GoogleRating: 3.4,
+  },
+  {
+    id: "ChIJaVgq5MtyhlQRhGixrme65Qg",
+    name: "Tim Hortons",
+    address: "Foodsrvc-trek Exp, 2033 Main Mall, Vancouver, BC V6T 1Z2",
+    lat: 49.265665,
+    lng: -123.2542726,
+    openNow: false,
+    businessStatus: "OPERATIONAL",
+    GoogleRating: 3.2,
+  },
+  {
+    id: "ChIJXcT5ygxzhlQRjof8DpW2MFE",
+    name: "Tim Hortons",
+    address: "5965 Student Union Blvd, Vancouver, BC V6T 1K2",
+    lat: 49.2687858,
+    lng: -123.2496818,
+    openNow: true,
+    businessStatus: "OPERATIONAL",
+    GoogleRating: 2.2,
+  },
+];
+
 module.exports = {
   QUERY_1_RESP,
   ID_1_RESP,
+  GOOGLE_TEXT_SEARCH_RESP,
+  PARSED_GOOGLE_TEXT_SEARCH_RESP,
 };
