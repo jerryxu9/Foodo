@@ -10,7 +10,7 @@ describe("getReviews", () => {
   const google_place_id = "ChIJ5UuDwMtyhlQRa2nfU9eAqRQ";
   const reviewDocs = [
     {
-      google_place_id: google_place_id,
+      google_place_id,
       user_name: "Scottie Barnes",
       review: "Food is great",
       rating: 5,
