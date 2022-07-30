@@ -2,7 +2,6 @@ const request = require("supertest");
 const app = require("../../server");
 const mockingoose = require("mockingoose");
 const User = require("../../models/User");
-const UserModule = require("../../routes/user");
 const verify = require("../../utils/verifyToken");
 
 jest.mock("../../utils/verifyToken", () => jest.fn());

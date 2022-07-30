@@ -2,12 +2,6 @@ const request = require("supertest");
 const app = require("../../server");
 const mockingoose = require("mockingoose");
 const User = require("../../models/User");
-const UserModule = require("../../routes/user");
-
-jest.mock("../../routes/user", () => ({
-  ...jest.requireActual("../../routes/user"),
-  verify: async () => "123",
-}));
 
 /* Using mockingoose to mock the User and FoodoList models */
 describe("/createUserAccount", () => {
