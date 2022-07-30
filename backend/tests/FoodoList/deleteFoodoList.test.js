@@ -1,19 +1,12 @@
 const request = require("supertest");
 const app = require("../../server");
 const mockingoose = require("mockingoose");
-const User = require("../../models/User");
 const { FoodoListModel } = require("../../models/FoodoList");
 
 /* Using mockingoose to mock the User model */
 describe("/deleteFoodoLists", () => {
   const foodoListId = "62e167d0af78853605d0f435";
   const restaurantId = "62e167d0af78853605d0f436";
-
-  const userDoc = {
-    _id: "123",
-    name: "Scottie Barnes",
-    email: "sbarnes@gmail.com",
-  };
 
   const foodoListDoc = {
     _id: foodoListId,
