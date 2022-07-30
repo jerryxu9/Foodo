@@ -32,7 +32,7 @@ describe("/addRestaurantToList", () => {
     mockingoose(FoodoListModel).toReturn(foodoListDoc, "findOneAndUpdate");
 
     const reqBody = {
-      isVisited: true,
+      isVisited: false,
       listID: foodoListId,
       restaurantID: restaurantId,
       restaurantName: "Uncle Tetsu",
@@ -48,99 +48,58 @@ describe("/addRestaurantToList", () => {
   });
 
   it("test list is not found", async () => {
-    const foodoListDoc = {
-      _id: foodoListId,
-      name: "Deserts",
-      restaurants: [
-        {
-          _id: restaurantId,
-          place_id: "90",
-          name: "Uncle Tetsu",
-          isVisited: true,
-          lat: 10,
-          lng: -10,
-        },
-      ],
-      users: ["123"],
-    };
-
-    mockingoose(FoodoListModel).toReturn(foodoListDoc, "findOneAndUpdate");
+    mockingoose(FoodoListModel).toReturn(null, "findOneAndUpdate");
 
     const reqBody = {
-      isVisited: true,
-      listID: foodoListId,
+      isVisited: false,
+      listID: "0",
       restaurantID: restaurantId,
+      restaurantName: "Uncle Tetsu",
+      lat: 10,
+      lng: -10,
     };
+    const expectedBody = { error: "List not found" };
     const response = await request(app)
-      .patch("/checkRestaurantOnList")
-      .send(reqBody);
-
-    expect(response.body).toStrictEqual(foodoListDoc);
-    expect(response.statusCode).toBe(200);
-  });
-
-  //   Will error since we need to implement error handling in this case
-  it("test invalid latitude longitude values", async () => {
-    const foodoListDoc = {
-      _id: foodoListId,
-      name: "Deserts",
-      restaurants: [
-        {
-          _id: restaurantId,
-          place_id: "90",
-          name: "Uncle Tetsu",
-          isVisited: true,
-          lat: 10,
-          lng: -10,
-        },
-      ],
-      users: ["123"],
-    };
-
-    mockingoose(FoodoListModel).toReturn(foodoListDoc, "findOneAndUpdate");
-
-    const reqBody = {
-      isVisited: true,
-      listID: foodoListId,
-      restaurantID: restaurantId,
-    };
-    const expectedBody = { error: "Restaurant not found" };
-    const response = await request(app)
-      .patch("/checkRestaurantOnList")
+      .patch("/addRestaurantToList")
       .send(reqBody);
 
     expect(response.body).toStrictEqual(expectedBody);
     expect(response.statusCode).toBe(404);
   });
 
-  //   Will error since we need to implement error handling in this case
-  it("test invalid restaurant ID", async () => {
-    const foodoListDoc = {
-      _id: foodoListId,
-      name: "Deserts",
-      restaurants: [
-        {
-          _id: restaurantId,
-          place_id: "90",
-          name: "Uncle Tetsu",
-          isVisited: true,
-          lat: 10,
-          lng: -10,
-        },
-      ],
-      users: ["123"],
-    };
-
-    mockingoose(FoodoListModel).toReturn(foodoListDoc, "findOneAndUpdate");
-
+  it("test invalid latitude longitude values", async () => {
     const reqBody = {
-      isVisited: true,
+      isVisited: false,
       listID: foodoListId,
       restaurantID: restaurantId,
+      restaurantName: "Uncle Tetsu",
+      lat: 180,
+      lng: -360,
     };
-    const expectedBody = { error: "List not found" };
+    const expectedBody = { error: "Invalid latitude/longitude values" };
     const response = await request(app)
-      .patch("/checkRestaurantOnList")
+      .patch("/addRestaurantToList")
+      .send(reqBody);
+
+    expect(response.body).toStrictEqual(expectedBody);
+    expect(response.statusCode).toBe(400);
+  });
+
+  //   Will error since we need to implement error handling in this case
+  it("test invalid restaurant ID", async () => {
+    const reqBody = {
+      isVisited: false,
+      listID: foodoListId,
+      restaurantID: "-1",
+      restaurantName: "Uncle Tetsu",
+      lat: 10,
+      lng: -10,
+    };
+    const expectedBody = {
+      error: "Invalid restaurant ID, restaurant could not be found",
+    };
+    const response = await request(app)
+      .patch("/addRestaurantToList")
       .send(reqBody);
 
     expect(response.body).toStrictEqual(expectedBody);
@@ -149,35 +108,22 @@ describe("/addRestaurantToList", () => {
 
   //   Will error since we need to implement error handling in this case
   it("test invalid restaurant name", async () => {
-    const foodoListDoc = {
-      _id: foodoListId,
-      name: "Deserts",
-      restaurants: [
-        {
-          _id: restaurantId,
-          place_id: "90",
-          name: "Uncle Tetsu",
-          isVisited: true,
-          lat: 10,
-          lng: -10,
-        },
-      ],
-      users: ["123"],
-    };
-
-    mockingoose(FoodoListModel).toReturn(foodoListDoc, "findOneAndUpdate");
-
     const reqBody = {
-      isVisited: true,
+      isVisited: false,
       listID: foodoListId,
       restaurantID: restaurantId,
+      restaurantName: "",
+      lat: 10,
+      lng: -10,
     };
-    const expectedBody = { error: "List not found" };
+    const expectedBody = {
+      error: "Invalid restaurant name, restaurant name cannot be empty",
+    };
     const response = await request(app)
-      .patch("/checkRestaurantOnList")
+      .patch("/addRestaurantToList")
       .send(reqBody);
 
     expect(response.body).toStrictEqual(expectedBody);
-    expect(response.statusCode).toBe(404);
+    expect(response.statusCode).toBe(400);
   });
 });

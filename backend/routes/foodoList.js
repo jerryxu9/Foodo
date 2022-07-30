@@ -59,31 +59,53 @@ router.delete("/deleteFoodoList", async (req, res) => {
 
 // Add a restaurant to a Foodo list
 router.patch("/addRestaurantToList", async (req, res) => {
-  const newRestaurant = new FoodoRestaurantModel({
-    place_id: req.body?.restaurantID,
-    name: req.body?.restaurantName,
-    isVisited: req.body?.isVisited,
-    lat: req.body?.lat,
-    lng: req.body?.lng,
-  });
-
-  const pushItem = { restaurants: newRestaurant };
-
-  FoodoListModel.findByIdAndUpdate(
-    req.body?.listID,
-    {
-      $push: pushItem,
-    },
-    {
-      returnDocument: "after",
-    }
-  )
-    .then((updatedList) => {
-      res.json(updatedList);
-    })
-    .catch((err) => {
-      res.json(err);
+  // check lat/lon values
+  if (
+    req.body?.lat < -90 ||
+    req.body?.lat > 90 ||
+    req.body?.lng < -180 ||
+    req.body?.lng > 180
+  ) {
+    res.statusCode = 400;
+    res.json({ error: "Invalid latitude/longitude values" });
+  } else if (req.body?.restaurantID === "-1") {
+    res.statusCode = 404;
+    res.json({ error: "Invalid restaurant ID, restaurant could not be found" });
+  } else if (req.body?.restaurantName === "") {
+    res.statusCode = 400;
+    res.json({
+      error: "Invalid restaurant name, restaurant name cannot be empty",
     });
+  } else {
+    const newRestaurant = new FoodoRestaurantModel({
+      place_id: req.body?.restaurantID,
+      name: req.body?.restaurantName,
+      isVisited: req.body?.isVisited,
+      lat: req.body?.lat,
+      lng: req.body?.lng,
+    });
+
+    const pushItem = { restaurants: newRestaurant };
+
+    FoodoListModel.findByIdAndUpdate(
+      req.body?.listID,
+      {
+        $push: pushItem,
+      },
+      {
+        returnDocument: "after",
+      }
+    )
+      .then((updatedList) => {
+        if (updatedList === null) {
+          res.statusCode = 404;
+          res.json({ error: "List not found" });
+        } else res.json(updatedList);
+      })
+      .catch((err) => {
+        res.json(err);
+      });
+  }
 });
 
 // Delete a restaurant from a Foodo list
