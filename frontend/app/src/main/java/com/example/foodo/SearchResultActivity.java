@@ -18,7 +18,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class SearchResultActivity extends AppCompatActivity {
-    private final String TAG = "SearchResultActivity";
+
     private RecyclerView searchResults;
     private ArrayList<RestaurantCard> restaurantCardArrayList;
     private TextView searchText;

@@ -202,7 +202,7 @@ public class SearchForRestaurantInformationTest {
         Log.d(TAG, "Check Reviews text is displayed in the restaurant info page");
         ViewInteraction textView4 = onView(
                 allOf(withId(R.id.Review_title), withText("Reviews"),
-                        withParent(withParent(IsInstanceOf.instanceOf(android.view.ViewGroup.class))),
+                        withParent(withParent(IsInstanceOf.instanceOf(ViewGroup.class))),
                         isDisplayed()));
         textView4.check(matches(withText("Reviews")));
 
@@ -210,7 +210,7 @@ public class SearchForRestaurantInformationTest {
         ViewInteraction textView5 = onView(
                 allOf(withText("Hours"),
                         withParent(allOf(withId(R.id.linearLayout),
-                                withParent(IsInstanceOf.instanceOf(android.view.ViewGroup.class)))),
+                                withParent(IsInstanceOf.instanceOf(ViewGroup.class)))),
                         isDisplayed()));
         textView5.check(matches(withText("Hours")));
 
@@ -218,7 +218,7 @@ public class SearchForRestaurantInformationTest {
         ViewInteraction textView6 = onView(
                 allOf(withId(R.id.restaurantAddress_info),
                         withParent(allOf(withId(R.id.linearLayout),
-                                withParent(IsInstanceOf.instanceOf(android.view.ViewGroup.class)))),
+                                withParent(IsInstanceOf.instanceOf(ViewGroup.class)))),
                         isDisplayed()));
         textView6.check(matches(isDisplayed()));
 
@@ -226,7 +226,7 @@ public class SearchForRestaurantInformationTest {
         ViewInteraction textView7 = onView(
                 allOf(withId(R.id.restaurantNumber_info),
                         withParent(allOf(withId(R.id.linearLayout),
-                                withParent(IsInstanceOf.instanceOf(android.view.ViewGroup.class)))),
+                                withParent(IsInstanceOf.instanceOf(ViewGroup.class)))),
                         isDisplayed()));
         textView7.check(matches(isDisplayed()));
 
