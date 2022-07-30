@@ -161,6 +161,8 @@ public class SearchForRestaurantInformationTest {
         Log.d(TAG, "Click Search Button");
 
         searchAutoComplete.perform(pressImeActionButton());
+        // Have to click twice Search Button twice on first search: Peer group pointed this out. Must fix!
+        searchAutoComplete.perform(pressImeActionButton());
 
         Log.d(TAG, "Check search results page displays Tim Hortons in top bar");
         ViewInteraction textView = onView(

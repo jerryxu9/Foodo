@@ -60,8 +60,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView loginText;
     private Double lat;
     private Double lng;
-    private CountingIdlingResource searchQueryCountingIdlingResource;
-
     private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(@NonNull Location location) {
@@ -69,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
             lng = location.getLongitude();
         }
     };
+    private CountingIdlingResource searchQueryCountingIdlingResource;
 
     @SuppressLint("MissingPermission")
     @Override
@@ -100,9 +99,6 @@ public class MainActivity extends AppCompatActivity {
 
         setupComponentListeners();
         setupFoodoLists();
-
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, locationListener);
     }
 
     private void setupComponentListeners() {
@@ -186,20 +182,26 @@ public class MainActivity extends AppCompatActivity {
         hideLoginPrompts();
     }
 
+    @SuppressLint("MissingPermission")
     private boolean searchRestaurant(String query) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Permission was not granted, requesting permissions now");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             return false;
         }
+
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, locationListener);
+
+        HashMap<String, String> queryParameters = new HashMap<>();
+        queryParameters.put("query", query);
+
         if (lat == null || lng == null) {
             Toast.makeText(this, "Unable to get location, please try again", Toast.LENGTH_LONG);
             Log.d(TAG, "unable to get location");
             return false;
         }
 
-        HashMap<String, String> queryParameters = new HashMap<>();
-        queryParameters.put("query", query);
         queryParameters.put("lat", String.valueOf(lat));
         queryParameters.put("lng", String.valueOf(lng));
 
@@ -215,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, searchResults);
                 try {
                     JSONArray restaurantResultsArray = new JSONArray(searchResults);
-//                    Log.d(TAG, String.format("response from /searchRestaurantsByQuery: %s", searchResults));
+                    Log.d(TAG, String.format("response from /searchRestaurantsByQuery: %s", searchResults));
                     runOnUiThread(() -> {
                         searchResultIntent.putExtra("restaurantResultsArray", restaurantResultsArray.toString());
                         searchResultIntent.putExtra("query", query);
