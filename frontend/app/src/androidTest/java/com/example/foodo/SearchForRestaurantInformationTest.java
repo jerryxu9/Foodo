@@ -1,7 +1,6 @@
 package com.example.foodo;
 
 
-import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -16,15 +15,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,15 +34,8 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.GrantPermissionRule;
-import androidx.test.uiautomator.By;
-import androidx.test.uiautomator.UiDevice;
-import androidx.test.uiautomator.UiObject;
-import androidx.test.uiautomator.UiObjectNotFoundException;
-import androidx.test.uiautomator.UiSelector;
-import androidx.test.uiautomator.Until;
 
+import androidx.test.rule.GrantPermissionRule;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -67,7 +53,6 @@ public class SearchForRestaurantInformationTest {
     private static final String TAG = "SearchForRestaurantInformationTest";
     private final String SEARCH_QUERY = "Tim Hortons";
     private final String INVALID_QUERY = "**&@(#$&";
-    UiDevice mDevice;
 
     @Rule
     public ActivityScenarioRule<MainActivity> mActivityScenarioRule =
@@ -137,13 +122,11 @@ public class SearchForRestaurantInformationTest {
                 IdlingRegistry.getInstance().register(searchQueryIdlingResource);
             }
         });
-
-        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
     }
 
 
     @Test
-    public void searchForRestaurantInformationTest() throws InterruptedException, UiObjectNotFoundException {
+    public void searchForRestaurantInformationTest() throws InterruptedException {
         Log.d(TAG, "Click Search View");
         ViewInteraction appCompatImageView = onView(
                 allOf(withClassName(is("androidx.appcompat.widget.AppCompatImageView")), withContentDescription("Search"),
