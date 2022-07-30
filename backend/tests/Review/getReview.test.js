@@ -1,4 +1,3 @@
-const request = require("supertest");
 const mockingoose = require("mockingoose");
 const Review = require("../../models/Review");
 const getReviews = require("../../utils/getReview");
