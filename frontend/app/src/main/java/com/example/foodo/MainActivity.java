@@ -22,6 +22,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.example.foodo.objects.FoodoListCard;
 import com.example.foodo.objects.FoodoListCardAdapter;
@@ -59,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView loginText;
     private Double lat;
     private Double lng;
-
     private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(@NonNull Location location) {
@@ -67,7 +67,9 @@ public class MainActivity extends AppCompatActivity {
             lng = location.getLongitude();
         }
     };
+    private CountingIdlingResource searchQueryCountingIdlingResource;
 
+    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +93,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
             loginButton.setOnClickListener((View v) -> signIn());
         }
+
+        Log.d(TAG, "starting idling resource");
+        searchQueryCountingIdlingResource = new CountingIdlingResource("QueryCountingIdlingResource");
+
         setupComponentListeners();
         setupFoodoLists();
     }
@@ -114,8 +120,8 @@ public class MainActivity extends AppCompatActivity {
         restaurantSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                searchRestaurant(query);
-                return true;
+                Log.d(TAG, "submit");
+                return searchRestaurant(query);
             }
 
             @Override
@@ -177,22 +183,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @SuppressLint("MissingPermission")
-    private void searchRestaurant(String query) {
+    private boolean searchRestaurant(String query) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Permission was not granted, requesting permissions now");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            return;
+            return false;
         }
+
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, locationListener);
 
-        if (lat == null || lng == null) {
-            Toast.makeText(this, "Unable to get location, please try again", Toast.LENGTH_LONG);
-            return;
-        }
-
         HashMap<String, String> queryParameters = new HashMap<>();
         queryParameters.put("query", query);
+
+        if (lat == null || lng == null) {
+            Toast.makeText(this, "Unable to get location, please try again", Toast.LENGTH_LONG);
+            Log.d(TAG, "unable to get location");
+            return false;
+        }
+
         queryParameters.put("lat", String.valueOf(lat));
         queryParameters.put("lng", String.valueOf(lng));
 
@@ -205,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 String searchResults = OKHttpService.getResponseBody(response);
+                Log.d(TAG, searchResults);
                 try {
                     JSONArray restaurantResultsArray = new JSONArray(searchResults);
                     Log.d(TAG, String.format("response from /searchRestaurantsByQuery: %s", searchResults));
@@ -212,14 +222,27 @@ public class MainActivity extends AppCompatActivity {
                         searchResultIntent.putExtra("restaurantResultsArray", restaurantResultsArray.toString());
                         searchResultIntent.putExtra("query", query);
                         startActivity(searchResultIntent);
+                        if (searchQueryCountingIdlingResource != null) {
+                            Log.d(TAG, "Decrement");
+                            searchQueryCountingIdlingResource.decrement();
+                        }
                     });
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
         };
 
+        if (searchQueryCountingIdlingResource != null) {
+            Log.d(TAG, "Increment. Awiting");
+            searchQueryCountingIdlingResource.increment();
+        }
+
+        Log.d(TAG, "Hello?");
         OKHttpService.getRequest("searchRestaurantsByQuery", searchRestaurantCallback, queryParameters);
+
+        return true;
     }
 
     private void createUser(String idToken, String username, String email) {
@@ -265,4 +288,10 @@ public class MainActivity extends AppCompatActivity {
 
         OKHttpService.postRequest("createUser", createUserCallback, createUserParams);
     }
+
+    public CountingIdlingResource getSearchQueryCountingIdlingResource() {
+        return searchQueryCountingIdlingResource;
+    }
+
+
 }

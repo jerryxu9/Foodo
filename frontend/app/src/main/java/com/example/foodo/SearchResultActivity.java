@@ -1,15 +1,15 @@
 package com.example.foodo;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.idling.CountingIdlingResource;
 
-import com.example.foodo.objects.RestaurantCardAdapter;
 import com.example.foodo.objects.RestaurantCard;
+import com.example.foodo.objects.RestaurantCardAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,14 +18,20 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class SearchResultActivity extends AppCompatActivity {
+
     private RecyclerView searchResults;
     private ArrayList<RestaurantCard> restaurantCardArrayList;
     private TextView searchText;
-    private final String TAG = "SearchResultActivity";
+    private CountingIdlingResource searchResultActivityCountingIdlingResource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        searchResultActivityCountingIdlingResource = new CountingIdlingResource("SearchResultActivityLoaded");
+
+        searchResultActivityCountingIdlingResource.increment();
+
         setContentView(R.layout.activity_search_result);
         searchResults = findViewById(R.id.search_list);
         searchText = findViewById(R.id.search_text);
@@ -33,6 +39,9 @@ public class SearchResultActivity extends AppCompatActivity {
 
         setSearchBarText();
         populateSearchResultList();
+
+        searchResultActivityCountingIdlingResource.decrement();
+
     }
 
     private void setSearchBarText() {
@@ -44,16 +53,15 @@ public class SearchResultActivity extends AppCompatActivity {
             JSONArray restaurantResultsArray = new JSONArray(getIntent().getStringExtra("restaurantResultsArray"));
             for (int i = 0; i < restaurantResultsArray.length(); i++) {
                 JSONObject restaurantResult = restaurantResultsArray.getJSONObject(i);
-                Log.d(TAG, restaurantResult.toString());
                 String businessStatus;
                 if (restaurantResult.getString("businessStatus").equals("OPERATIONAL")) {
-                    if(restaurantResult.has("openNow")){
+                    if (restaurantResult.has("openNow")) {
                         if (restaurantResult.getString("openNow").equals("true")) {
                             businessStatus = "Open";
                         } else {
                             businessStatus = "Closed";
                         }
-                    }else{
+                    } else {
                         businessStatus = "Unknown";
                     }
                 } else {
@@ -84,5 +92,9 @@ public class SearchResultActivity extends AppCompatActivity {
 
         searchResults.setLayoutManager(linearLayoutManager);
         searchResults.setAdapter(restaurantCardAdapter);
+    }
+
+    public CountingIdlingResource getSearchResultActivityCountingIdlingResource() {
+        return searchResultActivityCountingIdlingResource;
     }
 }
