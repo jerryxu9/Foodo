@@ -1,6 +1,6 @@
 const { getMessaging } = require("firebase-admin/messaging");
 
-const ourGetMessaging = async () => {
+const ourGetMessaging = async (message) => {
   return getMessaging()
     .send(message)
     .then((response) => {
