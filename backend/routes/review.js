@@ -32,7 +32,7 @@ router.post("/addReview", async (req, res) => {
   console.log(message);
 
   // Send a message to devices subscribed to the provided topic.
-  await ourGetMessaging();
+  await ourGetMessaging(message);
 
   res.json(data);
 });
