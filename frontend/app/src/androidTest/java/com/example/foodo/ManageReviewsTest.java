@@ -12,6 +12,8 @@ import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.assertion.ViewAssertions;
 import androidx.test.espresso.matcher.ViewMatchers;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -21,6 +23,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.UiObjectNotFoundException;
 import androidx.test.uiautomator.UiScrollable;
 import androidx.test.uiautomator.UiSelector;
@@ -42,21 +45,14 @@ import org.junit.runner.RunWith;
 public class ManageReviewsTest {
 
     UiDevice mDevice;
-    private static final int PAGE_LOAD_TIMEOUT =30000;
-    private static final int SHORTER_PAGE_LOAD_TIMEOUT = 10000;
-    private static final int OBJECT_TIMEOUT = 5000;
-    private static final int WAIT_FOR_CHANGE = 3000;
+    private static final int PAGE_LOAD_TIMEOUT =60000;
+    private static final int SHORTER_PAGE_LOAD_TIMEOUT = 40000;
+    private static final int OBJECT_TIMEOUT = 20000;
     private static final String BASIC_SAMPLE_PACKAGE
             = "com.example.foodo";
 
 //    @Rule
 //    public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
-//
-//    @Before
-//    public void setUp() {
-////        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-//
-//    }
 
     @Before
     public void startMainActivityFromHomeScreen() {
@@ -88,68 +84,47 @@ public class ManageReviewsTest {
                 .text("LOGIN")
                 .className("android.widget.Button"));
         loginButton.waitForExists(OBJECT_TIMEOUT);
-        loginButton.click();
+        loginButton.clickAndWaitForNewWindow();
 
-        mDevice.wait(Until.hasObject(By.text("Sign in")), PAGE_LOAD_TIMEOUT);
+        UiObject2 emailInput = mDevice.wait(Until.findObject(By
+                .clazz(EditText.class)), PAGE_LOAD_TIMEOUT);
 
-        UiObject emailInput = mDevice.findObject(new UiSelector()
-                .instance(0)
-                .className(EditText.class));
-
-        emailInput.waitForExists(OBJECT_TIMEOUT);
-//        emailInput.click();
-//        UiObject nextButton = mDevice.findObject(new UiSelector()
-//                .text("Next"));
-//        nextButton.waitForExists(SHORTER_PAGE_LOAD_TIMEOUT);
         emailInput.click();
-
         emailInput.setText("cpen321espresso@gmail.com");
+        emailInput.wait(Until.textEquals("cpen321espresso@gmail.com"), OBJECT_TIMEOUT);
+        assertEquals(emailInput.getText(), "cpen321espresso@gmail.com");
 
-        UiObject nextButton = mDevice.findObject(new UiSelector()
-                .className("android.widget.Button")
-                .textContains("N"));
-        nextButton.waitForExists(OBJECT_TIMEOUT);
+        UiObject2 nextButton = mDevice.wait(Until.findObject(By
+                .textContains("N")
+                .clazz("android.widget.Button")), OBJECT_TIMEOUT);
+
         nextButton.click();
-
-//        //SOmetimes Google gives a pop up that we have to close
-//        //We then have to click next again ugh
-//        UiObject closeButton = mDevice.findObject(new UiSelector()
-//                .className("android.widget.Button")
-//                .textContains("Close"));
-//
-//        if(closeButton.exists()){
-//            closeButton.click();
-//            nextButton.click();
-//        }
 
         mDevice.wait(Until.hasObject(By.text("Hi Test").clazz(TextView.class)), SHORTER_PAGE_LOAD_TIMEOUT);
+//        // Set Password
+        UiObject2 passwordInput = mDevice.wait(Until.findObject(By
+                .clazz(EditText.class)), OBJECT_TIMEOUT);
 
-        // Set Password
-        UiObject passwordInput = mDevice.findObject(new UiSelector()
-                .className(EditText.class));
-
-        passwordInput.waitForExists(OBJECT_TIMEOUT);
+        passwordInput.click();
         passwordInput.setText("cpen#@!espresso");// type your password here
+        passwordInput.wait(Until.textEquals("cpen#@!espresso"), OBJECT_TIMEOUT);
+
+        //check that password is filled
+        //Note: it returns *******, probably bc of security, so
+        //just compare the length instead
+        assertEquals(passwordInput.getText().length(), 15);
 
         // Confirm Button Click
-        nextButton = mDevice.findObject(new UiSelector()
-                .className("android.widget.Button")
-                .textContains("N"));
+        nextButton = mDevice.wait(Until.findObject(By
+                .textContains("N")
+                .clazz("android.widget.Button")), OBJECT_TIMEOUT);
 
-        nextButton.waitForExists(OBJECT_TIMEOUT);
         nextButton.click();
 
-        //This doesn't always show up, if it does, we don't want to turn it on
-        UiObject syncContacts = mDevice.findObject(new UiSelector()
-                .text("Don't turn on"));
-        if(syncContacts.exists()){
-            syncContacts.longClick();
-        }
-
-        UiObject agreeTermsOfService = mDevice.findObject(new UiSelector()
-                .text("I agree"));
-        agreeTermsOfService.waitForExists(OBJECT_TIMEOUT);
-        agreeTermsOfService.clickAndWaitForNewWindow();
+        UiObject2 agreeTermsOfService = mDevice.wait(Until.findObject(By
+                .text("I agree")
+                .clazz("android.widget.Button")), OBJECT_TIMEOUT);
+        agreeTermsOfService.click();
 
         mDevice.wait(Until.hasObject(By.textContains("Tap to learn more about each service")), SHORTER_PAGE_LOAD_TIMEOUT);
 
@@ -161,14 +136,17 @@ public class ManageReviewsTest {
         UiObject acceptButton = mDevice.findObject(new UiSelector().text("ACCEPT"));
         acceptButton.clickAndWaitForNewWindow(SHORTER_PAGE_LOAD_TIMEOUT);
 
-        startMainActivityFromHomeScreen();
+        mDevice.wait(Until.hasObject(By.text("Foodo")), PAGE_LOAD_TIMEOUT);
+        mDevice.click(133, 496);
 
-        loginButton = mDevice.findObject(new UiSelector()
-                .text("LOGIN")
-                .className("android.widget.Button"));
-        loginButton.waitForExists(OBJECT_TIMEOUT);
-        loginButton.click();
-
+//        UiObject loginButton = mDevice.findObject(new UiSelector()
+//                .text("LOGIN")
+//                .className("android.widget.Button"));
+//        loginButton.waitForExists(OBJECT_TIMEOUT);
+//        loginButton.click();
+//
+//        mDevice.wait(Until.hasObject(By.text("Choose an account")), OBJECT_TIMEOUT);
+//        mDevice.click(538, 1099);
     }
 
     private String getLauncherPackageName() {
