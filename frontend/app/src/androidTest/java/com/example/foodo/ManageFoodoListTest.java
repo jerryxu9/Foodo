@@ -57,9 +57,11 @@ import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -68,6 +70,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ManageFoodoListTest {
 
     private static final int SHORTER_PAGE_LOAD_TIMEOUT = 40000;
@@ -107,6 +110,49 @@ public class ManageFoodoListTest {
                 return matcher.matches(view) && currentIndex++ == index;
             }
         };
+    }
+
+    private void startMainActivityFromHomeScreen() {
+
+        Log.d(TAG, "Initialize UiDevice instance");
+        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+
+        // Start from the home screen
+        mDevice.pressHome();
+
+        Log.d(TAG, "Wait for launcher");
+        final String launcherPackage = getLauncherPackageName();
+        assertThat(launcherPackage, notNullValue());
+        mDevice.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)), SHORTER_PAGE_LOAD_TIMEOUT);
+
+        Log.d(TAG, "Launch Blueprint app");
+        Context context = getApplicationContext();
+        final Intent intent = context.getPackageManager()
+                .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);    // Clear out any previous instances
+        context.startActivity(intent);
+
+        Log.d(TAG, "Wait for the app to appear");
+        mDevice.wait(Until.hasObject(By.pkg(BASIC_SAMPLE_PACKAGE).depth(0)), SHORTER_PAGE_LOAD_TIMEOUT);
+
+    }
+
+    @Before
+    public void registerIdlingResource() {
+        ActivityScenario<MainActivity> activityScenario = ActivityScenario.launch(MainActivity.class);
+        activityScenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
+            /**
+             * This method is invoked on the main thread with the reference to the Activity.
+             *
+             * @param activity an Activity instrumented by the {@link ActivityScenario}. It never be null.
+             */
+            @Override
+            public void perform(MainActivity activity) {
+                searchQueryIdlingResource = activity.getSearchQueryCountingIdlingResource();
+                IdlingRegistry.getInstance().register(searchQueryIdlingResource);
+            }
+        });
+
     }
 
     @Test
@@ -184,49 +230,6 @@ public class ManageFoodoListTest {
         Espresso.onView(ViewMatchers.withId(R.id.login_warning_text)).check(ViewAssertions.matches(ViewMatchers.withText("Please log in to use this feature")));
     }
 
-    private void startMainActivityFromHomeScreen() {
-
-        Log.d(TAG, "Initialize UiDevice instance");
-        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-
-        // Start from the home screen
-        mDevice.pressHome();
-
-        Log.d(TAG, "Wait for launcher");
-        final String launcherPackage = getLauncherPackageName();
-        assertThat(launcherPackage, notNullValue());
-        mDevice.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)), SHORTER_PAGE_LOAD_TIMEOUT);
-
-        Log.d(TAG, "Launch Blueprint app");
-        Context context = getApplicationContext();
-        final Intent intent = context.getPackageManager()
-                .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);    // Clear out any previous instances
-        context.startActivity(intent);
-
-        Log.d(TAG, "Wait for the app to appear");
-        mDevice.wait(Until.hasObject(By.pkg(BASIC_SAMPLE_PACKAGE).depth(0)), SHORTER_PAGE_LOAD_TIMEOUT);
-
-    }
-
-    @Before
-    public void registerIdlingResource() {
-        ActivityScenario<MainActivity> activityScenario = ActivityScenario.launch(MainActivity.class);
-        activityScenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
-            /**
-             * This method is invoked on the main thread with the reference to the Activity.
-             *
-             * @param activity an Activity instrumented by the {@link ActivityScenario}. It never be null.
-             */
-            @Override
-            public void perform(MainActivity activity) {
-                searchQueryIdlingResource = activity.getSearchQueryCountingIdlingResource();
-                IdlingRegistry.getInstance().register(searchQueryIdlingResource);
-            }
-        });
-
-    }
-
     @Test
     public void manageFoodoListTest() throws UiObjectNotFoundException, InterruptedException {
 
@@ -263,14 +266,13 @@ public class ManageFoodoListTest {
                         isDisplayed()));
         editText.perform(replaceText("Yummy Food"), closeSoftKeyboard());
 
-        Log.d(TAG, "Create Foodo List called Yummy Food by clicking button");
+        Log.d(TAG, "Create Foodo List called Yummy Food by clicking confirmation button");
         ViewInteraction button = onView(
                 allOf(withId(R.id.create_foodo_list_confirm_button), withText("Create Foodo List"),
                         childAtPosition(
                                 withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
                                 1),
-                        isDisplayed()));
-        button.perform(click());
+                        isDisplayed())).perform(click());
 
         Log.d(TAG, "Check that Recycler View has one item");
         ViewInteraction foodoListCardRecyclerView = onView(
@@ -361,7 +363,7 @@ public class ManageFoodoListTest {
         Thread.sleep(100);
         searchAutoComplete.perform(pressImeActionButton());
 
-        Thread.sleep(2000);
+        Thread.sleep(3000);
 
         Log.d(TAG, "Click first search result for Tim Hortons query");
         ViewInteraction recyclerView = onView(
@@ -455,6 +457,7 @@ public class ManageFoodoListTest {
         recyclerView5.check(new RecyclerViewItemCountAssertion(0));
 
     }
+
 
     private String getLauncherPackageName() {
         // Create launcher Intent
