@@ -158,8 +158,8 @@ public class ManageFoodoListTest {
      */
     @Test
     public void addFoodoListBlocksUserIfNotLoggedInTest() {
-        onView(ViewMatchers.withId(R.id.create_foodo_list_button)).perform(click());
-        onView(ViewMatchers.withId(R.id.login_warning_text)).check(matches(withText("Please log in to use this feature")));
+        onView(withId(R.id.create_foodo_list_button)).perform(click());
+        onView(withId(R.id.login_warning_text)).check(matches(withText("Please log in to use this feature")));
     }
 
     @Test
@@ -228,7 +228,7 @@ public class ManageFoodoListTest {
                         isDisplayed()));
         appCompatButton.perform(click());
 
-        onView(ViewMatchers.withId(R.id.login_warning_text)).check(ViewAssertions.matches(ViewMatchers.withText("Please log in to use this feature")));
+        onView(withId(R.id.login_warning_text)).check(matches(withText("Please log in to use this feature")));
     }
 
     @Test
