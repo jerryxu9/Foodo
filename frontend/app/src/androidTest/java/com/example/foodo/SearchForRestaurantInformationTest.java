@@ -64,7 +64,7 @@ public class SearchForRestaurantInformationTest {
                     "android.permission.ACCESS_COARSE_LOCATION");
     private IdlingResource searchQueryIdlingResource;
 
-    private static Matcher<View> childAtPosition(
+    static Matcher<View> childAtPosition(
             final Matcher<View> parentMatcher, final int position) {
 
         return new TypeSafeMatcher<View>() {
@@ -161,8 +161,11 @@ public class SearchForRestaurantInformationTest {
         Log.d(TAG, "Click Search Button");
 
         searchAutoComplete.perform(pressImeActionButton());
-        Thread.sleep(1000);
+
+        Thread.sleep(100);
+
         // Have to click twice Search Button twice on first search: Peer group pointed this out. Must fix!
+        // Set a small delay to ensure location is available by this point
         searchAutoComplete.perform(pressImeActionButton());
 
         Thread.sleep(2000);

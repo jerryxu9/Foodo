@@ -47,7 +47,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.4-alpha07'
     implementation 'com.google.android.gms:play-services-maps:18.0.2'
     implementation 'com.google.android.gms:play-services-auth:20.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0-alpha07'
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     implementation 'com.google.gms:google-services:4.3.13'
     implementation 'com.google.firebase:firebase-analytics'
@@ -60,11 +59,8 @@ dependencies {
 
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0-alpha07'
     implementation 'androidx.test.espresso:espresso-idling-resource:3.4.0'
-    androidTestImplementation 'androidx.test:runner:1.4.0'
     androidTestImplementation 'androidx.test:rules:1.4.1-alpha07'
-//    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.0-alpha07'{
-//
-//    }
+
     androidTestImplementation ('androidx.test.espresso:espresso-contrib:3.4.0'){
             exclude module: "protobuf-lite"
     }
