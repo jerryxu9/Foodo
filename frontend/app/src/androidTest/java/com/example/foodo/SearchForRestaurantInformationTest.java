@@ -221,7 +221,7 @@ public class SearchForRestaurantInformationTest {
                                 withParent(IsInstanceOf.instanceOf(ViewGroup.class)))),
                         isDisplayed()));
         textView5.check(matches(withText("Hours")));
-
+        
         Log.d(TAG, "Check Address text is displayed in the restaurant info page");
         ViewInteraction textView6 = onView(
                 allOf(withId(R.id.restaurantAddress_info),
