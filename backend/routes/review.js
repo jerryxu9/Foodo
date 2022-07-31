@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Review = require("../models/Review");
-const { getMessaging } = require("firebase-admin/messaging");
+const ourGetMessagingAdd = require("../utils/ourGetMessagingAdd");
+const ourGetMessagingDelete = require("../utils/ourGetMessagingDelete");
 
 // Post a new review
 router.post("/addReview", async (req, res) => {
@@ -10,7 +11,7 @@ router.post("/addReview", async (req, res) => {
     user_name: req.body?.user_name,
     review: req.body?.review,
     rating: req.body?.rating,
-    user_id: req.body?.user_id
+    user_id: req.body?.user_id,
   });
   console.log(review);
   // Save this review to database
@@ -24,22 +25,14 @@ router.post("/addReview", async (req, res) => {
       review: review.review,
       rating: review.rating.toString(),
       id: data._id.toString(),
-      user_id: review.user_id
+      user_id: review.user_id,
     },
-    topic: review.google_place_id
-  }
-  console.log(message)
+    topic: review.google_place_id,
+  };
+  console.log(message);
 
   // Send a message to devices subscribed to the provided topic.
-  getMessaging()
-    .send(message)
-    .then((response) => {
-      // Response is a message ID string.
-      console.log("Successfully sent message:", response);
-    })
-    .catch((error) => {
-      console.log("Error sending message:", error);
-    });
+  await ourGetMessagingAdd(message);
 
   res.json(data);
 });
@@ -53,21 +46,13 @@ router.delete("/deleteReview", async (req, res) => {
         data: {
           action: "delete",
           id: req.body?.id,
-          position: req.body?.position
+          position: req.body?.position,
         },
-        topic: req.body?.google_place_id
-      }
+        topic: req.body?.google_place_id,
+      };
 
       console.log(message);
-      getMessaging()
-      .send(message)
-      .then((response) => {
-        // Response is a message ID string.
-        console.log("Successfully sent request to delete:", response);
-      })
-      .catch((error) => {
-        console.log("Error sending request to delete:", error);
-      });
+      await ourGetMessagingDelete(message);
 
       res.json(result);
     })

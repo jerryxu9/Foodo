@@ -2,3 +2,4 @@
 node_modules
 Foodo_key.pem
 .env
+coverage
