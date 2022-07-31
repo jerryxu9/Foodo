@@ -120,9 +120,7 @@ public class ManageReviewsTest {
     }
 
     @Test
-    public void userCanAddAndDeleteReviews() throws UiObjectNotFoundException, InterruptedException {
-        login();
-
+    public void userCanAddAndDeleteReviews() throws InterruptedException {
         ViewInteraction appCompatImageView = onView(
                 allOf(withClassName(is("androidx.appcompat.widget.AppCompatImageView")), withContentDescription("Search"),
                         childAtPosition(
@@ -202,16 +200,5 @@ public class ManageReviewsTest {
 
         //Check that the recycler view has no children (review cards)
         onView(withId(R.id.review_list)).check(matches(hasChildCount(0)));
-    }
-
-    private void login() throws UiObjectNotFoundException {
-        UiObject loginButton = mDevice.findObject(new UiSelector()
-                .text("LOGIN")
-                .className("android.widget.Button"));
-        loginButton.waitForExists(OBJECT_TIMEOUT);
-        loginButton.click();
-
-        mDevice.wait(Until.hasObject(By.text("Choose an account")), OBJECT_TIMEOUT);
-        mDevice.click(538, 1099);
     }
 }
