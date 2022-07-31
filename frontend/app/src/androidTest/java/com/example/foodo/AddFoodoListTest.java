@@ -25,8 +25,9 @@ public class AddFoodoListTest {
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
     @Test
-    public void addFoodoListBlocksUserIfNotLoggedIn() {
+    public void addFoodoListBlocksUserIfNotLoggedIn() throws InterruptedException {
         Espresso.onView(ViewMatchers.withId(R.id.create_foodo_list_button)).perform(ViewActions.click());
+        Thread.sleep(1000);
         Espresso.onView(ViewMatchers.withId(R.id.login_warning_text)).check(ViewAssertions.matches(ViewMatchers.withText("Please log in to use this feature")));
     }
 }

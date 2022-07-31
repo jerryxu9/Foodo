@@ -34,8 +34,8 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.GrantPermissionRule;
 
+import androidx.test.rule.GrantPermissionRule;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -53,6 +53,7 @@ public class SearchForRestaurantInformationTest {
     private static final String TAG = "SearchForRestaurantInformationTest";
     private final String SEARCH_QUERY = "Tim Hortons";
     private final String INVALID_QUERY = "**&@(#$&";
+
     @Rule
     public ActivityScenarioRule<MainActivity> mActivityScenarioRule =
             new ActivityScenarioRule<>(MainActivity.class);
@@ -121,12 +122,11 @@ public class SearchForRestaurantInformationTest {
                 IdlingRegistry.getInstance().register(searchQueryIdlingResource);
             }
         });
-
     }
 
-    @Test
-    public void searchForRestaurantInformationTest() {
 
+    @Test
+    public void searchForRestaurantInformationTest() throws InterruptedException {
         Log.d(TAG, "Click Search View");
         ViewInteraction appCompatImageView = onView(
                 allOf(withClassName(is("androidx.appcompat.widget.AppCompatImageView")), withContentDescription("Search"),
@@ -161,8 +161,11 @@ public class SearchForRestaurantInformationTest {
         Log.d(TAG, "Click Search Button");
 
         searchAutoComplete.perform(pressImeActionButton());
+        Thread.sleep(1000);
         // Have to click twice Search Button twice on first search: Peer group pointed this out. Must fix!
         searchAutoComplete.perform(pressImeActionButton());
+
+        Thread.sleep(2000);
 
         Log.d(TAG, "Check search results page displays Tim Hortons in top bar");
         ViewInteraction textView = onView(
@@ -250,6 +253,8 @@ public class SearchForRestaurantInformationTest {
 
         Log.d(TAG, "Click search using the invalid query");
         searchAutoComplete.perform(pressImeActionButton());
+
+        Thread.sleep(2000);
 
         Log.d(TAG, "Check that no search results appear");
         recyclerView.check(new RecyclerViewItemCountAssertion(0));
