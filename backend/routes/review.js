@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Review = require("../models/Review");
-const { getMessaging } = require("firebase-admin/messaging");
-const ourGetMessaging = require("../utils/ourGetMessaging");
+const ourGetMessagingAdd = require("../utils/ourGetMessagingAdd");
+const ourGetMessagingDelete = require("../utils/ourGetMessagingDelete");
 
 // Post a new review
 router.post("/addReview", async (req, res) => {
@@ -32,7 +32,7 @@ router.post("/addReview", async (req, res) => {
   console.log(message);
 
   // Send a message to devices subscribed to the provided topic.
-  await ourGetMessaging(message);
+  await ourGetMessagingAdd(message);
 
   res.json(data);
 });
@@ -52,15 +52,7 @@ router.delete("/deleteReview", async (req, res) => {
       };
 
       console.log(message);
-      getMessaging()
-        .send(message)
-        .then((response) => {
-          // Response is a message ID string.
-          console.log("Successfully sent request to delete:", response);
-        })
-        .catch((error) => {
-          console.log("Error sending request to delete:", error);
-        });
+      await ourGetMessagingDelete(message);
 
       res.json(result);
     })

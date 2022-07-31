@@ -1,6 +1,6 @@
 const { getMessaging } = require("firebase-admin/messaging");
 
-const ourGetMessaging = async (message) => {
+const ourGetMessagingAdd = async (message) => {
   return getMessaging()
     .send(message)
     .then((response) => {
@@ -12,4 +12,4 @@ const ourGetMessaging = async (message) => {
     });
 };
 
-module.exports = ourGetMessaging;
+module.exports = ourGetMessagingAdd;

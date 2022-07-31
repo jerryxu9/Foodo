@@ -3,8 +3,8 @@ const app = require("../../server");
 const mockingoose = require("mockingoose");
 const Review = require("../../models/review");
 
-let ourGetMessaging = require("../../utils/ourGetMessaging");
-jest.mock("../../utils/ourGetMessaging", () => jest.fn());
+let ourGetMessagingAdd = require("../../utils/ourGetMessagingAdd");
+jest.mock("../../utils/ourGetMessagingAdd", () => jest.fn());
 
 describe("/addReview", () => {
   const reviewDoc = {
@@ -21,9 +21,8 @@ describe("/addReview", () => {
   });
 
   it("should add a new reivew", async () => {
-    ourGetMessaging.mockImplementation(async () => {
-      return new Promise((resolve, reject) => {
-        console.log("It is done.");
+    ourGetMessagingAdd.mockImplementation(async () => {
+      return new Promise((resolve) => {
         resolve("Success");
       });
     });
