@@ -30,13 +30,11 @@ import android.view.View;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ActivityScenario;
-import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.ViewAssertion;
 import androidx.test.espresso.ViewInteraction;
-import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.assertion.ViewAssertions;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -155,10 +153,13 @@ public class ManageFoodoListTest {
 
     }
 
+    /**
+     * Test implemented for M6
+     */
     @Test
     public void addFoodoListBlocksUserIfNotLoggedInTest() {
-        Espresso.onView(ViewMatchers.withId(R.id.create_foodo_list_button)).perform(ViewActions.click());
-        Espresso.onView(ViewMatchers.withId(R.id.login_warning_text)).check(ViewAssertions.matches(ViewMatchers.withText("Please log in to use this feature")));
+        onView(ViewMatchers.withId(R.id.create_foodo_list_button)).perform(click());
+        onView(ViewMatchers.withId(R.id.login_warning_text)).check(matches(withText("Please log in to use this feature")));
     }
 
     @Test
@@ -227,7 +228,7 @@ public class ManageFoodoListTest {
                         isDisplayed()));
         appCompatButton.perform(click());
 
-        Espresso.onView(ViewMatchers.withId(R.id.login_warning_text)).check(ViewAssertions.matches(ViewMatchers.withText("Please log in to use this feature")));
+        onView(ViewMatchers.withId(R.id.login_warning_text)).check(ViewAssertions.matches(ViewMatchers.withText("Please log in to use this feature")));
     }
 
     @Test
@@ -272,7 +273,8 @@ public class ManageFoodoListTest {
                         childAtPosition(
                                 withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
                                 1),
-                        isDisplayed())).perform(click());
+                        isDisplayed()));
+        button.perform(click());
 
         Log.d(TAG, "Check that Recycler View has one item");
         ViewInteraction foodoListCardRecyclerView = onView(
