@@ -160,12 +160,8 @@ public class SearchForRestaurantInformationTest {
 
         Log.d(TAG, "Click Search Button");
 
-        searchAutoComplete.perform(pressImeActionButton());
+//        Thread.sleep(100);
 
-        Thread.sleep(100);
-
-        // Have to click twice Search Button twice on first search: Peer group pointed this out. Must fix!
-        // Set a small delay to ensure location is available by this point
         searchAutoComplete.perform(pressImeActionButton());
 
         Thread.sleep(2000);
