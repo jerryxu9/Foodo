@@ -160,8 +160,6 @@ public class SearchForRestaurantInformationTest {
 
         Log.d(TAG, "Click Search Button");
 
-//        Thread.sleep(100);
-
         searchAutoComplete.perform(pressImeActionButton());
 
         Thread.sleep(2000);
