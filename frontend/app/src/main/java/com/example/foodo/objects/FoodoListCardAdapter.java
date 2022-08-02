@@ -21,6 +21,7 @@ import com.example.foodo.R;
 import com.example.foodo.service.OKHttpService;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -80,6 +81,15 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
         });
     }
 
+    public void deleteFoodoList(int index) {
+        ((Activity) context).runOnUiThread(() -> {
+
+            foodoListArrayList.remove(index);
+            notifyItemRemoved(index);
+        });
+
+    }
+
 
     public class Viewholder extends RecyclerView.ViewHolder {
         private final TextView foodoListName;
@@ -106,7 +116,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
             });
         }
 
-        private void handleDeleteFoodoListAction() {
+        public void handleDeleteFoodoListAction() {
             Log.d(TAG, "Pressed delete Foodo button");
 
             HashMap<String , String> bodyParameters = new HashMap<>();
@@ -127,10 +137,11 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                         Log.d(TAG, String.format("Delete FoodoList %s failed using id %s", name, list_id));
                     } else {
                         Log.d(TAG, String.format("Foodo list %s deleted using id %s", name, list_id));
-                        ((Activity) context).runOnUiThread(() -> {
-                            foodoListArrayList.remove(getLayoutPosition());
-                            notifyItemRemoved(getLayoutPosition());
-                        });
+                        deleteFoodoList(getLayoutPosition());
+//                        ((Activity) context).runOnUiThread(() -> {
+//                            foodoListArrayList.remove(getLayoutPosition());
+//                            notifyItemRemoved(getLayoutPosition());
+//                        });
                     }
                 }
             };
@@ -198,6 +209,11 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                     .putExtra("userID", userID);
             mainActivity.startActivity(foodoIntent);
         }
+
+        public ArrayList<FoodoListCard> getFoodoListArrayList() {
+            return foodoListArrayList;
+        }
+
     }
 }
 

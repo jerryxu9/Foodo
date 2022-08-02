@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.idling.CountingIdlingResource;
@@ -56,10 +57,12 @@ public class MainActivity extends AppCompatActivity {
     private GoogleSignInClient mGoogleSignInClient;
     private Intent mapsIntent;
     private Intent searchResultIntent;
+    private RecyclerView foodoLists;
     private Button loginButton;
     private TextView loginText;
     private Double lat;
     private Double lng;
+
     private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(@NonNull Location location) {
@@ -68,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
     private CountingIdlingResource searchQueryCountingIdlingResource;
+    private FoodoListCardAdapter foodoListCardAdapter;
 
     @SuppressLint("MissingPermission")
     @Override
@@ -97,11 +101,12 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "starting idling resource");
         searchQueryCountingIdlingResource = new CountingIdlingResource("QueryCountingIdlingResource");
 
-        setupComponentListeners();
+        setupButtonListeners();
         setupFoodoLists();
+        setupSwipeListeners();
     }
 
-    private void setupComponentListeners() {
+    private void setupButtonListeners() {
 
         Button mapButton = findViewById(R.id.map_button);
         mapButton.setOnClickListener((View v) -> startActivity(mapsIntent));
@@ -131,13 +136,72 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void setupSwipeListeners() {
+        ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
+
+            /**
+             * Called when ItemTouchHelper wants to move the dragged item from its old position to
+             * the new position.
+             * <p>
+             * If this method returns true, ItemTouchHelper assumes {@code viewHolder} has been moved
+             * to the adapter position of {@code target} ViewHolder
+             * ({@link RecyclerView.ViewHolder#getAdapterPosition()
+             * ViewHolder#getAdapterPosition()}).
+             * <p>
+             * If you don't support drag & drop, this method will never be called.
+             *
+             * @param recyclerView The RecyclerView to which ItemTouchHelper is attached to.
+             * @param viewHolder   The ViewHolder which is being dragged by the user.
+             * @param target       The ViewHolder over which the currently active item is being
+             *                     dragged.
+             * @return True if the {@code viewHolder} has been moved to the adapter position of
+             * {@code target}.
+             */
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            /**
+             * Called when a ViewHolder is swiped by the user.
+             * <p>
+             * If you are returning relative directions (START , END) from the
+             * getMovementFlags(RecyclerView, ViewHolder)} method, this method
+             * will also use relative directions. Otherwise, it will use absolute directions.
+             * <p>
+             * If you don't support swiping, this method will never be called.
+             * <p>
+             * ItemTouchHelper will keep a reference to the View until it is detached from
+             * RecyclerView.
+             * As soon as it is detached, ItemTouchHelper will call
+             * clearView(RecyclerView, ViewHolder).
+             *
+             * @param viewHolder The ViewHolder which has been swiped by the user.
+             * @param direction  The direction to which the ViewHolder is swiped. It is one of
+             *                   UP, DOWN,
+             *                   LEFT or RIGHT. If your
+             *                   getMovementFlags(RecyclerView, ViewHolder
+             *                   method
+             *                   returned relative flags instead of LEFT / RIGHT;
+             *                   `direction` will be relative as well. (START or
+             *                   END).
+             */
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                ((FoodoListCardAdapter.Viewholder) viewHolder).handleDeleteFoodoListAction();
+            }
+        };
+
+        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(foodoLists);
+    }
+
     private void setupFoodoLists() {
-        FoodoListCardAdapter foodoListCardAdapter = new FoodoListCardAdapter(this, new ArrayList<FoodoListCard>());
+        foodoListCardAdapter = new FoodoListCardAdapter(this, new ArrayList<FoodoListCard>());
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
 
         this.foodoListService = new FoodoListService(this, foodoListCardAdapter);
 
-        RecyclerView foodoLists = findViewById(R.id.foodo_lists);
+        foodoLists = findViewById(R.id.foodo_lists);
 
         foodoListService.setupUserAccount();
 
