@@ -103,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (account != null) {
             handleSuccessfulSignIn(account);
-            showLogoutButton();
         } else {
             hideLogoutButton();
             loginButton.setOnClickListener((View v) -> signIn());
