@@ -5,11 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
-    app:cardBackgroundColor="@color/inner_boxes"
+    app:cardBackgroundColor="@color/app_shadow"
     app:cardCornerRadius="8dp"
     app:cardElevation="0dp"
     app:cardPreventCornerOverlap="true"
-    app:cardUseCompatPadding="true">
+    app:cardUseCompatPadding="true"
+    android:outlineAmbientShadowColor="@color/app_shadow">
 
     <!--
         In the above cardview widget

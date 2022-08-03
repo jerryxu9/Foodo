@@ -448,6 +448,7 @@ public class MainActivity extends AppCompatActivity {
         deleteActionBackground.setCornerRadius(25f);
 
         Drawable deleteDrawable = ContextCompat.getDrawable(this, R.drawable.delete_button);
+
         int intrinsicWidth = deleteDrawable.getIntrinsicWidth();
         int intrinsicHeight = deleteDrawable.getIntrinsicHeight();
 

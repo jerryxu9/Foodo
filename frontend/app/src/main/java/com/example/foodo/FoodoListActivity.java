@@ -1,9 +1,11 @@
 package com.example.foodo;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -25,10 +27,10 @@ import java.util.ArrayList;
 
 public class FoodoListActivity extends AppCompatActivity {
 
+    private final float SWIPE_THRESHOLD = 0.6f;
     private String listID;
     private String name;
     private RecyclerView restaurantsView;
-    private final float SWIPE_THRESHOLD = 0.6f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +68,7 @@ public class FoodoListActivity extends AppCompatActivity {
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 return false;
             }
+
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 ((RestaurantCardAdapter.Viewholder) viewHolder).deleteRestaurantFromList();
@@ -115,7 +118,8 @@ public class FoodoListActivity extends AppCompatActivity {
         GradientDrawable deleteActionBackground = new GradientDrawable();
         deleteActionBackground.setCornerRadius(25f);
 
-        Drawable deleteDrawable = ContextCompat.getDrawable(this, R.drawable.delete_button);
+        Drawable deleteDrawable = ContextCompat.getDrawable(this, R.drawable.delete_button_tall);
+
         int intrinsicWidth = deleteDrawable.getIntrinsicWidth();
         int intrinsicHeight = deleteDrawable.getIntrinsicHeight();
 
