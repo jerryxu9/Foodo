@@ -80,7 +80,8 @@ public class MainActivity extends AppCompatActivity {
         searchResultIntent = new Intent(MainActivity.this, SearchResultActivity.class);
         loginButton = findViewById(R.id.login_button);
         loginText = findViewById(R.id.login_text);
-
+        setupComponentListeners();
+        setupFoodoLists();
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.server_client_id))
                 .requestEmail()
@@ -98,9 +99,6 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, "starting idling resource");
         searchQueryCountingIdlingResource = new CountingIdlingResource("QueryCountingIdlingResource");
-
-        setupComponentListeners();
-        setupFoodoLists();
     }
 
     private void setupComponentListeners() {
@@ -164,12 +162,8 @@ public class MainActivity extends AppCompatActivity {
 
         RecyclerView foodoLists = findViewById(R.id.foodo_lists);
 
-        foodoListService.setupUserAccount();
-
         foodoLists.setLayoutManager(linearLayoutManager);
         foodoLists.setAdapter(foodoListCardAdapter);
-
-        foodoListService.loadFoodoLists();
     }
 
     private void signIn() {
@@ -280,6 +274,9 @@ public class MainActivity extends AppCompatActivity {
 
                         searchResultIntent.putExtra("username", resJSON.getString("name"));
                         searchResultIntent.putExtra("userID", resJSON.getString("_id"));
+
+                        foodoListService.setUserID(resJSON.getString("_id"));
+                        foodoListService.loadFoodoLists();
 
                         Log.d(TAG, "intent extras have all been added");
                     }

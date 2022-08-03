@@ -45,14 +45,14 @@ public class FoodoListService {
         this.foodoListCardAdapter = foodoListCardAdapter;
     }
 
-    public void setupUserAccount() {
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
-        if (account != null && userID == null) {
-            //no other way to get the token, just go through createUser endpoint
-            //and get the id from the existing entry in the database
-            createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
-        }
-    }
+//    public void setupUserAccount() {
+//        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
+//        if (account != null && userID == null) {
+//            //no other way to get the token, just go through createUser endpoint
+//            //and get the id from the existing entry in the database
+//            createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
+//        }
+//    }
 
     public void createFoodoList() {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
@@ -80,10 +80,17 @@ public class FoodoListService {
         }
     }
 
-    public void loadFoodoLists() {
+    public void setUserID(String userID){
+        this.userID = userID;
+    }
 
+    public void loadFoodoLists() {
         Map<String, String> queryParameters = new HashMap<>();
         queryParameters.put("userID", userID);
+
+        if(userID == null){
+            Log.d(TAG, "UserID is null!");
+        }
 
         Callback loadFoodoListCallback = new Callback() {
             @Override
@@ -160,7 +167,7 @@ public class FoodoListService {
     }
 
     private void createFoodoList(ViewGroup container) throws IOException {
-        if (userID == null || username == null) {
+        if (userID == null) {
             return;
         }
 
