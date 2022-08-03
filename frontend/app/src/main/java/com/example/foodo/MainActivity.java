@@ -9,8 +9,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -40,6 +40,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -59,13 +60,14 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 1;
     private final String TAG = "MainActivity";
-    private final float SWIPE_THRESHOLD = 0.4f;
+    private final float SWIPE_THRESHOLD = 0.6f;
     private FoodoListService foodoListService;
     private GoogleSignInClient mGoogleSignInClient;
     private Intent mapsIntent;
     private Intent searchResultIntent;
     private RecyclerView foodoLists;
     private Button loginButton;
+    private Button logoutButton;
     private TextView loginText;
     private LocationManager locationManager;
     private Double lat;
@@ -89,6 +91,10 @@ public class MainActivity extends AppCompatActivity {
         searchResultIntent = new Intent(MainActivity.this, SearchResultActivity.class);
         loginButton = findViewById(R.id.login_button);
         loginText = findViewById(R.id.login_text);
+        logoutButton = findViewById(R.id.logout_button);
+
+        logoutButton.setOnClickListener(v -> signOut());
+
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.server_client_id))
@@ -102,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
         if (account != null) {
             handleSuccessfulSignIn(account);
         } else {
+            hideLogoutButton();
             loginButton.setOnClickListener((View v) -> signIn());
         }
 
@@ -269,6 +276,15 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
+    private void signOut() {
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(this, task -> {
+                    showLoginPrompts();
+                    hideLogoutButton();
+                    Toast.makeText(MainActivity.this, "You have successfully logged out", Toast.LENGTH_LONG).show();
+                });
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -278,9 +294,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void hideLogoutButton(){
+        logoutButton.setVisibility(View.INVISIBLE);
+    }
+    private void showLogoutButton(){
+        logoutButton.setVisibility(View.VISIBLE);
+    }
+
     private void hideLoginPrompts() {
         loginButton.setVisibility(View.INVISIBLE);
         loginText.setVisibility(View.INVISIBLE);
+    }
+
+    private void showLoginPrompts() {
+        loginButton.setVisibility(View.VISIBLE);
+        loginText.setVisibility(View.VISIBLE);
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
@@ -297,10 +325,11 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, account.getIdToken() + " and " + username);
         createUser(account.getIdToken(), username, account.getEmail());
         hideLoginPrompts();
+        showLogoutButton();
     }
 
-
     private boolean searchRestaurant(String query) {
+
         HashMap<String, String> queryParameters = new HashMap<>();
         queryParameters.put("query", query);
 
@@ -401,18 +430,13 @@ public class MainActivity extends AppCompatActivity {
     private void setDeleteIcon(Canvas c, RecyclerView.ViewHolder viewHolder,
                                float dX, boolean isCurrentlyActive) {
 
-        Paint mClearPaint = new Paint();
-        mClearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-        ColorDrawable mBackground = new ColorDrawable();
-        int backgroundColor = R.color.delete_button_red;
-        Drawable deleteDrawable = ContextCompat.getDrawable(this, R.drawable.delete_button);
-        int intrinsicWidth = deleteDrawable.getIntrinsicWidth();
-        int intrinsicHeight = deleteDrawable.getIntrinsicHeight();
-
         View itemView = viewHolder.itemView;
         int itemHeight = itemView.getHeight();
 
         boolean isCancelled = dX == 0 && !isCurrentlyActive;
+
+        Paint mClearPaint = new Paint();
+        mClearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 
         if (isCancelled) {
             c.drawRect(itemView.getRight() + dX, (float) itemView.getTop(),
@@ -420,9 +444,12 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        mBackground.setColor(getResources().getColor(backgroundColor));
-        mBackground.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-        mBackground.draw(c);
+        GradientDrawable deleteActionBackground = new GradientDrawable();
+        deleteActionBackground.setCornerRadius(25f);
+
+        Drawable deleteDrawable = ContextCompat.getDrawable(this, R.drawable.delete_button);
+        int intrinsicWidth = deleteDrawable.getIntrinsicWidth();
+        int intrinsicHeight = deleteDrawable.getIntrinsicHeight();
 
         int deleteIconMargin = (itemHeight - intrinsicHeight) / 2;
         int deleteIconTop = itemView.getTop() + deleteIconMargin;
@@ -430,9 +457,22 @@ public class MainActivity extends AppCompatActivity {
         int deleteIconLeft = deleteIconRight - intrinsicWidth;
         int deleteIconBottom = deleteIconTop + intrinsicHeight;
 
+        int deleteActionBackgroundColor = getResources().getColor(R.color.delete_button_red);
+        deleteActionBackground.setColor(deleteActionBackgroundColor);
+
+        // Use delete Icon position to determine bounds for the red background when sliding
+        // left = deleteIconLeft + dX is because we want the left edge of the red background
+        // to be even with delete icon plus the amount we swiped left.
+        deleteActionBackground.setBounds(
+                itemView.getLeft() + (int) dX,
+                deleteIconTop,
+                deleteIconRight,
+                deleteIconBottom);
+        deleteActionBackground.draw(c);
+
         deleteDrawable.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom);
         deleteDrawable.draw(c);
-    }
 
+    }
 
 }

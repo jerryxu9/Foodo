@@ -70,18 +70,18 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
 
     public void clearFoodoLists() {
         int size = getItemCount();
-        foodoListArrayList.clear();
-        notifyItemRangeRemoved(0, size);
+        mainActivity.runOnUiThread(() -> {
+            foodoListArrayList.clear();
+            notifyItemRangeRemoved(0, size);
+        });
     }
 
     public void addFoodoList(FoodoListCard card) {
-        ((Activity) context).runOnUiThread(() -> {
+        mainActivity.runOnUiThread(() -> {
             foodoListArrayList.add(card);
             notifyItemInserted(foodoListArrayList.size());
         });
     }
-
-
 
 
     public class Viewholder extends RecyclerView.ViewHolder {
