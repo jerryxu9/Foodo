@@ -361,8 +361,6 @@ public class ManageFoodoListTest {
         searchAutoComplete.perform(replaceText("Tim Hortons"), closeSoftKeyboard());
 
         searchAutoComplete.perform(pressImeActionButton());
-        Thread.sleep(100);
-        searchAutoComplete.perform(pressImeActionButton());
 
         Thread.sleep(3000);
 
