@@ -445,5 +445,5 @@ public class MainActivity extends AppCompatActivity {
         deleteDrawable.draw(c);
 
     }
-
+    
 }
