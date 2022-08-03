@@ -27,7 +27,6 @@ describe("/getRestaurantsByFoodoListID", () => {
     mockingoose.resetAll();
   });
 
-  // will fail because we need to update the endpoint to handle the error
   it("test list is not found", async () => {
     mockingoose(FoodoListModel).toReturn(null, "findOne");
     const queryBody = { listID: "non_exisiting_id" };
@@ -37,7 +36,7 @@ describe("/getRestaurantsByFoodoListID", () => {
       .query(queryBody);
 
     expect(response.body).toStrictEqual(expectedBody);
-    expect(response.statusCode).toBe(404); // need to change to 404 according to m6
+    expect(response.statusCode).toBe(404);
   });
 
   it("test successfully get restaurants", async () => {
