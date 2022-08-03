@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView foodoLists;
     private Button loginButton;
     private TextView loginText;
+    private LocationManager locationManager;
     private Double lat;
     private Double lng;
     private final LocationListener locationListener = new LocationListener() {
@@ -83,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         mapsIntent = new Intent(MainActivity.this, MapActivity.class);
         searchResultIntent = new Intent(MainActivity.this, SearchResultActivity.class);
         loginButton = findViewById(R.id.login_button);
@@ -127,15 +129,38 @@ public class MainActivity extends AppCompatActivity {
         });
 
         SearchView restaurantSearch = findViewById(R.id.restaurant_search);
+
+        restaurantSearch.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            @SuppressLint("MissingPermission")
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Permission was not granted, requesting permissions now");
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                }else {
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, locationListener);
+                    Log.d(TAG, "Permissions set!");
+                }
+            }
+        });
+
         restaurantSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Log.d(TAG, "submit");
-                return searchRestaurant(query);
+                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(), "Location permissions are needed in order to search!", Toast.LENGTH_LONG).show();
+                    return false;
+                }else {
+                    return searchRestaurant(query);
+                }
             }
 
             @Override
+            @SuppressLint("MissingPermission")
             public boolean onQueryTextChange(String newText) {
+                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, locationListener);
+                }
                 return false;
             }
 
@@ -274,25 +299,10 @@ public class MainActivity extends AppCompatActivity {
         hideLoginPrompts();
     }
 
-    @SuppressLint("MissingPermission")
-    private boolean searchRestaurant(String query) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Permission was not granted, requesting permissions now");
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            return false;
-        }
 
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, locationListener);
-
+    private boolean searchRestaurant(String query){
         HashMap<String, String> queryParameters = new HashMap<>();
         queryParameters.put("query", query);
-
-        if (lat == null || lng == null) {
-            Toast.makeText(this, "Unable to get location, please try again", Toast.LENGTH_LONG);
-            Log.d(TAG, "unable to get location");
-            return false;
-        }
 
         queryParameters.put("lat", String.valueOf(lat));
         queryParameters.put("lng", String.valueOf(lng));
@@ -423,6 +433,7 @@ public class MainActivity extends AppCompatActivity {
         deleteDrawable.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom);
         deleteDrawable.draw(c);
     }
+
 
 
 }
