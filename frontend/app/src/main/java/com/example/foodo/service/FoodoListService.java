@@ -67,11 +67,7 @@ public class FoodoListService {
     public void loadFoodoLists() {
         Map<String, String> queryParameters = new HashMap<>();
         queryParameters.put("userID", userID);
-
-        if(userID == null){
-            Log.d(TAG, "UserID is null!");
-        }
-
+        
         Callback loadFoodoListCallback = new Callback() {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
