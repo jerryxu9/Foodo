@@ -81,12 +81,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
         });
     }
 
-    public void deleteFoodoList(int index) {
-        ((Activity) context).runOnUiThread(() -> {
-            foodoListArrayList.remove(index);
-            notifyItemRemoved(index);
-        });
-    }
+
 
 
     public class Viewholder extends RecyclerView.ViewHolder {
@@ -132,7 +127,11 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                         Toast.makeText(mainActivity, String.format("Error: %s", response), Toast.LENGTH_LONG).show();
                     } else {
                         Log.d(TAG, String.format("Foodo list %s deleted using id %s", name, list_id));
-                        deleteFoodoList(getLayoutPosition());
+                        int index = getLayoutPosition();
+                        ((Activity) context).runOnUiThread(() -> {
+                            foodoListArrayList.remove(index);
+                            notifyItemRemoved(index);
+                        });
                     }
                 }
             };
