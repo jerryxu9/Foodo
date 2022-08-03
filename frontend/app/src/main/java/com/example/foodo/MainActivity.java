@@ -9,8 +9,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -401,18 +401,13 @@ public class MainActivity extends AppCompatActivity {
     private void setDeleteIcon(Canvas c, RecyclerView.ViewHolder viewHolder,
                                float dX, boolean isCurrentlyActive) {
 
-        Paint mClearPaint = new Paint();
-        mClearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-        ColorDrawable mBackground = new ColorDrawable();
-        int backgroundColor = R.color.delete_button_red;
-        Drawable deleteDrawable = ContextCompat.getDrawable(this, R.drawable.delete_button);
-        int intrinsicWidth = deleteDrawable.getIntrinsicWidth();
-        int intrinsicHeight = deleteDrawable.getIntrinsicHeight();
-
         View itemView = viewHolder.itemView;
         int itemHeight = itemView.getHeight();
 
         boolean isCancelled = dX == 0 && !isCurrentlyActive;
+
+        Paint mClearPaint = new Paint();
+        mClearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 
         if (isCancelled) {
             c.drawRect(itemView.getRight() + dX, (float) itemView.getTop(),
@@ -420,9 +415,12 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        mBackground.setColor(getResources().getColor(backgroundColor));
-        mBackground.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-        mBackground.draw(c);
+        GradientDrawable deleteActionBackground = new GradientDrawable();
+        deleteActionBackground.setCornerRadius(25f);
+
+        Drawable deleteDrawable = ContextCompat.getDrawable(this, R.drawable.delete_button);
+        int intrinsicWidth = deleteDrawable.getIntrinsicWidth();
+        int intrinsicHeight = deleteDrawable.getIntrinsicHeight();
 
         int deleteIconMargin = (itemHeight - intrinsicHeight) / 2;
         int deleteIconTop = itemView.getTop() + deleteIconMargin;
@@ -430,10 +428,22 @@ public class MainActivity extends AppCompatActivity {
         int deleteIconLeft = deleteIconRight - intrinsicWidth;
         int deleteIconBottom = deleteIconTop + intrinsicHeight;
 
+        int deleteActionBackgroundColor = getResources().getColor(R.color.delete_button_red);
+        deleteActionBackground.setColor(deleteActionBackgroundColor);
+
+        // Use delete Icon position to determine bounds for the red background when sliding
+        // left = deleteIconLeft + dX is because we want the left edge of the red background
+        // to be even with delete icon plus the amount we swiped left.
+        deleteActionBackground.setBounds(
+                deleteIconLeft + (int) dX,
+                deleteIconTop,
+                deleteIconRight,
+                deleteIconBottom);
+        deleteActionBackground.draw(c);
+
         deleteDrawable.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom);
         deleteDrawable.draw(c);
+
     }
-
-
 
 }
