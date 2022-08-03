@@ -141,10 +141,7 @@ public class FoodoListActivity extends AppCompatActivity {
 
         int deleteActionBackgroundColor = getResources().getColor(R.color.delete_button_red);
         deleteActionBackground.setColor(deleteActionBackgroundColor);
-
-        // Use delete Icon position to determine bounds for the red background when sliding
-        // left = deleteIconLeft + dX is because we want the left edge of the red background
-        // to be even with delete icon plus the amount we swiped left.
+        
         deleteActionBackground.setBounds(
                 itemView.getLeft() + (int) dX,
                 itemView.getTop(),
