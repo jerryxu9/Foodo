@@ -38,8 +38,12 @@ router.get("/getFoodoLists", async (req, res) => {
 router.get("/getRestaurantsByFoodoListID", async (req, res) => {
   FoodoListModel.findById(req.query?.listID)
     .then((list) => {
-      const restaurants = list.restaurants;
-      res.json(restaurants);
+      if (list === null) {
+        res.status(404).json({ error: "List not found" });
+      } else {
+        const restaurants = list.restaurants;
+        res.json(restaurants);
+      }
     })
     .catch((err) => {
       res.json(err);

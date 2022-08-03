@@ -3,7 +3,6 @@ const app = require("../../server");
 const mockingoose = require("mockingoose");
 const { FoodoListModel } = require("../../models/FoodoList");
 
-/* Using mockingoose to mock the User model */
 describe("/getRestaurantsByFoodoListID", () => {
   const foodoListId = "62e167d0af78853605d0f435";
   const restaurantId = "62e167d0af78853605d0f436";
@@ -30,8 +29,9 @@ describe("/getRestaurantsByFoodoListID", () => {
 
   // will fail because we need to update the endpoint to handle the error
   it("test list is not found", async () => {
+    mockingoose(FoodoListModel).toReturn(null, "findOne");
     const queryBody = { listID: "non_exisiting_id" };
-    const expectedBody = { error: "List is not found" };
+    const expectedBody = { error: "List not found" };
     const response = await request(app)
       .get("/getRestaurantsByFoodoListID")
       .query(queryBody);
