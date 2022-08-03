@@ -45,15 +45,6 @@ public class FoodoListService {
         this.foodoListCardAdapter = foodoListCardAdapter;
     }
 
-    public void setupUserAccount() {
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
-        if (account != null && userID == null) {
-            //no other way to get the token, just go through createUser endpoint
-            //and get the id from the existing entry in the database
-            createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
-        }
-    }
-
     public void createFoodoList() {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
         if (account != null) {
@@ -64,27 +55,19 @@ public class FoodoListService {
             }
             renderCreateFoodoListPopup();
         } else {
+            Log.d(TAG, "User is not logged in");
             handleNonLoggedInUser();
         }
     }
 
-
-    public void refreshFoodoLists() {
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
-        if (account != null) {
-            if (userID == null) {
-                createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
-            }
-            foodoListCardAdapter.clearFoodoLists();
-            loadFoodoLists();
-        }
+    public void setUserID(String userID){
+        this.userID = userID;
     }
 
     public void loadFoodoLists() {
-
         Map<String, String> queryParameters = new HashMap<>();
         queryParameters.put("userID", userID);
-
+        
         Callback loadFoodoListCallback = new Callback() {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
@@ -160,7 +143,7 @@ public class FoodoListService {
     }
 
     private void createFoodoList(ViewGroup container) throws IOException {
-        if (userID == null || username == null) {
+        if (userID == null) {
             return;
         }
 

@@ -90,16 +90,12 @@ public class MainActivity extends AppCompatActivity {
         mapsIntent = new Intent(MainActivity.this, MapActivity.class);
         searchResultIntent = new Intent(MainActivity.this, SearchResultActivity.class);
         loginButton = findViewById(R.id.login_button);
-        loginText = findViewById(R.id.login_text);
         logoutButton = findViewById(R.id.logout_button);
+        loginText = findViewById(R.id.login_text);
 
-        logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signOut();
-            }
-        });
-
+        setupFoodoLists();
+        setupSwipeListeners();
+        setupButtonListeners();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.server_client_id))
@@ -111,22 +107,19 @@ public class MainActivity extends AppCompatActivity {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
 
         if (account != null) {
+            Log.d(TAG, "Account is not null!");
             handleSuccessfulSignIn(account);
         } else {
             hideLogoutButton();
-            loginButton.setOnClickListener((View v) -> signIn());
         }
 
         Log.d(TAG, "starting idling resource");
         searchQueryCountingIdlingResource = new CountingIdlingResource("QueryCountingIdlingResource");
 
-        setupButtonListeners();
-        setupFoodoLists();
         setupSwipeListeners();
     }
 
     private void setupButtonListeners() {
-
         Button mapButton = findViewById(R.id.map_button);
         mapButton.setOnClickListener((View v) -> startActivity(mapsIntent));
 
@@ -135,10 +128,8 @@ public class MainActivity extends AppCompatActivity {
             foodoListService.createFoodoList();
         });
 
-        FloatingActionButton refreshButton = findViewById(R.id.refresh_button);
-        refreshButton.setOnClickListener((View v) -> {
-            foodoListService.refreshFoodoLists();
-        });
+        loginButton.setOnClickListener((v) -> signIn());
+        logoutButton.setOnClickListener(v -> signOut());
 
         SearchView restaurantSearch = findViewById(R.id.restaurant_search);
 
@@ -268,12 +259,8 @@ public class MainActivity extends AppCompatActivity {
 
         foodoLists = findViewById(R.id.foodo_lists);
 
-        foodoListService.setupUserAccount();
-
         foodoLists.setLayoutManager(linearLayoutManager);
         foodoLists.setAdapter(foodoListCardAdapter);
-
-        foodoListService.loadFoodoLists();
     }
 
     private void signIn() {
@@ -288,6 +275,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         showLoginPrompts();
                         hideLogoutButton();
+                        foodoLists.setVisibility(View.INVISIBLE);
                         Toast.makeText(MainActivity.this, "You have successfully logged out", Toast.LENGTH_LONG).show();
                     }
                 });
@@ -334,6 +322,7 @@ public class MainActivity extends AppCompatActivity {
         createUser(account.getIdToken(), username, account.getEmail());
         hideLoginPrompts();
         showLogoutButton();
+        foodoLists.setVisibility(View.VISIBLE);
     }
 
     private boolean searchRestaurant(String query){
@@ -408,6 +397,9 @@ public class MainActivity extends AppCompatActivity {
 
                         searchResultIntent.putExtra("username", resJSON.getString("name"));
                         searchResultIntent.putExtra("userID", resJSON.getString("_id"));
+
+                        foodoListService.setUserID(resJSON.getString("_id"));
+                        foodoListService.loadFoodoLists();
 
                         Log.d(TAG, "intent extras have all been added");
                     }

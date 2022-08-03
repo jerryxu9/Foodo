@@ -34,6 +34,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.033" />
 
+
     <Button
         android:id="@+id/logout_button"
         android:layout_width="wrap_content"
@@ -42,23 +43,10 @@
         android:text="Logout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.951" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/refresh_button"
-        android:layout_width="337dp"
-        android:layout_height="wrap_content"
-        android:src="@drawable/refresh"
-        app:backgroundTint="@color/foodo_blue"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/create_foodo_list_button"
-        app:layout_constraintHorizontal_bias="0.056"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.96" />
+        app:layout_constraintVertical_bias="0.981" />
 
     <TextView
         android:layout_width="249dp"
@@ -103,15 +91,15 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/foodo_lists"
-        android:layout_width="342dp"
-        android:layout_height="597dp"
-        android:gravity="center_horizontal"
+        android:layout_width="329dp"
+        android:layout_height="528dp"
         android:background="@color/app_background"
+        android:gravity="center_horizontal"
         app:layout_constraintBottom_toTopOf="@+id/create_foodo_list_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/restaurant_search"
-        app:layout_constraintVertical_bias="0.237" />
+        app:layout_constraintVertical_bias="0.25" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
