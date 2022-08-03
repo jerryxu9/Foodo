@@ -24,9 +24,9 @@
     -->
 
     <RelativeLayout
+        android:id="@+id/restaurant_card_relative_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/restaurant_card_relative_layout">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="wrap_content"
