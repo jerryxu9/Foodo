@@ -77,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
         }
     };
     private CountingIdlingResource searchQueryCountingIdlingResource;
-    private FoodoListCardAdapter foodoListCardAdapter;
 
     @SuppressLint("MissingPermission")
     @Override
@@ -225,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupFoodoLists() {
-        foodoListCardAdapter = new FoodoListCardAdapter(this, new ArrayList<FoodoListCard>());
+        FoodoListCardAdapter foodoListCardAdapter = new FoodoListCardAdapter(this, new ArrayList<FoodoListCard>());
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
 
         this.foodoListService = new FoodoListService(this, foodoListCardAdapter);
