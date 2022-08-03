@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "Permission was not granted, requesting permissions now");
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-                }else {
+                } else {
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, locationListener);
                     Log.d(TAG, "Permissions set!");
                 }
@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getApplicationContext(), "Location permissions are needed in order to search!", Toast.LENGTH_LONG).show();
                     return false;
-                }else {
+                } else {
                     return searchRestaurant(query);
                 }
             }
@@ -300,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private boolean searchRestaurant(String query){
+    private boolean searchRestaurant(String query) {
         HashMap<String, String> queryParameters = new HashMap<>();
         queryParameters.put("query", query);
 
@@ -433,7 +433,6 @@ public class MainActivity extends AppCompatActivity {
         deleteDrawable.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom);
         deleteDrawable.draw(c);
     }
-
 
 
 }
