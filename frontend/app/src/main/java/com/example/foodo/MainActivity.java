@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
             foodoListService.createFoodoList();
         });
 
-        loginButton.setOnClickListener((v) -> signIn());
+        loginButton.setOnClickListener(v -> signIn());
         logoutButton.setOnClickListener(v -> signOut());
 
         SearchView restaurantSearch = findViewById(R.id.restaurant_search);
