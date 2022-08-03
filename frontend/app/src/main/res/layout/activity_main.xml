@@ -66,6 +66,7 @@
         android:layout_marginTop="112dp"
         android:gravity="center"
         android:id="@+id/login_text"
+        android:elevation="1dp"
         android:text="You don't seem to be logged in, log in now and get access to exclusive features!"
         app:layout_constraintBottom_toTopOf="@+id/login_button"
         app:layout_constraintEnd_toEndOf="parent"
@@ -102,9 +103,10 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/foodo_lists"
-        android:layout_width="410dp"
-        android:layout_height="680dp"
+        android:layout_width="342dp"
+        android:layout_height="597dp"
         android:gravity="center_horizontal"
+        android:background="@color/app_background"
         app:layout_constraintBottom_toTopOf="@+id/create_foodo_list_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

@@ -50,7 +50,12 @@ router.get("/getRestaurantsByFoodoListID", async (req, res) => {
 router.delete("/deleteFoodoList", async (req, res) => {
   FoodoListModel.findByIdAndDelete(req.body?.listID)
     .then((removedList) => {
-      res.json(removedList);
+      // if list is not found
+      if (removedList == null) {
+        res.status(404).json({ error: "List not found" });
+      } else {
+        res.json(removedList);
+      }
     })
     .catch((err) => {
       res.json(err);

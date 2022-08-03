@@ -11,9 +11,6 @@ app.use(cors());
 app.use(bodyParser.json());
 
 /* Route middleware */
-// Example route
-const helloRoute = require("./routes/hello");
-app.use("/hello", helloRoute);
 // Review route
 const reviewRoute = require("./routes/review");
 app.use("/", reviewRoute);
