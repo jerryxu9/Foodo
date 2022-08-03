@@ -2,7 +2,6 @@
 
 
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
@@ -15,8 +14,8 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginBottom="1dp"
-        android:orientation="horizontal"
-        android:background="@drawable/foodo_list_card">
+        android:background="@drawable/foodo_list_card"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/share_foodo_list_button"
@@ -24,28 +23,18 @@
             android:layout_height="70dp"
             android:layout_weight="1"
             android:background="@drawable/share_button"
-            tools:layout_editor_absoluteY="0dp">
-        </Button>
+            tools:layout_editor_absoluteY="0dp"></Button>
 
         <TextView
             android:id="@+id/foodo_list_name"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="10"
-            android:textColor="@color/black"
             android:gravity="center"
+            android:textColor="@color/black"
             android:textSize="20sp"
             tools:layout_editor_absoluteX="67dp"
             tools:layout_editor_absoluteY="0dp" />
-
-        <Button
-            android:id="@+id/delete_foodo_list_button"
-            android:layout_width="80dp"
-            android:layout_height="70dp"
-            android:layout_weight="1"
-            android:background="@drawable/delete_icon_bw"
-            tools:layout_editor_absoluteY="0dp">
-        </Button>
 
     </LinearLayout>
 
