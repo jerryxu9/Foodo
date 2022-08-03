@@ -40,7 +40,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -294,10 +293,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void hideLogoutButton(){
+    private void hideLogoutButton() {
         logoutButton.setVisibility(View.INVISIBLE);
     }
-    private void showLogoutButton(){
+
+    private void showLogoutButton() {
         logoutButton.setVisibility(View.VISIBLE);
     }
 
@@ -465,7 +465,7 @@ public class MainActivity extends AppCompatActivity {
         // left = deleteIconLeft + dX is because we want the left edge of the red background
         // to be even with delete icon plus the amount we swiped left.
         deleteActionBackground.setBounds(
-                itemView.getLeft() + (int) dX,
+                deleteIconLeft + (int) dX,
                 deleteIconTop,
                 deleteIconRight,
                 deleteIconBottom);

@@ -1,14 +1,14 @@
 package com.example.foodo;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -100,7 +100,12 @@ public class FoodoListActivity extends AppCompatActivity {
         new ItemTouchHelper(deleteRestaurantListCallback).attachToRecyclerView(restaurantsView);
     }
 
-    private void setDeleteIcon(Canvas c, RecyclerView.ViewHolder viewHolder, float dX, boolean isCurrentlyActive) {
+    /**
+     * Source: https://www.youtube.com/watch?v=l3bkFT-NZHk
+     */
+    private void setDeleteIcon(Canvas c, RecyclerView.ViewHolder viewHolder,
+                               float dX, boolean isCurrentlyActive) {
+
         View itemView = viewHolder.itemView;
         int itemHeight = itemView.getHeight();
 
@@ -115,17 +120,23 @@ public class FoodoListActivity extends AppCompatActivity {
             return;
         }
 
+        // measure
+        int wrapSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        itemView.measure(wrapSpec, wrapSpec);
+
+        Log.d("height width", itemView.getMeasuredHeight() + " " + itemView.getMeasuredWidth());
+
         GradientDrawable deleteActionBackground = new GradientDrawable();
         deleteActionBackground.setCornerRadius(25f);
 
-        Drawable deleteDrawable = ContextCompat.getDrawable(this, R.drawable.delete_button_tall);
+        Drawable deleteDrawable = ContextCompat.getDrawable(this, R.drawable.delete_button);
 
         int intrinsicWidth = deleteDrawable.getIntrinsicWidth();
         int intrinsicHeight = deleteDrawable.getIntrinsicHeight();
 
-        int deleteIconMargin = (itemHeight - intrinsicHeight) / 2;
+        int deleteIconMargin = (itemHeight - intrinsicHeight)/ 2;
         int deleteIconTop = itemView.getTop() + deleteIconMargin;
-        int deleteIconRight = itemView.getRight() - deleteIconMargin;
+        int deleteIconRight = itemView.getRight();
         int deleteIconLeft = deleteIconRight - intrinsicWidth;
         int deleteIconBottom = deleteIconTop + intrinsicHeight;
 
@@ -136,14 +147,18 @@ public class FoodoListActivity extends AppCompatActivity {
         // left = deleteIconLeft + dX is because we want the left edge of the red background
         // to be even with delete icon plus the amount we swiped left.
         deleteActionBackground.setBounds(
-                deleteIconLeft + (int) dX,
+                itemView.getLeft() + (int) dX,
+                itemView.getTop(),
+                itemView.getRight(),
+                itemView.getBottom());
+        deleteActionBackground.draw(c);
+
+        deleteDrawable.setBounds(deleteIconLeft,
                 deleteIconTop,
                 deleteIconRight,
                 deleteIconBottom);
-        deleteActionBackground.draw(c);
-
-        deleteDrawable.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom);
         deleteDrawable.draw(c);
+
     }
 
     private void getIntentExtras() {
