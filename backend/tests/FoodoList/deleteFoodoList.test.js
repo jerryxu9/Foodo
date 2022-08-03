@@ -28,9 +28,8 @@ describe("/deleteFoodoList", () => {
     mockingoose.resetAll();
   });
 
-  // will fail because we need to update the endpoint to handle the error
   it("test list is not found", async () => {
-    mockingoose(FoodoListModel).toReturn(foodoListDoc, "findOneAndDelete");
+    mockingoose(FoodoListModel).toReturn(null, "findOneAndDelete");
 
     const reqBody = { listID: "non_exisiting_list" };
     const expectedBody = { error: "List not found" };
@@ -39,7 +38,7 @@ describe("/deleteFoodoList", () => {
       .send(reqBody);
 
     expect(response.body).toStrictEqual(expectedBody);
-    expect(response.statusCode).toBe(404); // need to change to 404 according to m6
+    expect(response.statusCode).toBe(404);
   });
 
   it("test successfully delete a list", async () => {
