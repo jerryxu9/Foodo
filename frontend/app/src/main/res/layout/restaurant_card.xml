@@ -4,12 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardBackgroundColor="@color/app_shadow"
+    app:cardBackgroundColor="@color/inner_boxes"
     app:cardCornerRadius="8dp"
     app:cardElevation="0dp"
     app:cardPreventCornerOverlap="true"
-    android:layout_margin="5dp"
-    android:outlineAmbientShadowColor="@color/app_shadow">
+    android:layout_margin="5dp">
 
     <!--
         In the above cardview widget
