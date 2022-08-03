@@ -12,4 +12,5 @@
     <color name="gray_stroke">#555555</color>
     <color name="app_shadow">#7AA7B8</color>
     <color name="foodo_blue">#5CB1FF</color>
+    <color name="delete_button_red">#D05151</color>
 </resources>
