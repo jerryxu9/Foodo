@@ -68,12 +68,8 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         holder.setUsername(model.getUsername());
         holder.setUserID(model.getUserID());
 
-        // Enable delete and check button only if RestaurantCard is rendered from Foodo List
+        // Enable check button only if RestaurantCard is rendered from Foodo List
         if (isInFoodoList) {
-//            holder.deleteRestaurantFromFoodoListButton.setOnClickListener((View v) -> {
-//                Log.d(TAG, String.format("Deleted %s", model.getName()));
-//                holder.deleteRestaurantFromList();
-//            });
             ((Activity) context).runOnUiThread(() -> {
                 if (model.getVisited()) {
                     holder.checkFoodoListButton.setBackgroundResource(R.drawable.visited_image);
@@ -89,8 +85,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         } else {
             holder.checkFoodoListButton.setEnabled(false);
             holder.checkFoodoListButton.setVisibility(View.INVISIBLE);
-//            holder.deleteRestaurantFromFoodoListButton.setEnabled(false);
-//            holder.deleteRestaurantFromFoodoListButton.setVisibility(View.INVISIBLE);
         }
 
         holder.setGooglePlacesID(model.getGooglePlacesID());
@@ -119,7 +113,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         private final TextView restaurantAddress;
         private final TextView restaurantRating;
         private final TextView restaurantStatus;
-//        private final Button deleteRestaurantFromFoodoListButton;
         private final Button checkFoodoListButton;
         private String googlePlacesID;
         private String cardID;
@@ -136,7 +129,6 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
             restaurantAddress = itemView.findViewById(R.id.restaurantAddress);
             restaurantRating = itemView.findViewById(R.id.restaurantRating);
             restaurantStatus = itemView.findViewById(R.id.restaurantStatus);
-//            deleteRestaurantFromFoodoListButton = itemView.findViewById(R.id.delete_restaurant_from_foodo_list_button);
             checkFoodoListButton = itemView.findViewById(R.id.check_button);
 
             itemView.setOnClickListener((View v) -> {
