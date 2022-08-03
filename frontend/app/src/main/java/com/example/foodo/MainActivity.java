@@ -5,6 +5,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -133,11 +139,13 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextChange(String newText) {
                 return false;
             }
+
         });
     }
 
     private void setupSwipeListeners() {
-        ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
+        ItemTouchHelper.SimpleCallback deleteFoodoListCallback = new ItemTouchHelper
+                .SimpleCallback(0, ItemTouchHelper.LEFT) {
 
             /**
              * Called when ItemTouchHelper wants to move the dragged item from its old position to
@@ -179,20 +187,25 @@ public class MainActivity extends AppCompatActivity {
              * @param viewHolder The ViewHolder which has been swiped by the user.
              * @param direction  The direction to which the ViewHolder is swiped. It is one of
              *                   UP, DOWN,
-             *                   LEFT or RIGHT. If your
-             *                   getMovementFlags(RecyclerView, ViewHolder
-             *                   method
-             *                   returned relative flags instead of LEFT / RIGHT;
-             *                   `direction` will be relative as well. (START or
-             *                   END).
+             *                   LEFT or RIGHT. If your getMovementFlags(RecyclerView, ViewHolder
+             *                   method returned relative flags instead of LEFT / RIGHT;
+             *                   `direction` will be relative as well. (START or END).
              */
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 ((FoodoListCardAdapter.Viewholder) viewHolder).handleDeleteFoodoListAction();
             }
+
+            @Override
+            public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewholder,
+                                    float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                setDeleteIcon(c, viewholder, dX, isCurrentlyActive);
+                super.onChildDraw(c, recyclerView, viewholder, dX, dY, actionState, isCurrentlyActive);
+            }
         };
 
-        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(foodoLists);
+        new ItemTouchHelper(deleteFoodoListCallback).attachToRecyclerView(foodoLists);
+
     }
 
     private void setupFoodoLists() {
@@ -355,6 +368,45 @@ public class MainActivity extends AppCompatActivity {
 
     public CountingIdlingResource getSearchQueryCountingIdlingResource() {
         return searchQueryCountingIdlingResource;
+    }
+
+    /**
+     * Source: https://www.youtube.com/watch?v=l3bkFT-NZHk
+     */
+    private void setDeleteIcon(Canvas c, RecyclerView.ViewHolder viewHolder,
+                               float dX, boolean isCurrentlyActive) {
+
+        Paint mClearPaint = new Paint();
+        mClearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        ColorDrawable mBackground = new ColorDrawable();
+        int backgroundColor = R.color.delete_button_red;
+        Drawable deleteDrawable = ContextCompat.getDrawable(this, R.drawable.delete_button);
+        int intrinsicWidth = deleteDrawable.getIntrinsicWidth();
+        int intrinsicHeight = deleteDrawable.getIntrinsicHeight();
+
+        View itemView = viewHolder.itemView;
+        int itemHeight = itemView.getHeight();
+
+        boolean isCancelled = dX == 0 && !isCurrentlyActive;
+
+        if (isCancelled) {
+            c.drawRect(itemView.getRight() + dX, (float) itemView.getTop(),
+                    (float) itemView.getRight(), (float) itemView.getBottom(), mClearPaint);
+            return;
+        }
+
+        mBackground.setColor(getResources().getColor(backgroundColor));
+        mBackground.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+        mBackground.draw(c);
+
+        int deleteIconMargin = (itemHeight - intrinsicHeight) / 2;
+        int deleteIconTop = itemView.getTop() + deleteIconMargin;
+        int deleteIconRight = itemView.getRight() - deleteIconMargin;
+        int deleteIconLeft = deleteIconRight - intrinsicWidth;
+        int deleteIconBottom = deleteIconTop + intrinsicHeight;
+
+        deleteDrawable.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom);
+        deleteDrawable.draw(c);
     }
 
 
