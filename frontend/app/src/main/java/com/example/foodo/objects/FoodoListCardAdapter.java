@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -104,10 +105,6 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                 handleOpenFoodoListAction();
             });
 
-            itemView.findViewById(R.id.delete_foodo_list_button).setOnClickListener((View v) -> {
-                handleDeleteFoodoListAction();
-            });
-
             itemView.findViewById(R.id.share_foodo_list_button).setOnClickListener((View v) -> {
                 handleShareFoodoListAction();
             });
@@ -132,6 +129,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                 public void onResponse(@NonNull Call call, @NonNull Response response) {
                     if (!response.isSuccessful()) {
                         Log.d(TAG, String.format("Delete FoodoList %s failed using id %s", name, list_id));
+                        Toast.makeText(mainActivity, String.format("Error: %s", response), Toast.LENGTH_LONG).show();
                     } else {
                         Log.d(TAG, String.format("Foodo list %s deleted using id %s", name, list_id));
                         deleteFoodoList(getLayoutPosition());
@@ -201,10 +199,6 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                     .putExtra("username", username)
                     .putExtra("userID", userID);
             mainActivity.startActivity(foodoIntent);
-        }
-
-        public ArrayList<FoodoListCard> getFoodoListArrayList() {
-            return foodoListArrayList;
         }
 
     }

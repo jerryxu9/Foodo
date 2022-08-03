@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 1;
     private final String TAG = "MainActivity";
+    private final float SWIPE_THRESHOLD = 0.4f;
     private FoodoListService foodoListService;
     private GoogleSignInClient mGoogleSignInClient;
     private Intent mapsIntent;
@@ -68,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView loginText;
     private Double lat;
     private Double lng;
-
     private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(@NonNull Location location) {
@@ -194,6 +194,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 ((FoodoListCardAdapter.Viewholder) viewHolder).handleDeleteFoodoListAction();
+            }
+
+            /**
+             * Determines the amount to swipe before onSwiped() is triggered
+             * @param viewHolder the viewHolder of the item currently being interacted with
+             * @return a swipe threshold value
+             *
+             * "1f - means that the action will be performed with a full card swap.
+             * 0.1f - the action will be performed when the card moves to 10% of the screen width"
+             *
+             * Source: https://stackoverflow.com/questions/52726954/how-to-set-the-swipe-threshold-to-half-the-screen
+             *
+             */
+            @Override
+            public float getSwipeThreshold(RecyclerView.ViewHolder viewHolder) {
+                return SWIPE_THRESHOLD;
             }
 
             @Override
