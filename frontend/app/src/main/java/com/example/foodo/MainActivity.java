@@ -33,6 +33,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private Intent mapsIntent;
     private Intent searchResultIntent;
     private Button loginButton;
+    private Button logoutButton;
     private TextView loginText;
     private LocationManager locationManager;
     private Double lat;
@@ -80,6 +82,15 @@ public class MainActivity extends AppCompatActivity {
         searchResultIntent = new Intent(MainActivity.this, SearchResultActivity.class);
         loginButton = findViewById(R.id.login_button);
         loginText = findViewById(R.id.login_text);
+        logoutButton = findViewById(R.id.logout_button);
+
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signOut();
+            }
+        });
+
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.server_client_id))
@@ -92,7 +103,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (account != null) {
             handleSuccessfulSignIn(account);
+            showLogoutButton();
         } else {
+            hideLogoutButton();
             loginButton.setOnClickListener((View v) -> signIn());
         }
 
@@ -177,6 +190,18 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
+    private void signOut() {
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        showLoginPrompts();
+                        hideLogoutButton();
+                        Toast.makeText(MainActivity.this, "You have successfully logged out", Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -186,9 +211,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void hideLogoutButton(){
+        logoutButton.setVisibility(View.INVISIBLE);
+    }
+    private void showLogoutButton(){
+        logoutButton.setVisibility(View.VISIBLE);
+    }
+
     private void hideLoginPrompts() {
         loginButton.setVisibility(View.INVISIBLE);
         loginText.setVisibility(View.INVISIBLE);
+    }
+
+    private void showLoginPrompts() {
+        loginButton.setVisibility(View.VISIBLE);
+        loginText.setVisibility(View.VISIBLE);
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
@@ -205,8 +242,8 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, account.getIdToken() + " and " + username);
         createUser(account.getIdToken(), username, account.getEmail());
         hideLoginPrompts();
+        showLogoutButton();
     }
-
 
     private boolean searchRestaurant(String query){
         HashMap<String, String> queryParameters = new HashMap<>();
