@@ -145,9 +145,6 @@ public class ManageReviewsTest {
 
 
         searchAutoComplete.perform(pressImeActionButton());
-        // Have to click twice Search Button twice on first search: Peer group pointed this out. Must fix!
-        Thread.sleep(1000);
-        searchAutoComplete.perform(pressImeActionButton());
 
         Thread.sleep(1000);
 
