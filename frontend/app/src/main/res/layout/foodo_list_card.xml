@@ -4,10 +4,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card_view"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="80dp"
     android:layout_gravity="center"
-    android:layout_margin="5dp"
     app:cardBackgroundColor="@color/inner_boxes"
     app:cardCornerRadius="8dp"
     app:cardElevation="0dp"
@@ -17,17 +16,13 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="1dp"
-        android:background="@drawable/foodo_list_card"
         android:orientation="horizontal">
 
         <TextView
             android:id="@+id/foodo_list_name"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="10"
+            android:height="70dp"
             android:gravity="center"
             android:textColor="@color/black"
             android:textSize="20sp"
@@ -35,20 +30,12 @@
             tools:layout_editor_absoluteX="67dp"
             tools:layout_editor_absoluteY="0dp" />
 
-
         <Button
             android:id="@+id/share_foodo_list_button"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:background="@drawable/share_button"
             tools:layout_editor_absoluteY="0dp" />
-
-        <!--        <LinearLayout-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_alignParentStart="true"-->
-        <!--            android:orientation="horizontal">-->
-        <!--        </LinearLayout>-->
     </RelativeLayout>
 
 
