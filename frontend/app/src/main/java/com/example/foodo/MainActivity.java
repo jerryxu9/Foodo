@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private LocationManager locationManager;
     private Double lat;
     private Double lng;
+    private FoodoListCardAdapter foodoListCardAdapter;
     private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(@NonNull Location location) {
@@ -122,7 +123,24 @@ public class MainActivity extends AppCompatActivity {
 
         setupButtonListeners();
         setupFoodoLists();
-        setupSwipeListeners();
+        setupDeleteSwipeListeners();
+        setupShareSwipeListeners();
+    }
+
+    private void setupFoodoLists() {
+        foodoListCardAdapter = new FoodoListCardAdapter(this, new ArrayList<FoodoListCard>());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+
+        this.foodoListService = new FoodoListService(this, foodoListCardAdapter);
+
+        foodoLists = findViewById(R.id.foodo_lists);
+
+        foodoListService.setupUserAccount();
+
+        foodoLists.setLayoutManager(linearLayoutManager);
+        foodoLists.setAdapter(foodoListCardAdapter);
+
+        foodoListService.loadFoodoLists();
     }
 
     private void setupButtonListeners() {
@@ -179,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setupSwipeListeners() {
+    private void setupDeleteSwipeListeners() {
         ItemTouchHelper.SimpleCallback deleteFoodoListCallback = new ItemTouchHelper
                 .SimpleCallback(0, ItemTouchHelper.LEFT) {
 
@@ -260,20 +278,35 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void setupFoodoLists() {
-        FoodoListCardAdapter foodoListCardAdapter = new FoodoListCardAdapter(this, new ArrayList<FoodoListCard>());
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+    private void setupShareSwipeListeners() {
+        ItemTouchHelper.SimpleCallback shareFoodoListCallback = new ItemTouchHelper
+                .SimpleCallback(0, ItemTouchHelper.RIGHT) {
 
-        this.foodoListService = new FoodoListService(this, foodoListCardAdapter);
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
 
-        foodoLists = findViewById(R.id.foodo_lists);
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                ((FoodoListCardAdapter.Viewholder) viewHolder).handleShareFoodoListAction();
+                foodoListCardAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
+            }
 
-        foodoListService.setupUserAccount();
+            @Override
+            public float getSwipeThreshold(RecyclerView.ViewHolder viewHolder) {
+                return SWIPE_THRESHOLD;
+            }
 
-        foodoLists.setLayoutManager(linearLayoutManager);
-        foodoLists.setAdapter(foodoListCardAdapter);
+            @Override
+            public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewholder,
+                                    float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                setShareIcon(c, viewholder, dX, isCurrentlyActive);
+                super.onChildDraw(c, recyclerView, viewholder, dX/5, dY, actionState, isCurrentlyActive);
+            }
+        };
 
-        foodoListService.loadFoodoLists();
+        new ItemTouchHelper(shareFoodoListCallback).attachToRecyclerView(foodoLists);
     }
 
     private void signIn() {
@@ -479,7 +512,53 @@ public class MainActivity extends AppCompatActivity {
 
         deleteDrawable.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom);
         deleteDrawable.draw(c);
+    }
 
+    private void setShareIcon(Canvas c, RecyclerView.ViewHolder viewHolder,
+                               float dX, boolean isCurrentlyActive) {
+
+        View itemView = viewHolder.itemView;
+        int itemHeight = itemView.getHeight();
+
+        boolean isCancelled = dX == 0 && !isCurrentlyActive;
+
+        Paint mClearPaint = new Paint();
+        mClearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+
+        if (isCancelled) {
+            c.drawRect(itemView.getRight() + dX, (float) itemView.getTop(),
+                    (float) itemView.getRight(), (float) itemView.getBottom(), mClearPaint);
+            return;
+        }
+
+        GradientDrawable shareActionBackground = new GradientDrawable();
+        shareActionBackground.setCornerRadius(25f);
+
+        Drawable shareDrawable = ContextCompat.getDrawable(this, R.drawable.share_foodo_list_button);
+        int intrinsicWidth = shareDrawable.getIntrinsicWidth();
+        int intrinsicHeight = shareDrawable.getIntrinsicHeight();
+
+        int shareIconMargin = (itemHeight - intrinsicHeight) / 2;
+        int shareIconTop = itemView.getTop() + shareIconMargin;
+        int shareIconRight = itemView.getRight() - shareIconMargin;
+        int shareIconLeft = shareIconRight - intrinsicWidth;
+        int shareIconBottom = shareIconTop + intrinsicHeight;
+
+        int shareActionBackgroundColor = getResources().getColor(R.color.share_button_blue);
+        shareActionBackground.setColor(shareActionBackgroundColor);
+
+        // Use delete Icon position to determine bounds for the red background when sliding
+        // left = deleteIconLeft + dX is because we want the left edge of the red background
+        // to be even with delete icon plus the amount we swiped left.
+        shareActionBackground.setBounds(
+                itemView.getLeft(),
+                shareIconTop,
+                intrinsicWidth + (int)dX,
+                shareIconBottom);
+        shareActionBackground.draw(c);
+
+        shareDrawable.setBounds(itemView.getLeft(), shareIconTop, intrinsicWidth, shareIconBottom);
+        shareDrawable.draw(c);
     }
 
 }

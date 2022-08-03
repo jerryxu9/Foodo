@@ -99,10 +99,6 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                 Log.d(TAG, String.format("%s item on Foodo Lists selected", foodoListName.getText()));
                 handleOpenFoodoListAction();
             });
-
-            itemView.findViewById(R.id.share_foodo_list_button).setOnClickListener((View v) -> {
-                handleShareFoodoListAction();
-            });
         }
 
         public void handleDeleteFoodoListAction() {
@@ -172,7 +168,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
             OKHttpService.patchRequest("addNewUserToList", callback, params);
         }
 
-        private void handleShareFoodoListAction() {
+        public void handleShareFoodoListAction() {
             LayoutInflater layoutInflater = (LayoutInflater) mainActivity.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.share_foodo_list_popup, null);
 
