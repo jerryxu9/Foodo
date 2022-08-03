@@ -119,12 +119,6 @@ public class FoodoListActivity extends AppCompatActivity {
             return;
         }
 
-        // measure
-        int wrapSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        itemView.measure(wrapSpec, wrapSpec);
-
-        Log.d("height width", itemView.getMeasuredHeight() + " " + itemView.getMeasuredWidth());
-
         GradientDrawable deleteActionBackground = new GradientDrawable();
         deleteActionBackground.setCornerRadius(25f);
 
@@ -141,7 +135,10 @@ public class FoodoListActivity extends AppCompatActivity {
 
         int deleteActionBackgroundColor = getResources().getColor(R.color.delete_button_red);
         deleteActionBackground.setColor(deleteActionBackgroundColor);
-        
+
+        // Use itemView positions to determine bounds for the red background when sliding
+        // left = itemView.getLeft() + dX because we want the left edge of the red background
+        // to be even the edge of the RecyclerView item plus the amount we swiped left.
         deleteActionBackground.setBounds(
                 itemView.getLeft() + (int) dX,
                 itemView.getTop(),
