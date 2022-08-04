@@ -4,7 +4,6 @@ const mockingoose = require("mockingoose");
 const User = require("../../models/User");
 const { FoodoListModel } = require("../../models/FoodoList");
 
-/* Using mockingoose to mock the User model */
 describe("/getFoodoLists", () => {
   const foodoListId = "62e167d0af78853605d0f435";
   const restaurantId = "62e167d0af78853605d0f436";
@@ -37,7 +36,6 @@ describe("/getFoodoLists", () => {
     mockingoose.resetAll();
   });
 
-  // will fail because we need to update the endpoint to handle the error
   it("test with a non-existing user", async () => {
     mockingoose(User).toReturn(userDoc, "findById");
 
@@ -46,7 +44,7 @@ describe("/getFoodoLists", () => {
     const response = await request(app).get("/getFoodoLists").query(queryBody);
 
     expect(response.body).toStrictEqual(expectedBody);
-    expect(response.statusCode).toBe(404); // need to change to 404 according to m6
+    expect(response.statusCode).toBe(404);
   });
 
   it("test with an existing user", async () => {

@@ -25,21 +25,31 @@ router.post("/createFoodoList", async (req, res) => {
 
 // Get all the Foodo lists of a user
 router.get("/getFoodoLists", async (req, res) => {
-  FoodoListModel.find({ users: req.query?.userID })
-    .then((lists) => {
-      res.json(lists);
-    })
-    .catch((err) => {
-      res.json(err);
-    });
+  // Find the user first
+  const user = await User.findById(req.query?.userID);
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+  } else {
+    FoodoListModel.find({ users: req.query?.userID })
+      .then((lists) => {
+        res.json(lists);
+      })
+      .catch((err) => {
+        res.json(err);
+      });
+  }
 });
 
 // Get all the restaurants under a Foodo list given its ID
 router.get("/getRestaurantsByFoodoListID", async (req, res) => {
   FoodoListModel.findById(req.query?.listID)
     .then((list) => {
-      const restaurants = list.restaurants;
-      res.json(restaurants);
+      if (list === null) {
+        res.status(404).json({ error: "List not found" });
+      } else {
+        const restaurants = list.restaurants;
+        res.json(restaurants);
+      }
     })
     .catch((err) => {
       res.json(err);
