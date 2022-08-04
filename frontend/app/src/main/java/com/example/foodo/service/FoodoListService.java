@@ -60,6 +60,15 @@ public class FoodoListService {
         }
     }
 
+    public void setupUserAccount() {
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
+        if (account != null && userID == null) {
+            //no other way to get the token, just go through createUser endpoint
+            //and get the id from the existing entry in the database
+            createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
+        }
+    }
+
     public void setUserID(String userID){
         this.userID = userID;
     }
