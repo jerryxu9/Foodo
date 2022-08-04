@@ -547,9 +547,6 @@ public class MainActivity extends AppCompatActivity {
         int shareActionBackgroundColor = getResources().getColor(R.color.share_button_blue);
         shareActionBackground.setColor(shareActionBackgroundColor);
 
-        // Use delete Icon position to determine bounds for the red background when sliding
-        // left = deleteIconLeft + dX is because we want the left edge of the red background
-        // to be even with delete icon plus the amount we swiped left.
         shareActionBackground.setBounds(
                 itemView.getLeft(),
                 shareIconTop,
