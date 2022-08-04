@@ -30,12 +30,6 @@
             tools:layout_editor_absoluteX="67dp"
             tools:layout_editor_absoluteY="0dp" />
 
-        <Button
-            android:id="@+id/share_foodo_list_button"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:background="@drawable/share_button"
-            tools:layout_editor_absoluteY="0dp" />
     </RelativeLayout>
 
 
