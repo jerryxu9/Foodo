@@ -167,7 +167,10 @@ router.patch("/addNewUserToList", async (req, res) => {
           }
         )
           .then((updatedList) => {
-            res.json(updatedList);
+            if (updatedList === null) {
+              res.statusCode = 404;
+              res.json({ error: "List not found" });
+            } else res.json(updatedList);
           })
           .catch((err) => {
             res.json(err);
