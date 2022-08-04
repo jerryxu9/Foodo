@@ -286,8 +286,8 @@ public class SearchForRestaurantInformationTest {
     }
 
     private void logout(){
-        Espresso.pressBack();
-        Espresso.pressBack();
+        pressBack();
+        pressBack();
 
         onView(withId(R.id.logout_button)).perform(click());
     }
@@ -340,6 +340,7 @@ public class SearchForRestaurantInformationTest {
             UiObject2 agreeTermsOfService = mDevice.wait(Until.findObject(By
                     .text("I agree")
                     .clazz("android.widget.Button")), OBJECT_TIMEOUT);
+
             agreeTermsOfService.click();
 
             mDevice.wait(Until.hasObject(By.textContains("Tap to learn more about each service")), SHORTER_PAGE_LOAD_TIMEOUT);

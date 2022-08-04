@@ -1,16 +1,15 @@
 package com.example.foodo;
 
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import androidx.test.espresso.Espresso;
 import androidx.test.espresso.ViewInteraction;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.onData;
+import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.pressImeActionButton;
@@ -215,9 +214,9 @@ public class ManageReviewsTest {
     }
 
     private void logout(){
-        Espresso.pressBack();
-        Espresso.pressBack();
-        Espresso.pressBack();
+        pressBack();
+        pressBack();
+        pressBack();
 
         onView(withId(R.id.logout_button)).perform(click());
     }
