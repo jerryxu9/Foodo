@@ -4,7 +4,7 @@ const mockingoose = require("mockingoose");
 const { FoodoListModel } = require("../../models/FoodoList");
 
 /* Using mockingoose to mock the User model */
-describe("/checkRestaurantOnList", () => {
+describe("/deleteRestaurantFromList", () => {
   beforeEach(() => {
     mockingoose.resetAll();
   });
@@ -76,7 +76,7 @@ describe("/checkRestaurantOnList", () => {
     };
     const expectedBody = { error: "Restaurant not found" };
     const response = await request(app)
-      .patch("/checkRestaurantOnList")
+      .patch("/deleteRestaurantFromList")
       .send(reqBody);
 
     expect(response.body).toStrictEqual(expectedBody);
