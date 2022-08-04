@@ -36,7 +36,6 @@ import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.ViewAssertion;
 import androidx.test.espresso.ViewInteraction;
-import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -430,7 +429,7 @@ public class ManageFoodoListTest {
                         withParent(allOf(withId(R.id.constraint),
                                 withParent(withId(android.R.id.content)))),
                         isDisplayed()));
-        recyclerView5.perform(ViewActions.swipeLeft());
+        recyclerView5.perform(swipeLeft());
 
 
         onView(withIndex(allOf(withId(R.id.foodo_list_relative_view), isDisplayed()), 0)).perform(swipeLeft());
