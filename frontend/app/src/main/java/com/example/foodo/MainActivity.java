@@ -93,10 +93,10 @@ public class MainActivity extends AppCompatActivity {
         logoutButton = findViewById(R.id.logout_button);
         loginText = findViewById(R.id.login_text);
 
-        setupFoodoLists();
-        setupSwipeListeners();
         setupButtonListeners();
-
+        setupFoodoLists();
+        setupDeleteSwipeListeners();
+        setupShareSwipeListeners();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.server_client_id))
@@ -116,11 +116,6 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, "starting idling resource");
         searchQueryCountingIdlingResource = new CountingIdlingResource("QueryCountingIdlingResource");
-
-        setupButtonListeners();
-        setupFoodoLists();
-        setupDeleteSwipeListeners();
-        setupShareSwipeListeners();
     }
 
     private void setupFoodoLists() {
@@ -130,8 +125,6 @@ public class MainActivity extends AppCompatActivity {
         this.foodoListService = new FoodoListService(this, foodoListCardAdapter);
 
         foodoLists = findViewById(R.id.foodo_lists);
-
-        foodoListService.setupUserAccount();
 
         foodoLists.setLayoutManager(linearLayoutManager);
         foodoLists.setAdapter(foodoListCardAdapter);

@@ -17,14 +17,18 @@ import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.NoMatchingViewException;
@@ -35,7 +39,17 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
+import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObject2;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiScrollable;
+import androidx.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.Until;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -53,6 +67,10 @@ public class SearchForRestaurantInformationTest {
     private static final String TAG = "SearchForRestaurantInformationTest";
     private final String SEARCH_QUERY = "Tim Hortons";
     private final String INVALID_QUERY = "**&@(#$&";
+    UiDevice mDevice;
+    private static final int OBJECT_TIMEOUT = 20000;
+    private static final int SHORTER_PAGE_LOAD_TIMEOUT = 40000;
+    private static final int PAGE_LOAD_TIMEOUT = 60000;
 
     @Rule
     public ActivityScenarioRule<MainActivity> mActivityScenarioRule =
@@ -108,6 +126,12 @@ public class SearchForRestaurantInformationTest {
     }
 
     @Before
+    public void initializeUiDevice() {
+        // Initialize UiDevice instance
+        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+    }
+
+    @Before
     public void registerIdlingResource() {
         ActivityScenario<MainActivity> activityScenario = ActivityScenario.launch(MainActivity.class);
         activityScenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
@@ -126,7 +150,9 @@ public class SearchForRestaurantInformationTest {
 
 
     @Test
-    public void searchForRestaurantInformationTest() throws InterruptedException {
+    public void searchForRestaurantInformationTest() throws InterruptedException, UiObjectNotFoundException {
+        login();
+
         Log.d(TAG, "Click Search View");
         ViewInteraction appCompatImageView = onView(
                 allOf(withClassName(is("androidx.appcompat.widget.AppCompatImageView")), withContentDescription("Search"),
@@ -162,7 +188,7 @@ public class SearchForRestaurantInformationTest {
 
         searchAutoComplete.perform(pressImeActionButton());
 
-        Thread.sleep(2000);
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/search_list")), OBJECT_TIMEOUT);
 
         Log.d(TAG, "Check search results page displays Tim Hortons in top bar");
         ViewInteraction textView = onView(
@@ -255,6 +281,80 @@ public class SearchForRestaurantInformationTest {
 
         Log.d(TAG, "Check that no search results appear");
         recyclerView.check(new RecyclerViewItemCountAssertion(0));
+
+        logout();
+    }
+
+    private void logout(){
+        Espresso.pressBack();
+        Espresso.pressBack();
+
+        onView(withId(R.id.logout_button)).perform(click());
+    }
+
+    private void login() throws UiObjectNotFoundException, InterruptedException {
+        UiObject loginButton = mDevice.findObject(new UiSelector()
+                .text("LOGIN")
+                .className("android.widget.Button"));
+        loginButton.waitForExists(OBJECT_TIMEOUT);
+        loginButton.clickAndWaitForNewWindow();
+
+        if(mDevice.wait(Until.findObject(By.text("Choose an account")), 10000) != null){
+            System.out.println();
+            mDevice.click(538, 1099);
+            System.out.println("Choose account");
+        }else{
+            System.out.println("Login from the start");
+            UiObject2 emailInput = mDevice.wait(Until.findObject(By
+                    .clazz(EditText.class)), OBJECT_TIMEOUT);
+
+            emailInput.setText("cpen321espresso@gmail.com");
+            emailInput.wait(Until.textEquals("cpen321espresso@gmail.com"), OBJECT_TIMEOUT);
+            Thread.sleep(2000);
+
+            mDevice.click(896, 1930);
+            mDevice.wait(Until.hasObject(By.text("Hi Test").clazz(TextView.class)), SHORTER_PAGE_LOAD_TIMEOUT);
+//        // Set Password
+            UiObject2 passwordInput = mDevice.wait(Until.findObject(By
+                    .clazz(EditText.class)), OBJECT_TIMEOUT);
+
+            passwordInput.setText("cpen#@!espresso");// type your password here
+            passwordInput.wait(Until.textEquals("cpen#@!espresso"), OBJECT_TIMEOUT);
+
+            //check that password is filled
+            //Note: it returns *******, probably bc of security, so
+            //just compare the length instead
+            assertEquals(passwordInput.getText().length(), 15);
+
+            Thread.sleep(2000);
+
+            // Confirm Button Click
+            UiObject2 nextButton = mDevice.wait(Until.findObject(By
+                    .textContains("N")
+                    .clazz("android.widget.Button")), OBJECT_TIMEOUT);
+
+            nextButton.click();
+
+            mDevice.waitForWindowUpdate("com.google.android.gms", PAGE_LOAD_TIMEOUT);
+
+            UiObject2 agreeTermsOfService = mDevice.wait(Until.findObject(By
+                    .text("I agree")
+                    .clazz("android.widget.Button")), OBJECT_TIMEOUT);
+            agreeTermsOfService.click();
+
+            mDevice.wait(Until.hasObject(By.textContains("Tap to learn more about each service")), SHORTER_PAGE_LOAD_TIMEOUT);
+
+            UiScrollable scrollToAccept = new UiScrollable(
+                    new UiSelector().scrollable(true));
+            scrollToAccept.waitForExists(OBJECT_TIMEOUT);
+            scrollToAccept.scrollToEnd(10);
+
+            UiObject acceptButton = mDevice.findObject(new UiSelector().text("ACCEPT"));
+            acceptButton.clickAndWaitForNewWindow(SHORTER_PAGE_LOAD_TIMEOUT);
+
+            mDevice.wait(Until.hasObject(By.text("Foodo")), PAGE_LOAD_TIMEOUT);
+            mDevice.click(133, 496);
+        }
     }
 
     @After
