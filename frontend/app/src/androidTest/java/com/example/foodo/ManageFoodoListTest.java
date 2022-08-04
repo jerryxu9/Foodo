@@ -7,6 +7,7 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.pressImeActionButton;
 import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.action.ViewActions.swipeLeft;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -150,7 +151,6 @@ public class ManageFoodoListTest {
                 IdlingRegistry.getInstance().register(searchQueryIdlingResource);
             }
         });
-
     }
 
     /**
@@ -202,12 +202,7 @@ public class ManageFoodoListTest {
 
         searchAutoComplete.perform(pressImeActionButton());
 
-        Thread.sleep(100);
-        // Have to click twice Search Button twice on first search: Peer group pointed this out. Must fix!
-        // Set a small delay to ensure location is available by this point
-        searchAutoComplete.perform(pressImeActionButton());
-
-        Thread.sleep(1000);
+        Thread.sleep(3000);
 
         Log.d(TAG, "Click on the first search entry");
 
@@ -278,16 +273,15 @@ public class ManageFoodoListTest {
                         childAtPosition(
                                 withId(R.id.constraint),
                                 6)));
-        // TODO uncomment this later
-//        foodoListCardRecyclerView.check(new RecyclerViewItemCountAssertion(1));
+
+        foodoListCardRecyclerView.check(new RecyclerViewItemCountAssertion(1));
 
         Log.d(TAG, "Check that Recycler View item has its item labeled Yummy Food");
         ViewInteraction textView = onView(
                 allOf(withId(R.id.foodo_list_name), withText("Yummy Food"),
-                        withParent(withParent(withId(R.id.card_view))),
+                        withParent(withParent(withId(R.id.foodo_list_card_view))),
                         isDisplayed()));
-        // TODO uncomment this later
-//        textView.check(matches(withText("Yummy Food")));
+        textView.check(matches(withText("Yummy Food")));
 
         Log.d(TAG, "Click on Create Foodo List Button again");
 
@@ -370,8 +364,6 @@ public class ManageFoodoListTest {
                         childAtPosition(
                                 withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
                                 1)));
-//        ViewInteraction recyclerView = onView(
-//                allOf(withId(R.id.search_list)));
         recyclerView.perform(actionOnItemAtPosition(0, click()));
 
         Log.d(TAG, "Add restaurant to Foodo List");
@@ -426,16 +418,8 @@ public class ManageFoodoListTest {
                         isDisplayed()));
         appCompatButton3.perform(click());
 
-//        Log.d(TAG, "Click button to delete restaurant from Foodo List");
-//        ViewInteraction appCompatButton5 = onView(
-//                withIndex(allOf(withId(R.id.delete_restaurant_from_foodo_list_button), withContentDescription("Delete Restaurant"),
-//                        childAtPosition(
-//                                childAtPosition(
-//                                        withId(R.id.restaurant_card_relative_layout),
-//                                        0),
-//                                1),
-//                        isDisplayed()), 0));
-//        appCompatButton5.perform(click());
+        Log.d(TAG, "Delete restaurant from Foodo List via swipe action");
+        onView(withIndex(allOf(withId(R.id.restaurant_card_relative_layout), isDisplayed()), 0)).perform(swipeLeft());
 
         Log.d(TAG, "Navigate back to main activity");
         pressBack();
@@ -447,15 +431,9 @@ public class ManageFoodoListTest {
                                 withParent(withId(android.R.id.content)))),
                         isDisplayed()));
         recyclerView5.perform(ViewActions.swipeLeft());
-//        ViewInteraction appCompatButton6 = onView(
-//                allOf(withId(R.id.delete_foodo_list_button),
-//                        childAtPosition(
-//                                childAtPosition(
-//                                        withId(R.id.card_view),
-//                                        0),
-//                                2),
-//                        isDisplayed()));
-//        appCompatButton6.perform(click());
+
+
+        onView(withIndex(allOf(withId(R.id.foodo_list_relative_view), isDisplayed()), 0)).perform(swipeLeft());
 
         Log.d(TAG, "Check Foodo List is no longer rendered");
 
