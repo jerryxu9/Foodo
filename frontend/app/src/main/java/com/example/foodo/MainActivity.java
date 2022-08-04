@@ -541,7 +541,6 @@ public class MainActivity extends AppCompatActivity {
         int shareIconMargin = (itemHeight - intrinsicHeight) / 2;
         int shareIconTop = itemView.getTop() + shareIconMargin;
         int shareIconRight = itemView.getRight() - shareIconMargin;
-        int shareIconLeft = shareIconRight - intrinsicWidth;
         int shareIconBottom = shareIconTop + intrinsicHeight;
 
         int shareActionBackgroundColor = getResources().getColor(R.color.share_button_blue);
