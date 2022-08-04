@@ -40,7 +40,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -60,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 1;
     private final String TAG = "MainActivity";
-    private final float SWIPE_THRESHOLD = 0.4f;
+    private final float SWIPE_THRESHOLD = 0.6f;
     private FoodoListService foodoListService;
     private GoogleSignInClient mGoogleSignInClient;
     private Intent mapsIntent;
@@ -96,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         setupFoodoLists();
         setupSwipeListeners();
         setupButtonListeners();
+
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.server_client_id))
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "Permission was not granted, requesting permissions now");
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-                }else {
+                } else {
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, locationListener);
                     Log.d(TAG, "Permissions set!");
                 }
@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getApplicationContext(), "Location permissions are needed in order to search!", Toast.LENGTH_LONG).show();
                     return false;
-                }else {
+                } else {
                     return searchRestaurant(query);
                 }
             }
@@ -270,14 +270,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void signOut() {
         mGoogleSignInClient.signOut()
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        showLoginPrompts();
-                        hideLogoutButton();
-                        foodoLists.setVisibility(View.INVISIBLE);
-                        Toast.makeText(MainActivity.this, "You have successfully logged out", Toast.LENGTH_LONG).show();
-                    }
+                .addOnCompleteListener(this, task -> {
+                    showLoginPrompts();
+                    hideLogoutButton();
+                    foodoLists.setVisibility(View.INVISIBLE);
+                    Toast.makeText(MainActivity.this, "You have successfully logged out", Toast.LENGTH_LONG).show();
                 });
     }
 
@@ -290,10 +287,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void hideLogoutButton(){
+    private void hideLogoutButton() {
         logoutButton.setVisibility(View.INVISIBLE);
     }
-    private void showLogoutButton(){
+
+    private void showLogoutButton() {
         logoutButton.setVisibility(View.VISIBLE);
     }
 
@@ -325,7 +323,8 @@ public class MainActivity extends AppCompatActivity {
         foodoLists.setVisibility(View.VISIBLE);
     }
 
-    private boolean searchRestaurant(String query){
+    private boolean searchRestaurant(String query) {
+
         HashMap<String, String> queryParameters = new HashMap<>();
         queryParameters.put("query", query);
 
@@ -447,6 +446,7 @@ public class MainActivity extends AppCompatActivity {
         deleteActionBackground.setCornerRadius(25f);
 
         Drawable deleteDrawable = ContextCompat.getDrawable(this, R.drawable.delete_button);
+
         int intrinsicWidth = deleteDrawable.getIntrinsicWidth();
         int intrinsicHeight = deleteDrawable.getIntrinsicHeight();
 
