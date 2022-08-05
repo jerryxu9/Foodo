@@ -206,6 +206,8 @@ public class ManageFoodoListTest {
                                 withId(R.id.constraint),
                                 6)));
 
+        mDevice.wait(Until.hasObject(By.res("com.example.foodo", "com.example.foodo:id/foodo_list_relative_view")), OBJECT_TIMEOUT);
+
         foodoListCardRecyclerView.check(new RecyclerViewItemCountAssertion(1));
 
         Log.d(TAG, "Check that Recycler View item has its item labeled Yummy Food");
@@ -364,6 +366,8 @@ public class ManageFoodoListTest {
         recyclerView5.perform(swipeLeft());
 
         onView(withIndex(allOf(withId(R.id.foodo_list_relative_view), isDisplayed()), 0)).perform(swipeLeft());
+
+        mDevice.wait(Until.gone(By.res("com.example.foodo", "com.example.foodo:id/foodo_list_relative_view")), OBJECT_TIMEOUT);
 
         Log.d(TAG, "Check Foodo List is no longer rendered");
 
