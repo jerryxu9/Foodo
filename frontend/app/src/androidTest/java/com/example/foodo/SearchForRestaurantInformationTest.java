@@ -359,17 +359,18 @@ public class SearchForRestaurantInformationTest {
         }
     }
 
-/**
- * Custom ViewAssertion to check Recycler View
- * <p>
- * Source: https://stackoverflow.com/a/37339656
- */
-public class RecyclerViewItemCountAssertion implements ViewAssertion {
-    private final int expectedCount;
 
-    public RecyclerViewItemCountAssertion(int expectedCount) {
-        this.expectedCount = expectedCount;
-    }
+    /**
+     * Custom ViewAssertion to check Recycler View
+     * <p>
+     * Source: https://stackoverflow.com/a/37339656
+     */
+    public static class RecyclerViewItemCountAssertion implements ViewAssertion {
+        private final int expectedCount;
+
+        public RecyclerViewItemCountAssertion(int expectedCount) {
+            this.expectedCount = expectedCount;
+        }
 
     @Override
     public void check(View view, NoMatchingViewException noViewFoundException) {

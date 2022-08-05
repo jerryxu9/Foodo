@@ -76,59 +76,8 @@ describe("/checkRestaurantOnList", () => {
     expect(response.statusCode).toBe(200);
   });
 
-  //   Will error since we need to implement error handling in this case
-  it("test restaurant is not found", async () => {
-    const foodoListDoc = {
-      _id: foodoListId,
-      name: "Deserts",
-      restaurants: [
-        {
-          _id: restaurantId,
-          place_id: "90",
-          name: "Uncle Tetsu",
-          isVisited: true,
-          lat: 10,
-          lng: -10,
-        },
-      ],
-      users: ["123"],
-    };
-
-    mockingoose(FoodoListModel).toReturn(foodoListDoc, "findOneAndUpdate");
-
-    const reqBody = {
-      isVisited: true,
-      listID: foodoListId,
-      restaurantID: restaurantId,
-    };
-    const expectedBody = { error: "Restaurant not found" };
-    const response = await request(app)
-      .patch("/checkRestaurantOnList")
-      .send(reqBody);
-
-    expect(response.body).toStrictEqual(expectedBody);
-    expect(response.statusCode).toBe(404);
-  });
-
-  //   Will error since we need to implement error handling in this case
-  it("test list is not found", async () => {
-    const foodoListDoc = {
-      _id: foodoListId,
-      name: "Deserts",
-      restaurants: [
-        {
-          _id: restaurantId,
-          place_id: "90",
-          name: "Uncle Tetsu",
-          isVisited: true,
-          lat: 10,
-          lng: -10,
-        },
-      ],
-      users: ["123"],
-    };
-
-    mockingoose(FoodoListModel).toReturn(foodoListDoc, "findOneAndUpdate");
+  it("test list/restaurant is not found", async () => {
+    mockingoose(FoodoListModel).toReturn(null, "findOneAndUpdate");
 
     const reqBody = {
       isVisited: true,
