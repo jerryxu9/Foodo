@@ -7,6 +7,7 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.pressImeActionButton;
 import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.action.ViewActions.swipeLeft;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -16,6 +17,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.foodo.SearchForRestaurantInformationTest.childAtPosition;
+import static com.example.foodo.SearchForRestaurantInformationTest.withIndex;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
@@ -26,16 +28,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.util.Log;
-import android.view.View;
 
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
-import androidx.test.espresso.NoMatchingViewException;
-import androidx.test.espresso.ViewAssertion;
 import androidx.test.espresso.ViewInteraction;
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -48,9 +45,8 @@ import androidx.test.uiautomator.UiObjectNotFoundException;
 import androidx.test.uiautomator.UiSelector;
 import androidx.test.uiautomator.Until;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
+import com.example.foodo.SearchForRestaurantInformationTest.RecyclerViewItemCountAssertion;
+
 import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
 import org.junit.Before;
@@ -84,30 +80,6 @@ public class ManageFoodoListTest {
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
     UiDevice mDevice;
     private IdlingResource searchQueryIdlingResource;
-
-    /**
-     * Matcher to pick a single view in an Activity with multiple views
-     * with the same resID, text, or content description
-     * <p>
-     * Source: https://stackoverflow.com/a/39756832
-     */
-    public static Matcher<View> withIndex(final Matcher<View> matcher, final int index) {
-        return new TypeSafeMatcher<View>() {
-            int currentIndex = 0;
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("with index: ");
-                description.appendValue(index);
-                matcher.describeTo(description);
-            }
-
-            @Override
-            public boolean matchesSafely(View view) {
-                return matcher.matches(view) && currentIndex++ == index;
-            }
-        };
-    }
 
     private void startMainActivityFromHomeScreen() {
 
@@ -149,7 +121,6 @@ public class ManageFoodoListTest {
                 IdlingRegistry.getInstance().register(searchQueryIdlingResource);
             }
         });
-
     }
 
     /**
@@ -201,10 +172,7 @@ public class ManageFoodoListTest {
 
         searchAutoComplete.perform(pressImeActionButton());
 
-        Thread.sleep(100);
-        // Have to click twice Search Button twice on first search: Peer group pointed this out. Must fix!
-        // Set a small delay to ensure location is available by this point
-        searchAutoComplete.perform(pressImeActionButton());
+        Thread.sleep(3000);
 
         Log.d(TAG, "Click on the first search entry");
 
@@ -218,13 +186,8 @@ public class ManageFoodoListTest {
         Log.d(TAG, "Click Button to add Tim Hortons entry to Foodo List");
         ViewInteraction appCompatButton = onView(
                 allOf(withId(R.id.add_restaurant_to_list_button),
-                        childAtPosition(
-                                allOf(withId(R.id.linearLayout),
-                                        childAtPosition(
-                                                withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
-                                                1)),
-                                11),
                         isDisplayed()));
+
         appCompatButton.perform(click());
 
         onView(withId(R.id.login_warning_text)).check(matches(withText("Please log in to use this feature")));
@@ -248,12 +211,6 @@ public class ManageFoodoListTest {
         Log.d(TAG, "Select Create Foodo List Button");
         ViewInteraction floatingActionButton = onView(
                 allOf(withId(R.id.create_foodo_list_button), withContentDescription("Create Foodo List"),
-                        childAtPosition(
-                                allOf(withId(R.id.constraint),
-                                        childAtPosition(
-                                                withId(android.R.id.content),
-                                                0)),
-                                5),
                         isDisplayed()));
         floatingActionButton.perform(click());
 
@@ -281,12 +238,13 @@ public class ManageFoodoListTest {
                         childAtPosition(
                                 withId(R.id.constraint),
                                 6)));
+
         foodoListCardRecyclerView.check(new RecyclerViewItemCountAssertion(1));
 
         Log.d(TAG, "Check that Recycler View item has its item labeled Yummy Food");
         ViewInteraction textView = onView(
                 allOf(withId(R.id.foodo_list_name), withText("Yummy Food"),
-                        withParent(withParent(withId(R.id.card_view))),
+                        withParent(withParent(withId(R.id.foodo_list_card_view))),
                         isDisplayed()));
         textView.check(matches(withText("Yummy Food")));
 
@@ -365,19 +323,22 @@ public class ManageFoodoListTest {
         Thread.sleep(3000);
 
         Log.d(TAG, "Click first search result for Tim Hortons query");
+
         ViewInteraction recyclerView = onView(
-                allOf(withId(R.id.search_list)));
+                allOf(withId(R.id.search_list),
+                        childAtPosition(
+                                withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
+                                1)));
         recyclerView.perform(actionOnItemAtPosition(0, click()));
 
         Log.d(TAG, "Add restaurant to Foodo List");
         ViewInteraction appCompatButton2 = onView(
                 allOf(withId(R.id.add_restaurant_to_list_button),
                         childAtPosition(
-                                allOf(withId(R.id.linearLayout),
-                                        childAtPosition(
-                                                withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
-                                                1)),
-                                11),
+                                childAtPosition(
+                                        withId(android.R.id.content),
+                                        0),
+                                3),
                         isDisplayed()));
         appCompatButton2.perform(click());
 
@@ -422,39 +383,34 @@ public class ManageFoodoListTest {
                         isDisplayed()));
         appCompatButton3.perform(click());
 
-        Log.d(TAG, "Click button to delete restaurant from Foodo List");
-        ViewInteraction appCompatButton5 = onView(
-                withIndex(allOf(withId(R.id.delete_restaurant_from_foodo_list_button), withContentDescription("Delete Restaurant"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.restaurant_card_relative_layout),
-                                        0),
-                                1),
-                        isDisplayed()), 0));
-        appCompatButton5.perform(click());
+        Log.d(TAG, "Delete restaurant from Foodo List via swipe action");
+        onView(withIndex(allOf(withId(R.id.restaurant_card_relative_layout), isDisplayed()), 0)).perform(swipeLeft());
 
         Log.d(TAG, "Navigate back to main activity");
         pressBack();
 
-        Log.d(TAG, "Delete Yummy Food Foodo List");
-        ViewInteraction appCompatButton6 = onView(
-                allOf(withId(R.id.delete_foodo_list_button),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.card_view),
-                                        0),
-                                2),
-                        isDisplayed()));
-        appCompatButton6.perform(click());
-
-        Log.d(TAG, "Check Foodo List is no longer rendered");
+        Log.d(TAG, "Delete Yummy Food Foodo List using swiping action");
         ViewInteraction recyclerView5 = onView(
                 allOf(withId(R.id.foodo_lists),
                         withParent(allOf(withId(R.id.constraint),
                                 withParent(withId(android.R.id.content)))),
                         isDisplayed()));
+        recyclerView5.perform(swipeLeft());
+
+
+        onView(withIndex(allOf(withId(R.id.foodo_list_relative_view), isDisplayed()), 0)).perform(swipeLeft());
+
+        Log.d(TAG, "Check Foodo List is no longer rendered");
+
         recyclerView5.check(new RecyclerViewItemCountAssertion(0));
 
+        Log.d(TAG, "Close keyboard when returning from Search Results Activity");
+
+        searchAutoComplete.perform(closeSoftKeyboard());
+
+        Log.d(TAG, "Logout to reset app state");
+
+        onView(allOf(withId(R.id.logout_button), isDisplayed())).perform(click());
     }
 
 
@@ -473,30 +429,6 @@ public class ManageFoodoListTest {
     public void unregisterIdlingResource() {
         if (searchQueryIdlingResource != null) {
             IdlingRegistry.getInstance().unregister(searchQueryIdlingResource);
-        }
-    }
-
-    /**
-     * Custom ViewAssertion to check Recycler View
-     * <p>
-     * Source: https://stackoverflow.com/a/37339656
-     */
-    public class RecyclerViewItemCountAssertion implements ViewAssertion {
-        private final int expectedCount;
-
-        public RecyclerViewItemCountAssertion(int expectedCount) {
-            this.expectedCount = expectedCount;
-        }
-
-        @Override
-        public void check(View view, NoMatchingViewException noViewFoundException) {
-            if (noViewFoundException != null) {
-                throw noViewFoundException;
-            }
-
-            RecyclerView recyclerView = (RecyclerView) view;
-            RecyclerView.Adapter adapter = recyclerView.getAdapter();
-            ViewMatchers.assertThat(adapter.getItemCount(), is(expectedCount));
         }
     }
 

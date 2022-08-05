@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
     private LocationManager locationManager;
     private Double lat;
     private Double lng;
-    private FoodoListCardAdapter foodoListCardAdapter;
     private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(@NonNull Location location) {
@@ -79,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
             lng = location.getLongitude();
         }
     };
+    private FoodoListCardAdapter foodoListCardAdapter;
     private CountingIdlingResource searchQueryCountingIdlingResource;
 
     @SuppressLint("MissingPermission")
@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
         setupFoodoLists();
         setupSwipeListeners();
         setupButtonListeners();
-
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.server_client_id))
@@ -119,8 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupButtonListeners();
         setupFoodoLists();
-        setupDeleteSwipeListeners();
-        setupShareSwipeListeners();
+        setupSwipeListeners();
     }
 
     private void setupFoodoLists() {
@@ -190,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setupDeleteSwipeListeners() {
+    private void setupDeleteSwipeListener() {
         ItemTouchHelper.SimpleCallback deleteFoodoListCallback = new ItemTouchHelper
                 .SimpleCallback(0, ItemTouchHelper.LEFT) {
 
@@ -271,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void setupShareSwipeListeners() {
+    private void setupShareSwipeListener() {
         ItemTouchHelper.SimpleCallback shareFoodoListCallback = new ItemTouchHelper
                 .SimpleCallback(0, ItemTouchHelper.RIGHT) {
 
@@ -295,11 +293,16 @@ public class MainActivity extends AppCompatActivity {
             public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewholder,
                                     float dX, float dY, int actionState, boolean isCurrentlyActive) {
                 setShareIcon(c, viewholder, dX, isCurrentlyActive);
-                super.onChildDraw(c, recyclerView, viewholder, dX/5, dY, actionState, isCurrentlyActive);
+                super.onChildDraw(c, recyclerView, viewholder, dX / 5, dY, actionState, isCurrentlyActive);
             }
         };
 
         new ItemTouchHelper(shareFoodoListCallback).attachToRecyclerView(foodoLists);
+    }
+
+    private void setupSwipeListeners() {
+        setupDeleteSwipeListener();
+        setupShareSwipeListener();
     }
 
     private void signIn() {
@@ -513,7 +516,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setShareIcon(Canvas c, RecyclerView.ViewHolder viewHolder,
-                               float dX, boolean isCurrentlyActive) {
+                              float dX, boolean isCurrentlyActive) {
 
         View itemView = viewHolder.itemView;
         int itemHeight = itemView.getHeight();
@@ -546,7 +549,7 @@ public class MainActivity extends AppCompatActivity {
         shareActionBackground.setBounds(
                 itemView.getLeft(),
                 shareIconTop,
-                intrinsicWidth + (int)dX,
+                intrinsicWidth + (int) dX,
                 shareIconBottom);
         shareActionBackground.draw(c);
 
