@@ -153,7 +153,7 @@ public class FoodoListActivity extends AppCompatActivity {
         int drawableID;
         int checkActionBackgroundColor;
 
-        if(((RestaurantCardAdapter.Viewholder) viewHolder).getVisited()) {
+        if (((RestaurantCardAdapter.Viewholder) viewHolder).getVisited()) {
             drawableID = R.drawable.unvisited_circle;
             checkActionBackgroundColor = Color.BLACK;
         } else {
