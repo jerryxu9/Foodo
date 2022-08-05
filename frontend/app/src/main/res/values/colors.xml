@@ -14,4 +14,5 @@
     <color name="foodo_blue">#5CB1FF</color>
     <color name="delete_button_red">#D05151</color>
     <color name="share_button_blue">#ADD6ED</color>
+    <color name="visited_blue">#5CB1FF</color>
 </resources>

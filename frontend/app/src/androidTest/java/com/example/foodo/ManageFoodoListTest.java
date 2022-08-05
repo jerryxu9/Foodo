@@ -374,7 +374,7 @@ public class ManageFoodoListTest {
 
         Log.d(TAG, "Uncheck Restaurant");
         ViewInteraction appCompatButton3 = onView(
-                allOf(withId(R.id.check_button),
+                allOf(withId(R.id.check_status),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.restaurant_card_relative_layout),
