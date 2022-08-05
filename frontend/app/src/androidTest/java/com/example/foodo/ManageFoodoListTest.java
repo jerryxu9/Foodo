@@ -177,8 +177,7 @@ public class ManageFoodoListTest {
 
         Log.d(TAG, "Select Create Foodo List Button");
         ViewInteraction floatingActionButton = onView(
-                allOf(withId(R.id.create_foodo_list_button), withContentDescription("Create Foodo List"),
-                        isDisplayed()));
+                allOf(withId(R.id.create_foodo_list_button)));
         floatingActionButton.perform(click());
 
         Log.d(TAG, "Enter name of Foodo List to be 'Yummy Food'");
