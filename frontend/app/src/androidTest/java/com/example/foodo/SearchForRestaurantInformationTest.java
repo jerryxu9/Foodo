@@ -297,9 +297,8 @@ public class SearchForRestaurantInformationTest {
         loginButton.waitForExists(OBJECT_TIMEOUT);
         loginButton.clickAndWaitForNewWindow();
 
-        System.out.println("Login from the start");
         UiObject2 emailInput = mDevice.wait(Until.findObject(By
-                .clazz(EditText.class)), OBJECT_TIMEOUT);
+                .clazz(EditText.class)), PAGE_LOAD_TIMEOUT);
 
         emailInput.setText("cpen321espresso@gmail.com");
         emailInput.wait(Until.textEquals("cpen321espresso@gmail.com"), OBJECT_TIMEOUT);
