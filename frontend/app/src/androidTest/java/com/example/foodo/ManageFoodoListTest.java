@@ -1,6 +1,5 @@
 package com.example.foodo;
 
-import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -18,16 +17,13 @@ import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.example.foodo.SearchForRestaurantInformationTest.childAtPosition;
 import static com.example.foodo.SearchForRestaurantInformationTest.withIndex;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.util.Log;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.IdlingRegistry;
@@ -41,7 +37,9 @@ import androidx.test.rule.GrantPermissionRule;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiScrollable;
 import androidx.test.uiautomator.UiSelector;
 import androidx.test.uiautomator.Until;
 
@@ -68,8 +66,7 @@ public class ManageFoodoListTest {
 
     private static final int SHORTER_PAGE_LOAD_TIMEOUT = 40000;
     private static final int OBJECT_TIMEOUT = 20000;
-    private static final String BASIC_SAMPLE_PACKAGE
-            = "com.example.foodo";
+    private static final int PAGE_LOAD_TIMEOUT = 60000;
     private static final String TAG = "ManageFoodoListTest";
     @Rule
     public GrantPermissionRule mGrantPermissionRule =
@@ -81,29 +78,10 @@ public class ManageFoodoListTest {
     UiDevice mDevice;
     private IdlingResource searchQueryIdlingResource;
 
-    private void startMainActivityFromHomeScreen() {
-
+    @Before
+    public void initializeUiDevice() {
         Log.d(TAG, "Initialize UiDevice instance");
         mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-
-        // Start from the home screen
-        mDevice.pressHome();
-
-        Log.d(TAG, "Wait for launcher");
-        final String launcherPackage = getLauncherPackageName();
-        assertThat(launcherPackage, notNullValue());
-        mDevice.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)), SHORTER_PAGE_LOAD_TIMEOUT);
-
-        Log.d(TAG, "Launch Blueprint app");
-        Context context = getApplicationContext();
-        final Intent intent = context.getPackageManager()
-                .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);    // Clear out any previous instances
-        context.startActivity(intent);
-
-        Log.d(TAG, "Wait for the app to appear");
-        mDevice.wait(Until.hasObject(By.pkg(BASIC_SAMPLE_PACKAGE).depth(0)), SHORTER_PAGE_LOAD_TIMEOUT);
-
     }
 
     @Before
@@ -133,8 +111,7 @@ public class ManageFoodoListTest {
     }
 
     @Test
-    public void addRestaurantToFoodoListBlocksUserIfNotLoggedInTest() throws InterruptedException {
-
+    public void addRestaurantToFoodoListBlocksUserIfNotLoggedInTest() {
         final String SEARCH_QUERY = "Tim Hortons";
 
         Log.d(TAG, "Click Search View");
@@ -172,7 +149,7 @@ public class ManageFoodoListTest {
 
         searchAutoComplete.perform(pressImeActionButton());
 
-        Thread.sleep(3000);
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/search_list")), OBJECT_TIMEOUT);
 
         Log.d(TAG, "Click on the first search entry");
 
@@ -193,20 +170,10 @@ public class ManageFoodoListTest {
         onView(withId(R.id.login_warning_text)).check(matches(withText("Please log in to use this feature")));
     }
 
+
     @Test
     public void manageFoodoListTest() throws UiObjectNotFoundException, InterruptedException {
-
-        startMainActivityFromHomeScreen();
-
-        UiObject loginButton = mDevice.findObject(new UiSelector()
-                .text("LOGIN")
-                .className("android.widget.Button"));
-        loginButton.waitForExists(OBJECT_TIMEOUT);
-        loginButton.click();
-
-        Log.d(TAG, "Select existing account");
-        mDevice.wait(Until.hasObject(By.text("Choose an account")), OBJECT_TIMEOUT);
-        mDevice.click(538, 1099);
+        login();
 
         Log.d(TAG, "Select Create Foodo List Button");
         ViewInteraction floatingActionButton = onView(
@@ -320,7 +287,7 @@ public class ManageFoodoListTest {
 
         searchAutoComplete.perform(pressImeActionButton());
 
-        Thread.sleep(3000);
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/search_list")), OBJECT_TIMEOUT);
 
         Log.d(TAG, "Click first search result for Tim Hortons query");
 
@@ -353,7 +320,6 @@ public class ManageFoodoListTest {
 
         Log.d(TAG, "Navigate back to MainActivity");
         pressBack();
-
         pressBack();
 
         Log.d(TAG, "Navigate into Yummy Food Foodo List");
@@ -397,7 +363,6 @@ public class ManageFoodoListTest {
                         isDisplayed()));
         recyclerView5.perform(swipeLeft());
 
-
         onView(withIndex(allOf(withId(R.id.foodo_list_relative_view), isDisplayed()), 0)).perform(swipeLeft());
 
         Log.d(TAG, "Check Foodo List is no longer rendered");
@@ -413,16 +378,65 @@ public class ManageFoodoListTest {
         onView(allOf(withId(R.id.logout_button), isDisplayed())).perform(click());
     }
 
+    private void login() throws UiObjectNotFoundException, InterruptedException {
+        UiObject loginButton = mDevice.findObject(new UiSelector()
+                .text("LOGIN")
+                .className("android.widget.Button"));
+        loginButton.waitForExists(OBJECT_TIMEOUT);
+        loginButton.clickAndWaitForNewWindow();
 
-    private String getLauncherPackageName() {
-        // Create launcher Intent
-        final Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
+        System.out.println("Login from the start");
+        UiObject2 emailInput = mDevice.wait(Until.findObject(By
+                .clazz(EditText.class)), OBJECT_TIMEOUT);
 
-        // Use PackageManager to get the launcher package name
-        PackageManager pm = getApplicationContext().getPackageManager();
-        ResolveInfo resolveInfo = pm.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
-        return resolveInfo.activityInfo.packageName;
+        emailInput.setText("cpen321espresso@gmail.com");
+        emailInput.wait(Until.textEquals("cpen321espresso@gmail.com"), OBJECT_TIMEOUT);
+        Thread.sleep(2000);
+
+        mDevice.click(896, 1930);
+        mDevice.click(896, 1930);
+        mDevice.wait(Until.hasObject(By.text("Hi Test").clazz(TextView.class)), SHORTER_PAGE_LOAD_TIMEOUT);
+
+        UiObject2 passwordInput = mDevice.wait(Until.findObject(By
+                .clazz(EditText.class)), OBJECT_TIMEOUT);
+
+        passwordInput.setText("cpen#@!espresso");// type your password here
+        passwordInput.wait(Until.textEquals("cpen#@!espresso"), OBJECT_TIMEOUT);
+
+        //check that password is filled
+        //Note: it returns *******, probably bc of security, so
+        //just compare the length instead
+        assertEquals(passwordInput.getText().length(), 15);
+
+        Thread.sleep(2000);
+
+        // Confirm Button Click
+        UiObject2 nextButton = mDevice.wait(Until.findObject(By
+                .textContains("N")
+                .clazz("android.widget.Button")), OBJECT_TIMEOUT);
+
+        nextButton.click();
+
+        mDevice.waitForWindowUpdate("com.google.android.gms", PAGE_LOAD_TIMEOUT);
+
+        UiObject2 agreeTermsOfService = mDevice.wait(Until.findObject(By
+                .text("I agree")
+                .clazz("android.widget.Button")), OBJECT_TIMEOUT);
+
+        agreeTermsOfService.click();
+
+        mDevice.wait(Until.hasObject(By.textContains("Tap to learn more about each service")), SHORTER_PAGE_LOAD_TIMEOUT);
+
+        UiScrollable scrollToAccept = new UiScrollable(
+                new UiSelector().scrollable(true));
+        scrollToAccept.waitForExists(OBJECT_TIMEOUT);
+        scrollToAccept.scrollToEnd(10);
+
+        UiObject acceptButton = mDevice.findObject(new UiSelector().text("ACCEPT"));
+        acceptButton.clickAndWaitForNewWindow(SHORTER_PAGE_LOAD_TIMEOUT);
+
+        mDevice.wait(Until.hasObject(By.text("Foodo")), PAGE_LOAD_TIMEOUT);
+        mDevice.click(133, 496);
     }
 
     @After
@@ -431,6 +445,4 @@ public class ManageFoodoListTest {
             IdlingRegistry.getInstance().unregister(searchQueryIdlingResource);
         }
     }
-
-
 }

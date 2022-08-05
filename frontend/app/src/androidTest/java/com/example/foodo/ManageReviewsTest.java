@@ -231,14 +231,14 @@ public class ManageReviewsTest {
         UiObject2 emailInput = mDevice.wait(Until.findObject(By
                 .clazz(EditText.class)), PAGE_LOAD_TIMEOUT);
 
-        emailInput.click();
         emailInput.setText("cpen321espresso@gmail.com");
         emailInput.wait(Until.textEquals("cpen321espresso@gmail.com"), OBJECT_TIMEOUT);
         Thread.sleep(2000);
 
         mDevice.click(896, 1930);
+        mDevice.click(896, 1930);
         mDevice.wait(Until.hasObject(By.text("Hi Test").clazz(TextView.class)), SHORTER_PAGE_LOAD_TIMEOUT);
-//        // Set Password
+
         UiObject2 passwordInput = mDevice.wait(Until.findObject(By
                 .clazz(EditText.class)), OBJECT_TIMEOUT);
 
@@ -252,7 +252,6 @@ public class ManageReviewsTest {
 
         Thread.sleep(2000);
 
-        // Confirm Button Click
         UiObject2 nextButton = mDevice.wait(Until.findObject(By
                 .textContains("N")
                 .clazz("android.widget.Button")), OBJECT_TIMEOUT);

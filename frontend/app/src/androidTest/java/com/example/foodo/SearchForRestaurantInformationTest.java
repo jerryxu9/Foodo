@@ -1,6 +1,5 @@
 package com.example.foodo;
 
-
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -307,8 +306,9 @@ public class SearchForRestaurantInformationTest {
         Thread.sleep(2000);
 
         mDevice.click(896, 1930);
+        mDevice.click(896, 1930);
         mDevice.wait(Until.hasObject(By.text("Hi Test").clazz(TextView.class)), SHORTER_PAGE_LOAD_TIMEOUT);
-//        // Set Password
+
         UiObject2 passwordInput = mDevice.wait(Until.findObject(By
                 .clazz(EditText.class)), OBJECT_TIMEOUT);
 
@@ -381,6 +381,6 @@ public class SearchForRestaurantInformationTest {
         RecyclerView recyclerView = (RecyclerView) view;
         RecyclerView.Adapter adapter = recyclerView.getAdapter();
         ViewMatchers.assertThat(adapter.getItemCount(), is(expectedCount));
+        }
     }
-}
 }
