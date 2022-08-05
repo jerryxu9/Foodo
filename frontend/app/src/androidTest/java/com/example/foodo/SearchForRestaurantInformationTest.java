@@ -34,8 +34,8 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-
 import androidx.test.rule.GrantPermissionRule;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -215,7 +215,7 @@ public class SearchForRestaurantInformationTest {
                                 withParent(IsInstanceOf.instanceOf(ViewGroup.class)))),
                         isDisplayed()));
         textView5.check(matches(withText("Hours")));
-        
+
         Log.d(TAG, "Check Address text is displayed in the restaurant info page");
         ViewInteraction textView6 = onView(
                 allOf(withId(R.id.restaurantAddress_info),
@@ -269,7 +269,7 @@ public class SearchForRestaurantInformationTest {
      * <p>
      * Source: https://stackoverflow.com/a/37339656
      */
-    public class RecyclerViewItemCountAssertion implements ViewAssertion {
+    public static class RecyclerViewItemCountAssertion implements ViewAssertion {
         private final int expectedCount;
 
         public RecyclerViewItemCountAssertion(int expectedCount) {
