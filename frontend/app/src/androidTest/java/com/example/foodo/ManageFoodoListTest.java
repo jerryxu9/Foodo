@@ -340,7 +340,7 @@ public class ManageFoodoListTest {
                         isDisplayed()));
         textView2.check(matches(withText("Tim Hortons")));
 
-        Log.d(TAG, "Check Restaurant");
+        Log.d(TAG, "Check Restaurant via button press");
         ViewInteraction appCompatButton3 = onView(
                 allOf(withId(R.id.check_status),
                         childAtPosition(
