@@ -241,7 +241,7 @@ public class SearchForRestaurantInformationTest {
                                 withParent(IsInstanceOf.instanceOf(ViewGroup.class)))),
                         isDisplayed()));
         textView5.check(matches(withText("Hours")));
-        
+
         Log.d(TAG, "Check Address text is displayed in the restaurant info page");
         ViewInteraction textView6 = onView(
                 allOf(withId(R.id.restaurantAddress_info),
@@ -285,7 +285,7 @@ public class SearchForRestaurantInformationTest {
         logout();
     }
 
-    private void logout(){
+    private void logout() {
         pressBack();
         pressBack();
 
@@ -299,64 +299,59 @@ public class SearchForRestaurantInformationTest {
         loginButton.waitForExists(OBJECT_TIMEOUT);
         loginButton.clickAndWaitForNewWindow();
 
-        if(mDevice.wait(Until.findObject(By.text("Choose an account")), 10000) != null){
-            System.out.println();
-            mDevice.click(538, 1099);
-            System.out.println("Choose account");
-        }else{
-            System.out.println("Login from the start");
-            UiObject2 emailInput = mDevice.wait(Until.findObject(By
-                    .clazz(EditText.class)), OBJECT_TIMEOUT);
+        System.out.println("Login from the start");
+        UiObject2 emailInput = mDevice.wait(Until.findObject(By
+                .clazz(EditText.class)), OBJECT_TIMEOUT);
 
-            emailInput.setText("cpen321espresso@gmail.com");
-            emailInput.wait(Until.textEquals("cpen321espresso@gmail.com"), OBJECT_TIMEOUT);
-            Thread.sleep(2000);
+        emailInput.setText("cpen321espresso@gmail.com");
+        emailInput.wait(Until.textEquals("cpen321espresso@gmail.com"), OBJECT_TIMEOUT);
+        Thread.sleep(2000);
 
-            mDevice.click(896, 1930);
-            mDevice.wait(Until.hasObject(By.text("Hi Test").clazz(TextView.class)), SHORTER_PAGE_LOAD_TIMEOUT);
+        mDevice.click(896, 1930);
+        mDevice.wait(Until.hasObject(By.text("Hi Test").clazz(TextView.class)), SHORTER_PAGE_LOAD_TIMEOUT);
 //        // Set Password
-            UiObject2 passwordInput = mDevice.wait(Until.findObject(By
-                    .clazz(EditText.class)), OBJECT_TIMEOUT);
+        UiObject2 passwordInput = mDevice.wait(Until.findObject(By
+                .clazz(EditText.class)), OBJECT_TIMEOUT);
 
-            passwordInput.setText("cpen#@!espresso");// type your password here
-            passwordInput.wait(Until.textEquals("cpen#@!espresso"), OBJECT_TIMEOUT);
+        passwordInput.setText("cpen#@!espresso");// type your password here
+        passwordInput.wait(Until.textEquals("cpen#@!espresso"), OBJECT_TIMEOUT);
 
-            //check that password is filled
-            //Note: it returns *******, probably bc of security, so
-            //just compare the length instead
-            assertEquals(passwordInput.getText().length(), 15);
+        //check that password is filled
+        //Note: it returns *******, probably bc of security, so
+        //just compare the length instead
+        assertEquals(passwordInput.getText().length(), 15);
 
-            Thread.sleep(2000);
+        Thread.sleep(2000);
 
-            // Confirm Button Click
-            UiObject2 nextButton = mDevice.wait(Until.findObject(By
-                    .textContains("N")
-                    .clazz("android.widget.Button")), OBJECT_TIMEOUT);
+        // Confirm Button Click
+        UiObject2 nextButton = mDevice.wait(Until.findObject(By
+                .textContains("N")
+                .clazz("android.widget.Button")), OBJECT_TIMEOUT);
 
-            nextButton.click();
+        nextButton.click();
 
-            mDevice.waitForWindowUpdate("com.google.android.gms", PAGE_LOAD_TIMEOUT);
+        mDevice.waitForWindowUpdate("com.google.android.gms", PAGE_LOAD_TIMEOUT);
 
-            UiObject2 agreeTermsOfService = mDevice.wait(Until.findObject(By
-                    .text("I agree")
-                    .clazz("android.widget.Button")), OBJECT_TIMEOUT);
+        UiObject2 agreeTermsOfService = mDevice.wait(Until.findObject(By
+                .text("I agree")
+                .clazz("android.widget.Button")), OBJECT_TIMEOUT);
 
-            agreeTermsOfService.click();
+        agreeTermsOfService.click();
 
-            mDevice.wait(Until.hasObject(By.textContains("Tap to learn more about each service")), SHORTER_PAGE_LOAD_TIMEOUT);
+        mDevice.wait(Until.hasObject(By.textContains("Tap to learn more about each service")), SHORTER_PAGE_LOAD_TIMEOUT);
 
-            UiScrollable scrollToAccept = new UiScrollable(
-                    new UiSelector().scrollable(true));
-            scrollToAccept.waitForExists(OBJECT_TIMEOUT);
-            scrollToAccept.scrollToEnd(10);
+        UiScrollable scrollToAccept = new UiScrollable(
+                new UiSelector().scrollable(true));
+        scrollToAccept.waitForExists(OBJECT_TIMEOUT);
+        scrollToAccept.scrollToEnd(10);
 
-            UiObject acceptButton = mDevice.findObject(new UiSelector().text("ACCEPT"));
-            acceptButton.clickAndWaitForNewWindow(SHORTER_PAGE_LOAD_TIMEOUT);
+        UiObject acceptButton = mDevice.findObject(new UiSelector().text("ACCEPT"));
+        acceptButton.clickAndWaitForNewWindow(SHORTER_PAGE_LOAD_TIMEOUT);
 
-            mDevice.wait(Until.hasObject(By.text("Foodo")), PAGE_LOAD_TIMEOUT);
-            mDevice.click(133, 496);
-        }
+        mDevice.wait(Until.hasObject(By.text("Foodo")), PAGE_LOAD_TIMEOUT);
+        mDevice.click(133, 496);
     }
+
 
     @After
     public void unregisterIdlingResource() {
@@ -365,27 +360,27 @@ public class SearchForRestaurantInformationTest {
         }
     }
 
-    /**
-     * Custom ViewAssertion to check Recycler View
-     * <p>
-     * Source: https://stackoverflow.com/a/37339656
-     */
-    public class RecyclerViewItemCountAssertion implements ViewAssertion {
-        private final int expectedCount;
+/**
+ * Custom ViewAssertion to check Recycler View
+ * <p>
+ * Source: https://stackoverflow.com/a/37339656
+ */
+public class RecyclerViewItemCountAssertion implements ViewAssertion {
+    private final int expectedCount;
 
-        public RecyclerViewItemCountAssertion(int expectedCount) {
-            this.expectedCount = expectedCount;
-        }
-
-        @Override
-        public void check(View view, NoMatchingViewException noViewFoundException) {
-            if (noViewFoundException != null) {
-                throw noViewFoundException;
-            }
-
-            RecyclerView recyclerView = (RecyclerView) view;
-            RecyclerView.Adapter adapter = recyclerView.getAdapter();
-            ViewMatchers.assertThat(adapter.getItemCount(), is(expectedCount));
-        }
+    public RecyclerViewItemCountAssertion(int expectedCount) {
+        this.expectedCount = expectedCount;
     }
+
+    @Override
+    public void check(View view, NoMatchingViewException noViewFoundException) {
+        if (noViewFoundException != null) {
+            throw noViewFoundException;
+        }
+
+        RecyclerView recyclerView = (RecyclerView) view;
+        RecyclerView.Adapter adapter = recyclerView.getAdapter();
+        ViewMatchers.assertThat(adapter.getItemCount(), is(expectedCount));
+    }
+}
 }
