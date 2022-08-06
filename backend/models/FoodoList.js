@@ -14,6 +14,7 @@ const FoodoListSchema = mongoose.Schema({
   },
 });
 
+
 const FoodoListModel = mongoose.model("FoodoList", FoodoListSchema);
 
 module.exports = {

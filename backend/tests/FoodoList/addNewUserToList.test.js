@@ -50,10 +50,7 @@ describe("/addNewUserToList", () => {
   // Should fail since have not handled this error case yet
   it("test non-existent list ID", async () => {
     mockingoose(User).toReturn([userDoc], "find");
-    mockingoose(FoodoListModel).toReturn(
-      { error: "List not found" },
-      "findOneAndUpdate"
-    );
+    mockingoose(FoodoListModel).toReturn(null, "findOneAndUpdate");
 
     const reqBody = { email: "sbarnes@gmail.com", listID: "123" };
     const expectedBody = { error: "List not found" };

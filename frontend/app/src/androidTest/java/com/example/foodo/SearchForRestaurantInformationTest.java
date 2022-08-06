@@ -16,11 +16,14 @@ import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ActivityScenario;
@@ -42,7 +45,6 @@ import androidx.test.uiautomator.Until;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -163,9 +165,9 @@ public class SearchForRestaurantInformationTest {
         searchAutoComplete.perform(replaceText(SEARCH_QUERY), closeSoftKeyboard());
 
         ViewInteraction editText = onView(
-                allOf(IsInstanceOf.instanceOf(android.widget.EditText.class), withText(SEARCH_QUERY),
-                        withParent(allOf(IsInstanceOf.instanceOf(android.widget.LinearLayout.class),
-                                withParent(IsInstanceOf.instanceOf(android.widget.LinearLayout.class)))),
+                allOf(instanceOf(EditText.class), withText(SEARCH_QUERY),
+                        withParent(allOf(instanceOf(LinearLayout.class),
+                                withParent(instanceOf(LinearLayout.class)))),
                         isDisplayed()));
         editText.check(matches(withText(SEARCH_QUERY)));
 
@@ -193,7 +195,7 @@ public class SearchForRestaurantInformationTest {
         ViewInteraction textView2 = onView(
                 allOf(withId(R.id.restaurantName), withText(SEARCH_QUERY),
                         withParent(allOf(withIndex(withId(R.id.restaurant_card_relative_layout), 0),
-                                withParent(IsInstanceOf.instanceOf(android.widget.FrameLayout.class)))),
+                                withParent(instanceOf(android.widget.FrameLayout.class)))),
                         isDisplayed()));
         textView2.check(matches(withText(SEARCH_QUERY)));
 
@@ -215,7 +217,7 @@ public class SearchForRestaurantInformationTest {
         Log.d(TAG, "Check Reviews text is displayed in the restaurant info page");
         ViewInteraction textView4 = onView(
                 allOf(withId(R.id.Review_title), withText("Reviews"),
-                        withParent(withParent(IsInstanceOf.instanceOf(ViewGroup.class))),
+                        withParent(withParent(instanceOf(ViewGroup.class))),
                         isDisplayed()));
         textView4.check(matches(withText("Reviews")));
 
@@ -223,7 +225,7 @@ public class SearchForRestaurantInformationTest {
         ViewInteraction textView5 = onView(
                 allOf(withText("Hours"),
                         withParent(allOf(withId(R.id.linearLayout),
-                                withParent(IsInstanceOf.instanceOf(ViewGroup.class)))),
+                                withParent(instanceOf(ViewGroup.class)))),
                         isDisplayed()));
         textView5.check(matches(withText("Hours")));
 
@@ -231,7 +233,7 @@ public class SearchForRestaurantInformationTest {
         ViewInteraction textView6 = onView(
                 allOf(withId(R.id.restaurantAddress_info),
                         withParent(allOf(withId(R.id.linearLayout),
-                                withParent(IsInstanceOf.instanceOf(ViewGroup.class)))),
+                                withParent(instanceOf(ViewGroup.class)))),
                         isDisplayed()));
         textView6.check(matches(isDisplayed()));
 
@@ -239,7 +241,7 @@ public class SearchForRestaurantInformationTest {
         ViewInteraction textView7 = onView(
                 allOf(withId(R.id.restaurantNumber_info),
                         withParent(allOf(withId(R.id.linearLayout),
-                                withParent(IsInstanceOf.instanceOf(ViewGroup.class)))),
+                                withParent(instanceOf(ViewGroup.class)))),
                         isDisplayed()));
         textView7.check(matches(isDisplayed()));
 

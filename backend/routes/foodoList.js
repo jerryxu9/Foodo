@@ -75,12 +75,7 @@ router.delete("/deleteFoodoList", async (req, res) => {
 // Add a restaurant to a Foodo list
 router.patch("/addRestaurantToList", async (req, res) => {
   // check lat/lon values
-  if (
-    req.body?.lat < -90 ||
-    req.body?.lat > 90 ||
-    req.body?.lng < -180 ||
-    req.body?.lng > 180
-  ) {
+  if (req.body?.lat < -90 || req.body?.lat > 90 || req.body?.lng < -180 ||req.body?.lng > 180) {
     res.statusCode = 400;
     res.json({ error: "Invalid latitude/longitude values" });
   } else if (req.body?.restaurantID === "-1") {
@@ -167,7 +162,10 @@ router.patch("/addNewUserToList", async (req, res) => {
           }
         )
           .then((updatedList) => {
-            res.json(updatedList);
+            if (updatedList === null) {
+              res.statusCode = 404;
+              res.json({ error: "List not found" });
+            } else res.json(updatedList);
           })
           .catch((err) => {
             res.json(err);
