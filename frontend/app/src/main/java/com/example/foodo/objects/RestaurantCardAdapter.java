@@ -3,11 +3,13 @@ package com.example.foodo.objects;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -70,12 +72,9 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
 
         // Enable check button only if RestaurantCard is rendered from Foodo List
         if (isInFoodoList) {
+            // render the card based on whether it's been visited or not
             ((Activity) context).runOnUiThread(() -> {
-                if (model.getVisited()) {
-                    holder.checkFoodoListButton.setBackgroundResource(R.drawable.visited_image);
-                } else {
-                    holder.checkFoodoListButton.setBackgroundResource(R.drawable.checkmark_button);
-                }
+                holder.paintRestaurantCard(model.getVisited());
             });
 
             holder.checkFoodoListButton.setOnClickListener((View v) -> {
@@ -98,7 +97,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
     public void addRestaurantCard(RestaurantCard card) {
         ((Activity) context).runOnUiThread(() -> {
             restaurantCardArrayList.add(card);
-            notifyItemInserted(restaurantCardArrayList.size());
+            notifyDataSetChanged();
         });
     }
 
@@ -114,6 +113,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
         private final TextView restaurantRating;
         private final TextView restaurantStatus;
         private final Button checkFoodoListButton;
+        private final RelativeLayout relativeLayout;
         private String googlePlacesID;
         private String cardID;
         private String username;
@@ -129,7 +129,8 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
             restaurantAddress = itemView.findViewById(R.id.restaurantAddress);
             restaurantRating = itemView.findViewById(R.id.restaurantRating);
             restaurantStatus = itemView.findViewById(R.id.restaurantStatus);
-            checkFoodoListButton = itemView.findViewById(R.id.check_button);
+            checkFoodoListButton = itemView.findViewById(R.id.check_status);
+            relativeLayout = itemView.findViewById(R.id.restaurant_card_relative_layout);
 
             itemView.setOnClickListener((View v) -> {
 
@@ -189,11 +190,7 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
                     if (card.getInFoodoList()) {
                         ((Activity) context).runOnUiThread(() -> {
                             Log.d(TAG, String.valueOf(card.getVisited()));
-                            if (card.getVisited()) {
-                                checkFoodoListButton.setBackgroundResource(R.drawable.visited_image);
-                            } else {
-                                checkFoodoListButton.setBackgroundResource(R.drawable.checkmark_button);
-                            }
+                            paintRestaurantCard(card.getVisited());
                             notifyItemChanged(getLayoutPosition());
                         });
                     } else {
@@ -216,6 +213,27 @@ public class RestaurantCardAdapter extends RecyclerView.Adapter<RestaurantCardAd
             checkRestaurantParams.put("isVisited", String.valueOf(card.getVisited()));
 
             OKHttpService.patchRequest("checkRestaurantOnList", checkRestaurantCallback, checkRestaurantParams);
+        }
+
+        public void paintRestaurantCard(boolean isVisited) {
+            if (isVisited) {
+                // set card color to blue if visited
+                relativeLayout.setBackgroundColor(context.getResources().getColor(R.color.visited_blue));
+                restaurantName.setTextColor(Color.WHITE);
+                restaurantAddress.setTextColor(Color.WHITE);
+                restaurantRating.setTextColor(Color.WHITE);
+                checkFoodoListButton.setBackgroundResource(R.drawable.visited_image);
+            } else {
+                relativeLayout.setBackgroundColor(context.getResources().getColor(R.color.inner_boxes));
+                restaurantName.setTextColor(Color.BLACK);
+                restaurantAddress.setTextColor(Color.BLACK);
+                restaurantRating.setTextColor(Color.BLACK);
+                checkFoodoListButton.setBackgroundResource(R.drawable.checkmark_button);
+            }
+        }
+
+        public boolean getVisited() {
+            return restaurantCardArrayList.get(getLayoutPosition()).getVisited();
         }
 
         public String getRestaurantName() {

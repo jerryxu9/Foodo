@@ -80,7 +80,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
     public void addFoodoList(FoodoListCard card) {
         mainActivity.runOnUiThread(() -> {
             foodoListArrayList.add(card);
-            notifyItemInserted(foodoListArrayList.size());
+            notifyDataSetChanged();
         });
     }
 
@@ -156,7 +156,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
                     ((Activity)context).runOnUiThread(()->{
-                        Toast.makeText(context, "An error occurred, please try again.", Toast.LENGTH_SHORT);
+                        Toast.makeText(context, "An error occurred, please try again.", Toast.LENGTH_SHORT).show();
                         shareFoodoListPopupWindow.dismiss();
                     });
                 }
