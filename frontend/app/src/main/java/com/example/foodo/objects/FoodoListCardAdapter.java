@@ -80,7 +80,7 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
     public void addFoodoList(FoodoListCard card) {
         mainActivity.runOnUiThread(() -> {
             foodoListArrayList.add(card);
-            notifyItemInserted(foodoListArrayList.size());
+            notifyDataSetChanged();
         });
     }
 
