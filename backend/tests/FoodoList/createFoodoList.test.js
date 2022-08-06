@@ -11,7 +11,6 @@ describe("/createFoodoList", () => {
     email: "sbarnes@gmail.com",
   };
 
-  
   beforeEach(() => {
     mockingoose.resetAll();
   });
