@@ -45,10 +45,7 @@ import androidx.test.uiautomator.UiObjectNotFoundException;
 import androidx.test.uiautomator.UiScrollable;
 import androidx.test.uiautomator.UiSelector;
 import androidx.test.uiautomator.Until;
-
 import com.example.foodo.SearchForRestaurantInformationTest.RecyclerViewItemCountAssertion;
-
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
