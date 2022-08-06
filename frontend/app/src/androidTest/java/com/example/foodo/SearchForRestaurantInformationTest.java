@@ -16,14 +16,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
 
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ActivityScenario;
@@ -36,16 +33,10 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
-import androidx.test.uiautomator.UiObject;
-import androidx.test.uiautomator.UiObject2;
-import androidx.test.uiautomator.UiObjectNotFoundException;
-import androidx.test.uiautomator.UiScrollable;
-import androidx.test.uiautomator.UiSelector;
 import androidx.test.uiautomator.Until;
 
 import org.hamcrest.Description;
@@ -63,13 +54,9 @@ import org.junit.runner.RunWith;
 public class SearchForRestaurantInformationTest {
 
     private static final String TAG = "SearchForRestaurantInformationTest";
+    private static final int OBJECT_TIMEOUT = 20000;
     private final String SEARCH_QUERY = "Tim Hortons";
     private final String INVALID_QUERY = "**&@(#$&";
-    UiDevice mDevice;
-    private static final int OBJECT_TIMEOUT = 20000;
-    private static final int SHORTER_PAGE_LOAD_TIMEOUT = 40000;
-    private static final int PAGE_LOAD_TIMEOUT = 60000;
-
     @Rule
     public ActivityScenarioRule<MainActivity> mActivityScenarioRule =
             new ActivityScenarioRule<>(MainActivity.class);
@@ -78,6 +65,7 @@ public class SearchForRestaurantInformationTest {
             GrantPermissionRule.grant(
                     "android.permission.ACCESS_FINE_LOCATION",
                     "android.permission.ACCESS_COARSE_LOCATION");
+    UiDevice mDevice;
     private IdlingResource searchQueryIdlingResource;
 
     static Matcher<View> childAtPosition(
@@ -301,15 +289,15 @@ public class SearchForRestaurantInformationTest {
             this.expectedCount = expectedCount;
         }
 
-    @Override
-    public void check(View view, NoMatchingViewException noViewFoundException) {
-        if (noViewFoundException != null) {
-            throw noViewFoundException;
-        }
+        @Override
+        public void check(View view, NoMatchingViewException noViewFoundException) {
+            if (noViewFoundException != null) {
+                throw noViewFoundException;
+            }
 
-        RecyclerView recyclerView = (RecyclerView) view;
-        RecyclerView.Adapter adapter = recyclerView.getAdapter();
-        ViewMatchers.assertThat(adapter.getItemCount(), is(expectedCount));
+            RecyclerView recyclerView = (RecyclerView) view;
+            RecyclerView.Adapter adapter = recyclerView.getAdapter();
+            ViewMatchers.assertThat(adapter.getItemCount(), is(expectedCount));
         }
     }
 }
