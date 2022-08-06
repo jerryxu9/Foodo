@@ -370,6 +370,9 @@ public class ManageFoodoListTest {
         Log.d(TAG, "Delete restaurant from Foodo List via swipe action");
         onView(withIndex(allOf(withId(R.id.restaurant_card_relative_layout), isDisplayed()), 0)).perform(swipeLeft());
 
+        Log.d(TAG, "Check restaurant is not there anymore");
+        onView(allOf(withId(R.id.foodo_list_card_restaurants_list), isDisplayed())).check(new RecyclerViewItemCountAssertion(0));
+
         Log.d(TAG, "Navigate back to main activity");
         pressBack();
 
