@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -177,9 +178,9 @@ public class SearchForRestaurantInformationTest {
         searchAutoComplete.perform(replaceText(SEARCH_QUERY), closeSoftKeyboard());
 
         ViewInteraction editText = onView(
-                allOf(instanceOf(android.widget.EditText.class), withText(SEARCH_QUERY),
-                        withParent(allOf(instanceOf(android.widget.LinearLayout.class),
-                                withParent(instanceOf(android.widget.LinearLayout.class)))),
+                allOf(instanceOf(EditText.class), withText(SEARCH_QUERY),
+                        withParent(allOf(instanceOf(LinearLayout.class),
+                                withParent(instanceOf(LinearLayout.class)))),
                         isDisplayed()));
         editText.check(matches(withText(SEARCH_QUERY)));
 
