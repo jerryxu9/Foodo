@@ -116,7 +116,8 @@ public class ManageFoodoListTest {
 
         Log.d(TAG, "Click Search View");
         ViewInteraction appCompatImageView = onView(
-                allOf(withClassName(is("androidx.appcompat.widget.AppCompatImageView")), withContentDescription("Search"),
+                allOf(withClassName(is("androidx.appcompat.widget.AppCompatImageView")),
+                        withContentDescription("Search"),
                         childAtPosition(
                                 allOf(withClassName(is("android.widget.LinearLayout")),
                                         childAtPosition(
@@ -143,6 +144,8 @@ public class ManageFoodoListTest {
                         withParent(allOf(instanceOf(LinearLayout.class),
                                 withParent(instanceOf(LinearLayout.class)))),
                         isDisplayed()));
+
+        Log.d(TAG, "Check the search bar contains the text we typed");
         editText.check(matches(withText(SEARCH_QUERY)));
 
         Log.d(TAG, "Click Search Button");
@@ -175,11 +178,13 @@ public class ManageFoodoListTest {
     public void manageFoodoListTest() throws UiObjectNotFoundException, InterruptedException {
         login();
 
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/create_foodo_list_button")), OBJECT_TIMEOUT);
         Log.d(TAG, "Select Create Foodo List Button");
         ViewInteraction floatingActionButton = onView(
-                allOf(withId(R.id.create_foodo_list_button)));
+                allOf(withId(R.id.create_foodo_list_button), isDisplayed()));
         floatingActionButton.perform(click());
 
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/enter_foodo_list_name_edit_text")), OBJECT_TIMEOUT);
         Log.d(TAG, "Enter name of Foodo List to be 'Yummy Food'");
         ViewInteraction editText = onView(
                 allOf(withId(R.id.enter_foodo_list_name_edit_text),
@@ -189,6 +194,7 @@ public class ManageFoodoListTest {
                         isDisplayed()));
         editText.perform(replaceText("Yummy Food"), closeSoftKeyboard());
 
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/create_foodo_list_confirm_button")), OBJECT_TIMEOUT);
         Log.d(TAG, "Create Foodo List called Yummy Food by clicking confirmation button");
         ViewInteraction button = onView(
                 allOf(withId(R.id.create_foodo_list_confirm_button), withText("Create Foodo List"),
@@ -198,17 +204,16 @@ public class ManageFoodoListTest {
                         isDisplayed()));
         button.perform(click());
 
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/foodo_lists")), OBJECT_TIMEOUT);
         Log.d(TAG, "Check that Recycler View has one item");
         ViewInteraction foodoListCardRecyclerView = onView(
-                allOf(withId(R.id.foodo_lists),
-                        childAtPosition(
-                                withId(R.id.constraint),
-                                6)));
+                allOf(withId(R.id.foodo_lists)));
 
         mDevice.wait(Until.hasObject(By.res("com.example.foodo", "com.example.foodo:id/foodo_list_relative_view")), OBJECT_TIMEOUT);
 
         foodoListCardRecyclerView.check(new RecyclerViewItemCountAssertion(1));
 
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/foodo_list_name")), OBJECT_TIMEOUT);
         Log.d(TAG, "Check that Recycler View item has its item labeled Yummy Food");
         ViewInteraction textView = onView(
                 allOf(withId(R.id.foodo_list_name), withText("Yummy Food"),
@@ -218,6 +223,7 @@ public class ManageFoodoListTest {
 
         Log.d(TAG, "Click on Create Foodo List Button again");
 
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/create_foodo_list_button")), OBJECT_TIMEOUT);
         ViewInteraction floatingActionButton2 = onView(
                 allOf(withId(R.id.create_foodo_list_button), withContentDescription("Create Foodo List"),
                         childAtPosition(
@@ -230,6 +236,7 @@ public class ManageFoodoListTest {
         floatingActionButton2.perform(click());
 
         Log.d(TAG, "Enter an empty string as the Foodo List name");
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/enter_foodo_list_name_edit_text")), OBJECT_TIMEOUT);
         ViewInteraction editText2 = onView(
                 allOf(withId(R.id.enter_foodo_list_name_edit_text),
                         childAtPosition(
@@ -239,6 +246,7 @@ public class ManageFoodoListTest {
         editText2.perform(replaceText("    "), closeSoftKeyboard());
 
         Log.d(TAG, "Click the Create Foodo List button");
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/create_foodo_list_confirm_button")), OBJECT_TIMEOUT);
         ViewInteraction button2 = onView(
                 allOf(withId(R.id.create_foodo_list_confirm_button), withText("Create Foodo List"),
                         childAtPosition(
@@ -248,6 +256,7 @@ public class ManageFoodoListTest {
         button2.perform(click());
 
         Log.d(TAG, "Check that the view does not change and that we remain on the Create Foodo List popup");
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/create_foodo_list_confirm_button")), OBJECT_TIMEOUT);
         ViewInteraction button3 = onView(
                 allOf(withId(R.id.create_foodo_list_confirm_button), withText("Create Foodo List"),
                         withParent(withParent(instanceOf(android.widget.FrameLayout.class))),
@@ -255,6 +264,7 @@ public class ManageFoodoListTest {
         button3.check(matches(isDisplayed()));
 
         Log.d(TAG, "Exit the Create Foodo List popup via the cancel button");
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/create_foodo_list_cancel_button")), OBJECT_TIMEOUT);
         ViewInteraction button4 = onView(
                 allOf(withId(R.id.create_foodo_list_cancel_button),
                         childAtPosition(
@@ -264,6 +274,7 @@ public class ManageFoodoListTest {
         button4.perform(click());
 
         Log.d(TAG, "Search for restaurant");
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/restaurant_search")), OBJECT_TIMEOUT);
         ViewInteraction appCompatImageView = onView(
                 allOf(withClassName(is("androidx.appcompat.widget.AppCompatImageView")), withContentDescription("Search"),
                         childAtPosition(
@@ -300,6 +311,7 @@ public class ManageFoodoListTest {
         recyclerView.perform(actionOnItemAtPosition(0, click()));
 
         Log.d(TAG, "Add restaurant to Foodo List");
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/add_restaurant_to_list_button")), OBJECT_TIMEOUT);
         ViewInteraction appCompatButton2 = onView(
                 allOf(withId(R.id.add_restaurant_to_list_button),
                         childAtPosition(
@@ -311,6 +323,7 @@ public class ManageFoodoListTest {
         appCompatButton2.perform(click());
 
         Log.d(TAG, "Click button to add restaurant to list");
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/add_res_to_list_confirm_button")), OBJECT_TIMEOUT);
         ViewInteraction button5 = onView(
                 allOf(withId(R.id.add_res_to_list_confirm_button),
                         childAtPosition(
@@ -323,15 +336,14 @@ public class ManageFoodoListTest {
         pressBack();
         pressBack();
 
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/foodo_lists")), OBJECT_TIMEOUT);
         Log.d(TAG, "Navigate into Yummy Food Foodo List");
         ViewInteraction recyclerView2 = onView(
-                allOf(withId(R.id.foodo_lists),
-                        childAtPosition(
-                                withId(R.id.constraint),
-                                6)));
+                allOf(withId(R.id.foodo_lists), isDisplayed()));
         recyclerView2.perform(actionOnItemAtPosition(0, click()));
 
         Log.d(TAG, "Check Tim Hortons is listed in Yummy Food Foodo List");
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/restaurantName")), OBJECT_TIMEOUT);
         ViewInteraction textView2 = onView(
                 allOf(withId(R.id.restaurantName), withText("Tim Hortons"),
                         withParent(allOf(withId(R.id.restaurant_card_relative_layout),
@@ -340,6 +352,7 @@ public class ManageFoodoListTest {
         textView2.check(matches(withText("Tim Hortons")));
 
         Log.d(TAG, "Check Restaurant via button press");
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/check_status")), OBJECT_TIMEOUT);
         ViewInteraction appCompatButton3 = onView(
                 allOf(withId(R.id.check_status),
                         childAtPosition(
@@ -351,6 +364,7 @@ public class ManageFoodoListTest {
         appCompatButton3.perform(click());
 
         Log.d(TAG, "UnCheck restaurant on Foodo List via swipe action");
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/restaurant_card_relative_layout")), OBJECT_TIMEOUT);
         onView(withIndex(allOf(withId(R.id.restaurant_card_relative_layout), isDisplayed()), 0)).perform(swipeRight());
 
         Log.d(TAG, "Delete restaurant from Foodo List via swipe action");
@@ -359,6 +373,7 @@ public class ManageFoodoListTest {
         Log.d(TAG, "Navigate back to main activity");
         pressBack();
 
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/foodo_lists")), OBJECT_TIMEOUT);
         Log.d(TAG, "Delete Yummy Food Foodo List using swiping action");
         ViewInteraction recyclerView5 = onView(
                 allOf(withId(R.id.foodo_lists),
@@ -380,6 +395,7 @@ public class ManageFoodoListTest {
         searchAutoComplete.perform(closeSoftKeyboard());
 
         Log.d(TAG, "Logout to reset app state");
+        mDevice.wait(Until.findObject(By.res("com.example.foodo", "com.example.foodo:id/logout_button")), OBJECT_TIMEOUT);
 
         onView(allOf(withId(R.id.logout_button), isDisplayed())).perform(click());
     }
@@ -415,7 +431,6 @@ public class ManageFoodoListTest {
 
         Thread.sleep(2000);
 
-        // Confirm Button Click
         UiObject2 nextButton = mDevice.wait(Until.findObject(By
                 .textContains("N")
                 .clazz("android.widget.Button")), OBJECT_TIMEOUT);
@@ -427,7 +442,6 @@ public class ManageFoodoListTest {
         UiObject2 agreeTermsOfService = mDevice.wait(Until.findObject(By
                 .text("I agree")
                 .clazz("android.widget.Button")), OBJECT_TIMEOUT);
-
         agreeTermsOfService.click();
 
         mDevice.wait(Until.hasObject(By.textContains("Tap to learn more about each service")), SHORTER_PAGE_LOAD_TIMEOUT);
@@ -442,6 +456,7 @@ public class ManageFoodoListTest {
 
         mDevice.wait(Until.hasObject(By.text("Foodo")), PAGE_LOAD_TIMEOUT);
         mDevice.click(133, 496);
+
     }
 
     @After
