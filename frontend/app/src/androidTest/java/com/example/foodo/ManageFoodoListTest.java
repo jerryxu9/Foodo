@@ -20,10 +20,12 @@ import static com.example.foodo.SearchForRestaurantInformationTest.childAtPositi
 import static com.example.foodo.SearchForRestaurantInformationTest.withIndex;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 
 import android.util.Log;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.test.core.app.ActivityScenario;
@@ -140,9 +142,9 @@ public class ManageFoodoListTest {
         searchAutoComplete.perform(replaceText(SEARCH_QUERY), closeSoftKeyboard());
 
         ViewInteraction editText = onView(
-                allOf(IsInstanceOf.instanceOf(android.widget.EditText.class), withText(SEARCH_QUERY),
-                        withParent(allOf(IsInstanceOf.instanceOf(android.widget.LinearLayout.class),
-                                withParent(IsInstanceOf.instanceOf(android.widget.LinearLayout.class)))),
+                allOf(instanceOf(EditText.class), withText(SEARCH_QUERY),
+                        withParent(allOf(instanceOf(LinearLayout.class),
+                                withParent(instanceOf(LinearLayout.class)))),
                         isDisplayed()));
         editText.check(matches(withText(SEARCH_QUERY)));
 
@@ -251,7 +253,7 @@ public class ManageFoodoListTest {
         Log.d(TAG, "Check that the view does not change and that we remain on the Create Foodo List popup");
         ViewInteraction button3 = onView(
                 allOf(withId(R.id.create_foodo_list_confirm_button), withText("Create Foodo List"),
-                        withParent(withParent(IsInstanceOf.instanceOf(android.widget.FrameLayout.class))),
+                        withParent(withParent(instanceOf(android.widget.FrameLayout.class))),
                         isDisplayed()));
         button3.check(matches(isDisplayed()));
 
@@ -336,7 +338,7 @@ public class ManageFoodoListTest {
         ViewInteraction textView2 = onView(
                 allOf(withId(R.id.restaurantName), withText("Tim Hortons"),
                         withParent(allOf(withId(R.id.restaurant_card_relative_layout),
-                                withParent(IsInstanceOf.instanceOf(android.widget.FrameLayout.class)))),
+                                withParent(instanceOf(android.widget.FrameLayout.class)))),
                         isDisplayed()));
         textView2.check(matches(withText("Tim Hortons")));
 
