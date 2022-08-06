@@ -63,7 +63,7 @@
         </activity>
 
         <service
-            android:name=".MyFirebaseMessagingService"
+            android:name=".service.MyFirebaseMessagingService"
             android:exported="false"
             tools:ignore="MissingClass">
             <intent-filter>

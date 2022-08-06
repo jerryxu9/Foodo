@@ -1,4 +1,4 @@
-package com.example.foodo;
+package com.example.foodo.service;
 
 import android.content.Intent;
 import android.util.Log;
