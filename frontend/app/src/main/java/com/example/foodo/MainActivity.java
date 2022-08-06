@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
@@ -18,6 +19,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +60,7 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 1;
+    private ImageView startingAnimation;
     private final String TAG = "MainActivity";
     private final float SWIPE_THRESHOLD = 0.6f;
     private FoodoListService foodoListService;
@@ -92,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.login_button);
         logoutButton = findViewById(R.id.logout_button);
         loginText = findViewById(R.id.login_text);
+        startingAnimation = findViewById(R.id.animation_starting_point);
 
         setupButtonListeners();
         setupFoodoLists();

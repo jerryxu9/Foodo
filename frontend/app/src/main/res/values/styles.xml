@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    <style name="share_animation">-->
+<!--        <item name="android:windowEnterAnimation">@anim/nothing</item>-->
+<!--        <item name="android:windowExitAnimation">@anim/nothing</item>-->
+<!--    </style>-->
+
+<!--    <style name="pop_up_fade_out">-->
+<!--        <item name="android:windowEnterAnimation">@anim/nothing</item>-->
+<!--        <item name="android:windowExitAnimation">@anim/nothing</item>-->
+<!--    </style>-->
+
+<!--    <style name="pop_up_fade">-->
+<!--        <item name = "android:windowEnterAnimation">@anim/start_slide_up</item>-->
+<!--        <item name = "android:windowExitAnimation">@anim/fade_out</item>-->
+<!--    </style>-->
+
+    <style name="pop_up">
+        <item name = "android:windowEnterAnimation">@anim/start_slide_up</item>
+        <item name = "android:windowExitAnimation">@anim/fade_out</item>
+    </style>
+
+    <style name="mail">
+        <item name = "android:windowEnterAnimation">@anim/fade_in</item>
+        <item name = "android:windowExitAnimation">@anim/end_slide_up</item>
+
+    </style>
+</resources>
