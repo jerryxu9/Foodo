@@ -7,6 +7,7 @@ import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.pressImeActionButton;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.swipeLeft;
+import static androidx.test.espresso.action.ViewActions.swipeRight;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -339,9 +340,9 @@ public class ManageFoodoListTest {
                         isDisplayed()));
         textView2.check(matches(withText("Tim Hortons")));
 
-        Log.d(TAG, "Uncheck Restaurant");
+        Log.d(TAG, "Check Restaurant via button press");
         ViewInteraction appCompatButton3 = onView(
-                allOf(withId(R.id.check_button),
+                allOf(withId(R.id.check_status),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.restaurant_card_relative_layout),
@@ -349,6 +350,9 @@ public class ManageFoodoListTest {
                                 0),
                         isDisplayed()));
         appCompatButton3.perform(click());
+
+        Log.d(TAG, "UnCheck restaurant on Foodo List via swipe action");
+        onView(withIndex(allOf(withId(R.id.restaurant_card_relative_layout), isDisplayed()), 0)).perform(swipeRight());
 
         Log.d(TAG, "Delete restaurant from Foodo List via swipe action");
         onView(withIndex(allOf(withId(R.id.restaurant_card_relative_layout), isDisplayed()), 0)).perform(swipeLeft());
