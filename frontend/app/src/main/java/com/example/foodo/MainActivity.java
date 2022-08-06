@@ -140,6 +140,11 @@ public class MainActivity extends AppCompatActivity {
             foodoListService.createFoodoList();
         });
 
+        FloatingActionButton refreshButton = findViewById(R.id.refresh_button);
+        refreshButton.setOnClickListener((View v) -> {
+            foodoListService.refreshFoodoLists();
+        });
+
         loginButton.setOnClickListener(v -> signIn());
         logoutButton.setOnClickListener(v -> signOut());
 

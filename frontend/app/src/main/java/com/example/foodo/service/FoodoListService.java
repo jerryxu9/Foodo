@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -60,12 +61,15 @@ public class FoodoListService {
         }
     }
 
-    public void setupUserAccount() {
+    public void refreshFoodoLists() {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(main_activity);
-        if (account != null && userID == null) {
-            //no other way to get the token, just go through createUser endpoint
-            //and get the id from the existing entry in the database
-            createUser(account.getIdToken(), account.getDisplayName(), account.getEmail());
+        if (account != null) {
+            if(userID == null){
+                Toast.makeText(main_activity, "There are no Foodo Lists to load!", Toast.LENGTH_SHORT).show();
+            }else{
+                foodoListCardAdapter.clearFoodoLists();
+                loadFoodoLists();
+            }
         }
     }
 
