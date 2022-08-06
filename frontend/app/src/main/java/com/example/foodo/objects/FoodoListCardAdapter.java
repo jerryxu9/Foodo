@@ -3,6 +3,7 @@ package com.example.foodo.objects;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -136,28 +137,55 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
 
         }
 
-        private void startShareFoodoList(ViewGroup viewGroup) {
+        private void startShareFoodoList(ViewGroup viewGroup, PopupWindow mailPopUp, ConstraintLayout layout, PopupWindow shareFoodoListPopupWindow) {
             EditText userEmailInput = viewGroup.findViewById(R.id.enter_user_email_edit_text);
             String userEmail = userEmailInput.getText().toString();
             if (userEmail.trim().isEmpty()) {
                 Log.d(TAG, "Unable to submit empty userEmail");
+                Toast.makeText(context, "Please enter a valid email.", Toast.LENGTH_SHORT).show();
+                shareFoodoListPopupWindow.dismiss();
                 return;
             }
-            shareFoodoList(userEmail);
+
+            shareFoodoList(userEmail, mailPopUp, layout, shareFoodoListPopupWindow);
         }
 
-        private void shareFoodoList(String email) {
+        private void shareFoodoList(String email, PopupWindow mailPopUp, ConstraintLayout layout, PopupWindow shareFoodoListPopupWindow) {
             Callback callback = new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
+                    ((Activity)context).runOnUiThread(()->{
+                        Toast.makeText(context, "An error occurred, please try again.", Toast.LENGTH_SHORT).show();
+                        shareFoodoListPopupWindow.dismiss();
+                    });
                 }
 
                 @Override
-                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                    String result = OKHttpService.getResponseBody(response);
-                    Log.d(TAG, result);
-                    Log.d(TAG, String.format("Shared FoodoList: %s with %s", list_id, email));
+                public void onResponse(@NonNull Call call, @NonNull Response response){
+                    try{
+                        String result = OKHttpService.getResponseBody(response);
+                        Log.d(TAG, result);
+                        Log.d(TAG, String.format("Shared FoodoList: %s with %s", list_id, email));
+
+                        ((Activity)context).runOnUiThread(()->{
+                            mailPopUp.showAtLocation(layout, Gravity.CENTER, 0, 0);
+                            shareFoodoListPopupWindow.dismiss();
+
+                            Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                public void run() {
+                                    mailPopUp.dismiss();
+                                }
+                            }, 1500);
+
+                        });
+                    }catch(IOException e){
+                        ((Activity) context).runOnUiThread(() -> {
+                            Toast.makeText(context, "Please enter a valid email.", Toast.LENGTH_SHORT).show();
+                            shareFoodoListPopupWindow.dismiss();
+                        });
+                    }
                 }
             };
 
@@ -172,13 +200,20 @@ public class FoodoListCardAdapter extends RecyclerView.Adapter<FoodoListCardAdap
             LayoutInflater layoutInflater = (LayoutInflater) mainActivity.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.share_foodo_list_popup, null);
 
+            ViewGroup containerMail = (ViewGroup) layoutInflater.inflate(R.layout.mail_layout, null);
+
             ConstraintLayout createFoodoListConstraintLayout = mainActivity.findViewById(R.id.constraint);
 
             PopupWindow shareFoodoListPopupWindow = new PopupWindow(container, 800, 800, true);
+            PopupWindow mailPopUp = new PopupWindow(containerMail, 600, 400, true);
+//
+//            shareFoodoListPopupWindow.setAnimationStyle(R.style.pop_up_fade_out);
+            mailPopUp.setAnimationStyle(R.style.mail);
+            shareFoodoListPopupWindow.setAnimationStyle(R.style.pop_up);
+
             shareFoodoListPopupWindow.showAtLocation(createFoodoListConstraintLayout, Gravity.CENTER, 0, 0);
             container.findViewById(R.id.share_foodo_list_confirm_button).setOnClickListener((View v) -> {
-                startShareFoodoList(container);
-                shareFoodoListPopupWindow.dismiss();
+                startShareFoodoList(container, mailPopUp, createFoodoListConstraintLayout, shareFoodoListPopupWindow);
             });
 
             container.findViewById(R.id.share_foodo_list_cancel_button).setOnClickListener((View v) -> {
