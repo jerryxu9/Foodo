@@ -1,7 +1,7 @@
 const request = require("supertest");
 const app = require("../../server");
 const mockingoose = require("mockingoose");
-const Review = require("../../models/review");
+const Review = require("../../models/Review");
 
 let ourGetMessagingDelete = require("../../utils/ourGetMessagingDelete");
 jest.mock("../../utils/ourGetMessagingDelete", () => jest.fn());
