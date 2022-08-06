@@ -432,7 +432,6 @@ public class ManageFoodoListTest {
 
         Thread.sleep(2000);
 
-        // Confirm Button Click
         UiObject2 nextButton = mDevice.wait(Until.findObject(By
                 .textContains("N")
                 .clazz("android.widget.Button")), OBJECT_TIMEOUT);
@@ -444,7 +443,6 @@ public class ManageFoodoListTest {
         UiObject2 agreeTermsOfService = mDevice.wait(Until.findObject(By
                 .text("I agree")
                 .clazz("android.widget.Button")), OBJECT_TIMEOUT);
-
         agreeTermsOfService.click();
 
         mDevice.wait(Until.hasObject(By.textContains("Tap to learn more about each service")), SHORTER_PAGE_LOAD_TIMEOUT);
@@ -459,6 +457,7 @@ public class ManageFoodoListTest {
 
         mDevice.wait(Until.hasObject(By.text("Foodo")), PAGE_LOAD_TIMEOUT);
         mDevice.click(133, 496);
+
     }
 
     @After
